@@ -44,7 +44,7 @@
                                 </div>
                                 <div>
                                     <label>Mô tả ngắn sản phẩm</label>
-                                    <textarea class="form-control" name="short_description" rows="3">{{ old('short_description') }}</textarea>
+                                    <textarea class="form-control" name="short_description" rows="6">{{ old('short_description') }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -224,7 +224,7 @@
         const input = document.getElementById("gallery");
         const dropzoneMock = document.getElementById("dropzone-mock");
         const previewContainer = document.getElementById("preview-container");
-
+        
         // Khi click vùng dropzone -> mở file chọn
         dropzoneMock.addEventListener("click", () => input.click());
 
@@ -272,6 +272,24 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // preview image
+            const input = document.getElementById("product-image-input");
+            const preview = document.getElementById("product-img");
+
+            input.addEventListener("change", function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        preview.src = e.target.result; // gán ảnh vào thẻ img
+                    };
+
+                    reader.readAsDataURL(file); // đọc file thành base64
+                } else {
+                    preview.src = ""; // nếu bỏ chọn thì reset preview
+                }
+            });
             let specIndex = 1;
 
             // nút thêm

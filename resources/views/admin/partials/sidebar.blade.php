@@ -4,19 +4,19 @@
         <!-- Dark Logo-->
         <a href="index.html" class="logo logo-dark">
             <span class="logo-sm">
-                <img src="{{asset('assets/images/logo-sm.png')}}" alt="" height="22">
+                <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <img src="{{asset('assets/images/logo-dark.png')}}" alt="" height="17">
+                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="" height="17">
             </span>
         </a>
         <!-- Light Logo-->
         <a href="index.html" class="logo logo-light">
             <span class="logo-sm">
-                <img src="{{asset('assets/images/logo-sm.png')}}" alt="" height="22">
+                <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <img src="{{asset('assets/images/logo-white.png')}}" alt="" height="60">
+                <img src="{{ asset('assets/images/logo-white.png') }}" alt="" height="60">
             </span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
@@ -40,15 +40,18 @@
                     <div class="collapse menu-dropdown" id="sidebarDashboards">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{route('admin.categories.index')}}" class="nav-link" data-key="t-analytics"> Danh sách danh mục
+                                <a href="{{ route('admin.categories.index') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách danh mục
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{route('admin.categories.create')}}" class="nav-link" data-key="t-analytics"> Thêm mới danh mục
+                                <a href="{{ route('admin.categories.create') }}" class="nav-link"
+                                    data-key="t-analytics"> Thêm mới danh mục
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{route('admin.categories.trash')}}" class="nav-link" data-key="t-analytics"> Danh sách danh mục đã xóa
+                                <a href="{{ route('admin.categories.trash') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách danh mục đã xóa
                                 </a>
                             </li>
                         </ul>
@@ -62,15 +65,18 @@
                     <div class="collapse menu-dropdown" id="sidebarApps">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{route('admin.products.index')}}" class="nav-link" data-key="t-analytics"> Danh sách sản phẩm
+                                <a href="{{ route('admin.products.index') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách sản phẩm
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{route('admin.products.create')}}" class="nav-link" data-key="t-analytics"> Thêm mới sản phẩm
+                                <a href="{{ route('admin.products.create') }}" class="nav-link" data-key="t-analytics">
+                                    Thêm mới sản phẩm
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{route('admin.products.trash')}}" class="nav-link" data-key="t-analytics"> Danh sách sản phẩm đã xóa
+                                <a href="{{ route('admin.products.trash') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách sản phẩm đã xóa
                                 </a>
                             </li>
                         </ul>
@@ -84,58 +90,19 @@
                     <div class="collapse menu-dropdown" id="sidebarAppss">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="#sidebarCalendar" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarCalendar" data-key="t-calender">
-                                    Calendar
+                                <a href="{{ route('admin.product_variants.index') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách biến thể sản phẩm
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarCalendar">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="apps-calendar.html" class="nav-link" data-key="t-main-calender">
-                                                Main Calender </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="apps-calendar-month-grid.html" class="nav-link"
-                                                data-key="t-month-grid"> Month Grid </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                             <li class="nav-item">
-                                <a href="apps-chat.html" class="nav-link" data-key="t-chat"> Chat </a>
+                                <a href="{{ route('admin.product_variants.create') }}" class="nav-link"
+                                    data-key="t-analytics"> Thêm mới biến thể sản phẩm
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a href="#sidebarEmail" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarEmail" data-key="t-email">
-                                    Email
+                                <a href="{{ route('admin.product_variants.trash') }}" class="nav-link"
+                                    data-key="t-analytics"> Danh sách biến thể đã xóa
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarEmail">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="apps-mailbox.html" class="nav-link" data-key="t-mailbox">
-                                                Mailbox </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#sidebaremailTemplates" class="nav-link"
-                                                data-bs-toggle="collapse" role="button" aria-expanded="false"
-                                                aria-controls="sidebaremailTemplates" data-key="t-email-templates">
-                                                Email Templates
-                                            </a>
-                                            <div class="collapse menu-dropdown" id="sidebaremailTemplates">
-                                                <ul class="nav nav-sm flex-column">
-                                                    <li class="nav-item">
-                                                        <a href="apps-email-basic.html" class="nav-link"
-                                                            data-key="t-basic-action"> Basic Action </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a href="apps-email-ecommerce.html" class="nav-link"
-                                                            data-key="t-ecommerce-action"> Ecommerce Action </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                         </ul>
                     </div>
@@ -206,7 +173,8 @@
                 </li>
                 <!-- end Dashboard Menu -->
 
-                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Giao diện/Truyền Thông</span></li>
+                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Giao diện/Truyền
+                        Thông</span></li>
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarAuth" data-bs-toggle="collapse" role="button"
@@ -503,7 +471,8 @@
                     </div>
                 </li>
 
-                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-components">Khách hàng và đơn hàng</span>
+                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-components">Khách hàng và đơn
+                        hàng</span>
                 </li>
 
                 <li class="nav-item">
@@ -747,7 +716,8 @@
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarCharts" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebarCharts">
-                        <i class="ri-pie-chart-line"></i> <span data-key="t-charts">Quản lí chương trình khuyến mãi</span>
+                        <i class="ri-pie-chart-line"></i> <span data-key="t-charts">Quản lí chương trình khuyến
+                            mãi</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarCharts">
                         <ul class="nav nav-sm flex-column">
