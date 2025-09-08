@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,5 +47,18 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
         Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('force-delete');
+    });
+    Route::prefix('product_variants')->as('product_variants.')->group(function () {
+        Route::get('/', [ProductVariantController::class, 'index'])->name('index');
+        Route::get('/trash', [ProductVariantController::class, 'trash'])->name('trash');
+        Route::get('/create', [ProductVariantController::class, 'create'])->name('create');
+        Route::get('/{id}', [ProductVariantController::class, 'show'])->name('show');
+        Route::post('/store', [ProductVariantController::class, 'store'])->name('store');
+        Route::post('/upload', [ProductVariantController::class, 'uploadTemp'])->name('upload');
+        Route::get('/edit/{id}', [ProductVariantController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ProductVariantController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProductVariantController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/restore', [ProductVariantController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [ProductVariantController::class, 'forceDelete'])->name('force-delete');
     });
 });
