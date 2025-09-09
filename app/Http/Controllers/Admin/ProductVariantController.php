@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Variant\StoreProductVariantRequest;
+use App\Http\Requests\Admin\Variant\UpdateProductVariantRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
@@ -30,11 +31,35 @@ class ProductVariantController extends Controller
             if (empty($data['barcode'])) {
                 $data['barcode'] = $this->generateBarcode();
             }
-        
+
             $ProductVariant = ProductVariant::create($data);
             return redirect()->route('admin.product_variants.index')->with('success', 'Thêm biến thể thành công');
         } catch (\Throwable $th) {
             return back()->with('error', 'Không thể thêm sản phẩm: ' . $th->getMessage());
+        }
+    }
+    public function show($id)
+    {
+        $productVariant = ProductVariant::with('product')->findOrFail($id);
+        return view('admin.product_variants.show', compact('productVariant'));
+    }
+    public function edit($id)
+    {
+        $productVariant = ProductVariant::with('product')->findOrFail($id);
+        return view('admin.product_variants.edit', compact('productVariant'));
+    }
+    public function update(UpdateProductVariantRequest $request, $id)
+    {
+        try {
+            $productVariant = ProductVariant::with('product')->findOrFail($id);
+            $data = $request->validated();
+            if ($request->hasFile('thumbnail')) {
+                $data['thumbnail'] = $request->file('thumbnail')->store('variants', 'public');
+            }
+            $productVariant->update($data);
+            return redirect()->route('admin.product_variants.index')->with('success', 'Cập nhật biến thể thành công');
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Không thể cập nhật sản phẩm' . $th->getMessage());
         }
     }
     private function generateBarcode()
