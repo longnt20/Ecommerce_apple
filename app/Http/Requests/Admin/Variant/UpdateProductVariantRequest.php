@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Variant;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductVariantRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateProductVariantRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,15 +20,24 @@ class UpdateProductVariantRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-     public function rules(): array
+    public function rules(): array
     {
-        $variantId = $this->route('id')?->id ?? $this->route('id');
+        $variantId = $this->route('id');
+        // hoặc $this->product_variant, tùy route binding
+
         return [
             'product_id' => 'required|exists:products,id',
-            'sku' => 'required|unique:product_variants,sku' .$variantId,
+            'sku' => [
+                'required',
+                Rule::unique('product_variants', 'sku')->ignore($variantId),
+            ],
             'price' => 'required|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
-            'barcode' => 'nullable|string|unique:product_variants,barcode',
+            'barcode' => [
+                'nullable',
+                'string',
+                Rule::unique('product_variants', 'barcode')->ignore($variantId),
+            ],
             'color' => 'nullable|string',
             'storage' => 'nullable|string',
         ];
@@ -44,7 +54,7 @@ class UpdateProductVariantRequest extends FormRequest
             'cost_price.numeric'       => 'Giá khuyến mãi phải là số',
             'cost_price.min'           => 'Giá khuyến mãi phải lớn hơn 0',
             'barcode.string'           => 'Barcode phải là một chuỗi kí tự',
-            'barcode.unique'           => 'Barcode đã tồn tại', 
+            'barcode.unique'           => 'Barcode đã tồn tại',
         ];
     }
 }
