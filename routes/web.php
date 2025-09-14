@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -61,4 +63,49 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::patch('/{id}/restore', [ProductVariantController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ProductVariantController::class, 'forceDelete'])->name('force-delete');
     });
+    // routes/admin.php
+
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        // Dashboard
+        Route::get('dashboard', [InventoryController::class, 'dashboard'])->name('dashboard');
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+
+        // Import
+        Route::get('import', [InventoryController::class, 'importForm'])->name('import');
+        Route::post('import', [InventoryController::class, 'import'])->name('import.store');
+
+        // Export
+        Route::get('export', [InventoryController::class, 'exportForm'])->name('export');
+        Route::post('export', [InventoryController::class, 'export'])->name('export.store');
+
+        // Transfer
+        Route::get('transfer', [InventoryController::class, 'transferForm'])->name('transfer');
+        Route::post('transfer', [InventoryController::class, 'transfer'])->name('transfer.store');
+
+        // Stock take
+        Route::get('stocktake', [InventoryController::class, 'stocktake'])->name('stocktake');
+        Route::post('stocktake', [InventoryController::class, 'processStocktake'])->name('stocktake.process');
+
+        // Adjust
+        Route::post('adjust', [InventoryController::class, 'adjust'])->name('adjust');
+
+        // Transactions
+        Route::get('transactions', [InventoryController::class, 'transactions'])->name('transactions');
+        Route::get('transactions/{id}', [InventoryController::class, 'transactionDetail'])->name('transactions.detail');
+
+        // Reports
+        Route::get('reports', [InventoryController::class, 'reports'])->name('reports');
+        Route::get('reports/export', [InventoryController::class, 'exportExcel'])->name('reports.export');
+
+        // Settings
+        Route::get('settings', [InventoryController::class, 'settings'])->name('settings');
+        Route::post('settings', [InventoryController::class, 'updateSettings'])->name('settings.update');
+
+        // API endpoints
+        Route::get('api/warehouse/{id}/inventory', [InventoryController::class, 'getWarehouseInventory'])
+            ->name('api.warehouse.inventory');
+    });
+
+    // Warehouses
+    Route::resource('warehouses', WarehouseController::class);
 });

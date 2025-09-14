@@ -90,7 +90,8 @@
                     <div class="collapse menu-dropdown" id="sidebarAppss">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('admin.product_variants.index') }}" class="nav-link" data-key="t-analytics">
+                                <a href="{{ route('admin.product_variants.index') }}" class="nav-link"
+                                    data-key="t-analytics">
                                     Danh sách biến thể sản phẩm
                                 </a>
                             </li>
@@ -108,70 +109,94 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="#sidebarAppsss" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="sidebarAppsss">
-                        <i class="ri-apps-2-line"></i> <span data-key="t-apps">Quản lí kho</span>
+                    <a class="nav-link menu-link" href="#sidebarInventory" data-bs-toggle="collapse" role="button"
+                        aria-expanded="false" aria-controls="sidebarInventory">
+                        <i class="ri-store-3-line"></i>
+                        <span data-key="t-inventory">Quản lý kho hàng</span>
+                        @if (isset($lowStockCount) && $lowStockCount > 0)
+                            <span class="badge badge-pill bg-danger float-end">{{ $lowStockCount }}</span>
+                        @endif
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarAppsss">
+                    <div class="collapse menu-dropdown" id="sidebarInventory">
                         <ul class="nav nav-sm flex-column">
+                            {{-- Tổng quan --}}
                             <li class="nav-item">
-                                <a href="#sidebarCalendar" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarCalendar" data-key="t-calender">
-                                    Calendar
+                                <a href="{{ route('admin.inventory.dashboard') }}" class="nav-link">
+                                    <i class="ri-dashboard-line me-1"></i> Tổng quan kho
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarCalendar">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="apps-calendar.html" class="nav-link" data-key="t-main-calender">
-                                                Main Calender </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="apps-calendar-month-grid.html" class="nav-link"
-                                                data-key="t-month-grid"> Month Grid </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
+
+                            {{-- Tồn kho --}}
                             <li class="nav-item">
-                                <a href="apps-chat.html" class="nav-link" data-key="t-chat"> Chat </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#sidebarEmail" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarEmail" data-key="t-email">
-                                    Email
+                                <a href="{{ route('admin.inventory.index') }}" class="nav-link">
+                                    <i class="ri-stack-line me-1"></i> Tồn kho hiện tại
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarEmail">
-                                    <ul class="nav nav-sm flex-column">
+                            </li>
+
+                            {{-- Nhập/Xuất kho dropdown con --}}
+                            <li class="nav-item">
+                                <a href="#sidebarInOut" class="nav-link" data-bs-toggle="collapse" role="button"
+                                    aria-expanded="false" aria-controls="sidebarInOut">
+                                    <i class="ri-exchange-line me-1"></i> Nhập / Xuất kho
+                                </a>
+                                <div class="collapse menu-dropdown" id="sidebarInOut">
+                                    <ul class="nav nav-sm flex-column ms-3">
                                         <li class="nav-item">
-                                            <a href="apps-mailbox.html" class="nav-link" data-key="t-mailbox">
-                                                Mailbox </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="#sidebaremailTemplates" class="nav-link"
-                                                data-bs-toggle="collapse" role="button" aria-expanded="false"
-                                                aria-controls="sidebaremailTemplates" data-key="t-email-templates">
-                                                Email Templates
+                                            <a href="{{ route('admin.inventory.import') }}" class="nav-link">
+                                                <i class="ri-download-2-line me-1"></i> Nhập kho
                                             </a>
-                                            <div class="collapse menu-dropdown" id="sidebaremailTemplates">
-                                                <ul class="nav nav-sm flex-column">
-                                                    <li class="nav-item">
-                                                        <a href="apps-email-basic.html" class="nav-link"
-                                                            data-key="t-basic-action"> Basic Action </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a href="apps-email-ecommerce.html" class="nav-link"
-                                                            data-key="t-ecommerce-action"> Ecommerce Action </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('admin.inventory.export') }}" class="nav-link">
+                                                <i class="ri-upload-2-line me-1"></i> Xuất kho
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('admin.inventory.transfer') }}" class="nav-link">
+                                                <i class="ri-arrow-left-right-line me-1"></i> Chuyển kho
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>
+                            </li>
+
+                            {{-- Kiểm kê --}}
+                            <li class="nav-item">
+                                <a href="{{ route('admin.inventory.stocktake') }}" class="nav-link">
+                                    <i class="ri-file-list-3-line me-1"></i> Kiểm kê kho
+                                </a>
+                            </li>
+
+                            {{-- Lịch sử giao dịch --}}
+                            <li class="nav-item">
+                                <a href="{{ route('admin.inventory.transactions') }}" class="nav-link">
+                                    <i class="ri-history-line me-1"></i> Lịch sử giao dịch
+                                </a>
+                            </li>
+
+                            {{-- Quản lý kho --}}
+                            <li class="nav-item">
+                                <a href="{{ route('admin.warehouses.index') }}" class="nav-link">
+                                    <i class="ri-home-4-line me-1"></i> Danh sách kho
+                                </a>
+                            </li>
+
+                            {{-- Báo cáo --}}
+                            <li class="nav-item">
+                                <a href="{{ route('admin.inventory.reports') }}" class="nav-link">
+                                    <i class="ri-bar-chart-box-line me-1"></i> Báo cáo kho
+                                </a>
+                            </li>
+
+                            {{-- Cài đặt --}}
+                            <li class="nav-item">
+                                <a href="{{ route('admin.inventory.settings') }}" class="nav-link">
+                                    <i class="ri-settings-3-line me-1"></i> Cài đặt kho
+                                </a>
                             </li>
                         </ul>
                     </div>
-                </li>
-                <!-- end Dashboard Menu -->
+                    <!-- end Dashboard Menu -->
 
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Giao diện/Truyền
                         Thông</span></li>
