@@ -25,7 +25,7 @@ class StoreProductVariantRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'sku' => 'required|unique:product_variants,sku',
             'price' => 'required|numeric|min:0',
-            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'cost_price' => 'nullable|numeric|min:0',
             'barcode' => 'nullable|string|unique:product_variants,barcode',
             'color' => 'nullable|string',

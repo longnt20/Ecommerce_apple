@@ -390,7 +390,7 @@
                         <div class="image-upload-container"
                             onclick="document.getElementById('product-image-input').click();">
                             <input class="form-control d-none" id="product-image-input" type="file" name="thumbnail"
-                                accept="image/png, image/gif, image/jpeg">
+                                accept="image/png, image/gif, image/jpeg, image/webp">
 
                             <div id="image-preview-container" style="display: none;">
                                 <div class="image-preview">

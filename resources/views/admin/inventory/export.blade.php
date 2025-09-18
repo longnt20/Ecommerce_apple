@@ -269,7 +269,7 @@ document.getElementById('warehouseSelect').addEventListener('change', function()
 
 // Load warehouse inventory
 function loadWarehouseInventory(warehouseId) {
-    fetch(`/admin/api/warehouse/${warehouseId}/inventory`)
+    fetch(`/admin/inventory/api/warehouse/${warehouseId}/inventory`)
         .then(response => response.json())
         .then(data => {
             warehouseInventory = data;

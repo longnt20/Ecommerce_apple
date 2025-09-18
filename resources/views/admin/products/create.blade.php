@@ -112,7 +112,7 @@
                                                 </label>
                                                 <input class="form-control d-none" value="" id="product-image-input"
                                                     type="file" name="thumbnail"
-                                                    accept="image/png, image/gif, image/jpeg">
+                                                    accept="image/png, image/gif, image/jpeg, image/webp">
                                             </div>
                                             <div class="avatar-lg">
                                                 <div class="avatar-title bg-light rounded">
