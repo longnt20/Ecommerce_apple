@@ -31,17 +31,24 @@ class InventoryController extends Controller
 
         $lowStockCount = Inventory::lowStock()->count();
         $outOfStockCount = Inventory::outOfStock()->count();
-        
+        $lowStockItems = Inventory::lowStock()
+            ->with(['productVariant.product', 'warehouse'])
+            ->limit(10)
+            ->get();
         $recentTransactions = InventoryTransaction::with(['productVariant.product', 'warehouse'])
             ->latest()
             ->take(10)
             ->get();
 
-        $warehouses = Warehouse::withCount('inventory')->get();
+        $warehouses = Warehouse::withCount('inventory')->active()->get();
 
         return view('admin.inventory.dashboard', compact(
-            'totalValue', 'lowStockCount', 'outOfStockCount', 
-            'recentTransactions', 'warehouses'
+            'totalValue',
+            'lowStockCount',
+            'outOfStockCount',
+            'recentTransactions',
+            'warehouses',
+            'lowStockItems'
         ));
     }
 
@@ -123,7 +130,7 @@ class InventoryController extends Controller
     public function transferForm()
     {
         $warehouses = Warehouse::active()->get();
-        
+
         return view('admin.inventory.transfer', compact('warehouses'));
     }
 
@@ -135,22 +142,28 @@ class InventoryController extends Controller
         $request->validate([
             'from_warehouse_id' => 'required|exists:warehouses,id',
             'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
-            'product_variant_id' => 'required|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1'
+            'items' => 'required|array|min:1',
+            'items.*.product_variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity' => 'required|integer|min:1'
         ]);
 
+        DB::beginTransaction();
         try {
-            $this->inventoryService->transfer(
-                $request->from_warehouse_id,
-                $request->to_warehouse_id,
-                $request->product_variant_id,
-                $request->quantity,
-                $request->notes
-            );
+            foreach ($request->items as $item) {
+                $this->inventoryService->transfer(
+                    $request->from_warehouse_id,
+                    $request->to_warehouse_id,
+                    $item['product_variant_id'],
+                    $item['quantity'],
+                    $request->notes
+                );
+            }
 
+            DB::commit();
             return redirect()->route('admin.inventory.transactions')
                 ->with('success', 'Chuyển kho thành công');
         } catch (\Exception $e) {
+            DB::rollback();
             return back()->with('error', $e->getMessage());
         }
     }
@@ -161,8 +174,11 @@ class InventoryController extends Controller
     public function transactions(Request $request)
     {
         $query = InventoryTransaction::with([
-            'warehouse', 'productVariant.product', 
-            'fromWarehouse', 'toWarehouse', 'creator'
+            'warehouse',
+            'productVariant.product',
+            'fromWarehouse',
+            'toWarehouse',
+            'creator'
         ]);
 
         // Filters
@@ -214,108 +230,112 @@ class InventoryController extends Controller
         }
     }
     /**
- * Export form
- */
-public function exportForm()
-{
-    $warehouses = Warehouse::active()->get();
-    $variants = ProductVariant::with('product')
-        ->whereHas('inventory', function($q) {
-            $q->where('available_quantity', '>', 0);
-        })
-        ->get();
+     * Export form
+     */
+    public function exportForm()
+    {
+        $warehouses = Warehouse::active()->get();
+        $variants = ProductVariant::with('product')
+            ->whereHas('inventory', function ($q) {
+                $q->where('available_quantity', '>', 0);
+            })
+            ->get();
 
-    return view('admin.inventory.export', compact('warehouses', 'variants'));
-}
+        return view('admin.inventory.export', compact('warehouses', 'variants'));
+    }
 
-/**
- * Process export
- */
-public function export(Request $request)
-{
-    $request->validate([
-        'warehouse_id' => 'required|exists:warehouses,id',
-        'items' => 'required|array',
-        'items.*.product_variant_id' => 'required|exists:product_variants,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'reference_type' => 'nullable|string',
-        'reference_code' => 'nullable|string'
-    ]);
+    /**
+     * Process export
+     */
+    public function export(Request $request)
+    {
+        $request->validate([
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'items' => 'required|array',
+            'items.*.product_variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'reference_type' => 'nullable|string',
+            'reference_code' => 'nullable|string'
+        ]);
 
-    try {
+        try {
+            DB::transaction(function () use ($request) {
+                foreach ($request->items as $item) {
+                    $this->inventoryService->export(
+                        $request->warehouse_id,
+                        $item['product_variant_id'],
+                        $item['quantity'],
+                        $request->reference_type,
+                        null, // reference_id
+                        $request->notes
+                    );
+                }
+            });
+
+            return redirect()->route('admin.inventory.transactions')
+                ->with('success', 'Xuất kho thành công');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Stock take form
+     */
+    public function stocktake()
+    {
+        $warehouses = Warehouse::active()->get();
+        $inventory = Inventory::with(['productVariant.product', 'warehouse'])
+            ->when(request('warehouse_id'), function ($q) {
+                $q->where('warehouse_id', request('warehouse_id'));
+            })
+            ->paginate(20);
+
+        return view('admin.inventory.stocktake', compact('warehouses', 'inventory'));
+    }
+
+    /**
+     * Process stock take
+     */
+    public function processStocktake(Request $request)
+    {
+        $request->validate([
+            'adjustments' => 'required|array',
+            'adjustments.*.inventory_id' => 'required|exists:inventory,id',
+            'adjustments.*.actual_quantity' => 'required|integer|min:0'
+        ]);
+
         DB::transaction(function () use ($request) {
-            foreach ($request->items as $item) {
-                $this->inventoryService->export(
-                    $request->warehouse_id,
-                    $item['product_variant_id'],
-                    $item['quantity'],
-                    $request->reference_type,
-                    null, // reference_id
-                    $request->notes
-                );
+            foreach ($request->adjustments as $adjustment) {
+                $inventory = Inventory::find($adjustment['inventory_id']);
+
+                if ($inventory->quantity != $adjustment['actual_quantity']) {
+                    $this->inventoryService->adjust(
+                        $inventory->warehouse_id,
+                        $inventory->product_variant_id,
+                        $adjustment['actual_quantity'],
+                        'Kiểm kê định kỳ'
+                    );
+                }
             }
         });
 
-        return redirect()->route('admin.inventory.transactions')
-            ->with('success', 'Xuất kho thành công');
-    } catch (\Exception $e) {
-        return back()->with('error', $e->getMessage())->withInput();
+        return redirect()->route('admin.inventory.stocktake')
+            ->with('success', 'Cập nhật kiểm kê thành công');
     }
-}
 
-/**
- * Stock take form
- */
-public function stocktake()
+    /**
+     * Reports dashboard
+     */
+    public function reports()
 {
-    $warehouses = Warehouse::active()->get();
-    $inventory = Inventory::with(['productVariant.product', 'warehouse'])
-        ->when(request('warehouse_id'), function($q) {
-            $q->where('warehouse_id', request('warehouse_id'));
-        })
-        ->paginate(20);
-
-    return view('admin.inventory.stocktake', compact('warehouses', 'inventory'));
-}
-
-/**
- * Process stock take
- */
-public function processStocktake(Request $request)
-{
-    $request->validate([
-        'adjustments' => 'required|array',
-        'adjustments.*.inventory_id' => 'required|exists:inventory,id',
-        'adjustments.*.actual_quantity' => 'required|integer|min:0'
-    ]);
-
-    DB::transaction(function () use ($request) {
-        foreach ($request->adjustments as $adjustment) {
-            $inventory = Inventory::find($adjustment['inventory_id']);
-            
-            if ($inventory->quantity != $adjustment['actual_quantity']) {
-                $this->inventoryService->adjust(
-                    $inventory->warehouse_id,
-                    $inventory->product_variant_id,
-                    $adjustment['actual_quantity'],
-                    'Kiểm kê định kỳ'
-                );
-            }
-        }
-    });
-
-    return redirect()->route('admin.inventory.stocktake')
-        ->with('success', 'Cập nhật kiểm kê thành công');
-}
-
-/**
- * Reports dashboard
- */
-public function reports()
-{
-    // Stock value by warehouse
-    $stockByWarehouse = Warehouse::withSum('inventory as total_quantity', 'quantity')
-        ->withSum('inventory as total_value', DB::raw('quantity * 0')) // Will calculate with product price
+    // Stock value by warehouse - Tính giá trị kho với price từ product_variants
+    $stockByWarehouse = Warehouse::select('warehouses.*')
+        ->selectRaw('COALESCE(SUM(inventory.quantity), 0) as total_quantity')
+        ->selectRaw('COALESCE(SUM(inventory.quantity * product_variants.cost_price), 0) as total_value')
+        ->leftJoin('inventory', 'warehouses.id', '=', 'inventory.warehouse_id')
+        ->leftJoin('product_variants', 'inventory.product_variant_id', '=', 'product_variants.id')
+        ->groupBy('warehouses.id')
         ->get();
 
     // Top moving products
@@ -325,141 +345,162 @@ public function reports()
         ->where('created_at', '>=', now()->subDays(30))
         ->groupBy('product_variant_id')
         ->orderByDesc('movement')
-        ->with('productVariant.product')
+        ->with(['productVariant.product'])
         ->limit(10)
         ->get();
 
-    // Slow moving products
-    $slowMoving = Inventory::whereHas('productVariant')
-        ->where('quantity', '>', 0)
-        ->whereDoesntHave('transactions', function($q) {
-            $q->where('created_at', '>=', now()->subDays(30));
+    // Slow moving products - Cải thiện query
+    $slowMoving = Inventory::select('inventory.*')
+        ->selectRaw('COALESCE(recent_transactions.movement, 0) as recent_movement')
+        ->leftJoin(DB::raw('(
+            SELECT product_variant_id, warehouse_id, SUM(ABS(quantity)) as movement
+            FROM inventory_transactions
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY product_variant_id, warehouse_id
+        ) as recent_transactions'), function($join) {
+            $join->on('inventory.product_variant_id', '=', 'recent_transactions.product_variant_id')
+                 ->on('inventory.warehouse_id', '=', 'recent_transactions.warehouse_id');
         })
-        ->with('productVariant.product')
+        ->where('inventory.quantity', '>', 0)
+        ->having('recent_movement', '=', 0)
+        ->with(['productVariant.product', 'warehouse'])
         ->limit(10)
         ->get();
 
     // Monthly transactions
     $monthlyTransactions = InventoryTransaction::selectRaw('
-            DATE_FORMAT(created_at, "%Y-%m") as month,
-            type,
-            COUNT(*) as count,
-            SUM(ABS(quantity)) as total_quantity
-        ')
+        DATE_FORMAT(created_at, "%Y-%m") as month,
+        type,
+        COUNT(*) as count,
+        SUM(ABS(quantity)) as total_quantity
+    ')
         ->where('created_at', '>=', now()->subMonths(6))
         ->groupBy('month', 'type')
+        ->orderBy('month')
         ->get();
 
-    return view('admin.inventory.reports', compact(
-        'stockByWarehouse', 
-        'topMoving', 
-        'slowMoving', 
-        'monthlyTransactions'
+    // Additional metrics
+    $totalProducts = ProductVariant::count();
+    $totalWarehouses = Warehouse::count();
+    $lowStockCount = Inventory::where('quantity', '<=', 10)->count();
+    $totalStockValue = DB::table('inventory')
+        ->join('product_variants', 'inventory.product_variant_id', '=', 'product_variants.id')
+        ->sum(DB::raw('inventory.quantity * product_variants.cost_price'));
+
+    return view('admin.inventory.report', compact(
+        'stockByWarehouse',
+        'topMoving',
+        'slowMoving',
+        'monthlyTransactions',
+        'totalProducts',
+        'totalWarehouses',
+        'lowStockCount',
+        'totalStockValue'
     ));
 }
 
-/**
- * Export inventory to Excel
- */
-public function exportExcel(Request $request)
-{
-    $inventory = Inventory::with(['productVariant.product', 'warehouse'])
-        ->when($request->warehouse_id, function($q) use ($request) {
-            $q->where('warehouse_id', $request->warehouse_id);
-        })
-        ->when($request->status == 'low_stock', function($q) {
-            $q->lowStock();
-        })
-        ->when($request->status == 'out_of_stock', function($q) {
-            $q->outOfStock();
-        })
-        ->get();
+    /**
+     * Export inventory to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $inventory = Inventory::with(['productVariant.product', 'warehouse'])
+            ->when($request->warehouse_id, function ($q) use ($request) {
+                $q->where('warehouse_id', $request->warehouse_id);
+            })
+            ->when($request->status == 'low_stock', function ($q) {
+                $q->lowStock();
+            })
+            ->when($request->status == 'out_of_stock', function ($q) {
+                $q->outOfStock();
+            })
+            ->get();
 
-    // You can use Laravel Excel package or simple CSV export
-    $filename = 'inventory_' . date('Y-m-d') . '.csv';
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => "attachment; filename=\"$filename\"",
-    ];
+        // You can use Laravel Excel package or simple CSV export
+        $filename = 'inventory_' . date('Y-m-d') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
 
-    $columns = ['SKU', 'Sản phẩm', 'Kho', 'Tồn kho', 'Có thể bán', 'Đã giữ', 'Vị trí'];
+        $columns = ['SKU', 'Sản phẩm', 'Kho', 'Tồn kho', 'Có thể bán', 'Đã giữ', 'Vị trí'];
 
-    $callback = function() use ($inventory, $columns) {
-        $file = fopen('php://output', 'w');
-        fputcsv($file, $columns);
+        $callback = function () use ($inventory, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
 
-        foreach ($inventory as $item) {
-            fputcsv($file, [
-                $item->productVariant->sku,
-                $item->productVariant->product->name,
-                $item->warehouse->name,
-                $item->quantity,
-                $item->available_quantity,
-                $item->reserved_quantity,
-                $item->location
-            ]);
-        }
-        fclose($file);
-    };
+            foreach ($inventory as $item) {
+                fputcsv($file, [
+                    $item->productVariant->sku,
+                    $item->productVariant->product->name,
+                    $item->warehouse->name,
+                    $item->quantity,
+                    $item->available_quantity,
+                    $item->reserved_quantity,
+                    $item->location
+                ]);
+            }
+            fclose($file);
+        };
 
-    return response()->stream($callback, 200, $headers);
-}
+        return response()->stream($callback, 200, $headers);
+    }
 
-/**
- * Settings page
- */
-public function settings()
-{
-    $settings = [
-        'low_stock_threshold' => config('inventory.low_stock_threshold', 10),
-        'auto_reserve' => config('inventory.auto_reserve', true),
-        'negative_stock_allowed' => config('inventory.negative_stock_allowed', false),
-    ];
+    /**
+     * Settings page
+     */
+    public function settings()
+    {
+        $settings = [
+            'low_stock_threshold' => config('inventory.low_stock_threshold', 10),
+            'auto_reserve' => config('inventory.auto_reserve', true),
+            'negative_stock_allowed' => config('inventory.negative_stock_allowed', false),
+        ];
 
-    return view('admin.inventory.settings', compact('settings'));
-}
+        return view('admin.inventory.settings', compact('settings'));
+    }
 
-/**
- * Update settings
- */
-public function updateSettings(Request $request)
-{
-    $request->validate([
-        'low_stock_threshold' => 'required|integer|min:0',
-        'auto_reserve' => 'boolean',
-        'negative_stock_allowed' => 'boolean',
-    ]);
+    /**
+     * Update settings
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'low_stock_threshold' => 'required|integer|min:0',
+            'auto_reserve' => 'boolean',
+            'negative_stock_allowed' => 'boolean',
+        ]);
 
-    // Save settings to database or config
-    // You might want to create a settings table for this
+        // Save settings to database or config
+        // You might want to create a settings table for this
 
-    return redirect()->route('admin.inventory.settings')
-        ->with('success', 'Cài đặt đã được cập nhật');
-}
+        return redirect()->route('admin.inventory.settings')
+            ->with('success', 'Cài đặt đã được cập nhật');
+    }
 
-/**
- * Get inventory for API (for AJAX requests)
- */
-public function getWarehouseInventory($warehouseId)
-{
-    $inventory = Inventory::where('warehouse_id', $warehouseId)
-        ->where('available_quantity', '>', 0)
-        ->with(['productVariant.product'])
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [
-                $item->product_variant_id => [
-                    'name' => $item->productVariant->product->name,
-                    'variant' => $item->productVariant->color . ' - ' . $item->productVariant->storage,
-                    'sku' => $item->productVariant->sku,
-                    'image' => asset('storage/' . $item->productVariant->product->thumbnail),
-                    'quantity' => $item->quantity,
-                    'available_quantity' => $item->available_quantity,
-                    'unit_cost' => $item->productVariant->cost_price ?? 0
-                ]
-            ];
-        });
+    /**
+     * Get inventory for API (for AJAX requests)
+     */
+    public function getWarehouseInventory($warehouseId)
+    {
+        $inventory = Inventory::where('warehouse_id', $warehouseId)
+            ->where('available_quantity', '>', 0)
+            ->with(['productVariant.product'])
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [
+                    $item->product_variant_id => [
+                        'name' => $item->productVariant->product->name,
+                        'variant' => $item->productVariant->color . ' - ' . $item->productVariant->storage,
+                        'sku' => $item->productVariant->sku,
+                        'image' => asset('storage/' . $item->productVariant->product->thumbnail),
+                        'quantity' => $item->quantity,
+                        'available_quantity' => $item->available_quantity,
+                        'unit_cost' => $item->productVariant->cost_price ?? 0
+                    ]
+                ];
+            });
 
-    return response()->json($inventory);
+        return response()->json($inventory);
     }
 }

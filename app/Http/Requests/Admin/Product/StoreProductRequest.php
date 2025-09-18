@@ -26,7 +26,7 @@ class StoreProductRequest extends FormRequest
             'short_description' => 'nullable|max:500',
             'description' => 'nullable',
             'category_id' => 'required|exists:categories,id',
-            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'default_price' => 'nullable|numeric',

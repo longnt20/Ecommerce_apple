@@ -36,7 +36,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        try {
+        // try {
             $data = $request->validated();
             // dd($request->all()); 
             // Upload thumbnail
@@ -68,10 +68,11 @@ class ProductController extends Controller
                 }
             }
             return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công');
-        } catch (\Throwable $th) {
-            //throw $th;
-            return back()->with('error', 'Không thể thêm sản phẩm: ' . $th->getMessage());
-        }
+        // } 
+        // catch (\Throwable $th) {
+        //     //throw $th;
+        //     return back()->with('error', 'Không thể thêm sản phẩm: ' . $th->getMessage());
+        // }
     }
 
     /**

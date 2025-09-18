@@ -261,7 +261,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(Inventory::lowStock()->with(['productVariant.product', 'warehouse'])->limit(10)->get() as $item)
+                            @foreach($lowStockItems as $item)
                             <tr>
                                 <td><code>{{ $item->productVariant->sku }}</code></td>
                                 <td>
