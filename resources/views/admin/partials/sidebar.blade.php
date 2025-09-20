@@ -101,6 +101,16 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a href="{{ route('admin.product-attributes.index') }}" class="nav-link"
+                                    data-key="t-analytics"> Danh sách thuộc tính sản phẩm
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.product-attributes.create') }}" class="nav-link"
+                                    data-key="t-analytics"> Thêm mới thuộc tính sản phẩm
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="{{ route('admin.product_variants.trash') }}" class="nav-link"
                                     data-key="t-analytics"> Danh sách biến thể đã xóa
                                 </a>

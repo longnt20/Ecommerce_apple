@@ -333,6 +333,8 @@
 
                         <hr class="my-4">
 
+                        @inject('attributeService', 'App\Services\ProductAttributeService')
+
                         <h6 class="mb-3 fw-bold">Thuộc tính biến thể</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -341,14 +343,12 @@
                                 </label>
                                 <select name="color" class="form-select @error('color') is-invalid @enderror">
                                     <option value="">-- Chọn màu sắc --</option>
-                                    <option value="Black" {{ old('color') == 'Black' ? 'selected' : '' }}>Đen</option>
-                                    <option value="White" {{ old('color') == 'White' ? 'selected' : '' }}>Trắng</option>
-                                    <option value="Blue" {{ old('color') == 'Blue' ? 'selected' : '' }}>Xanh dương
-                                    </option>
-                                    <option value="Natural Titanium"
-                                        {{ old('color') == 'Natural Titanium' ? 'selected' : '' }}>Titan tự nhiên</option>
-                                    <option value="Red" {{ old('color') == 'Red' ? 'selected' : '' }}>Đỏ</option>
-                                    <option value="Gold" {{ old('color') == 'Gold' ? 'selected' : '' }}>Vàng</option>
+                                    @foreach ($attributeService->getColors() as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ old('color') == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 @error('color')
                                     <div class="text-danger mt-2">{{ $message }}</div>
@@ -359,16 +359,14 @@
                                 <label class="form-label">
                                     <i class="ri-hard-drive-2-line me-1"></i>Dung lượng <span class="required">*</span>
                                 </label>
-                                <select name="storage" class="form-select @error('storage') is-invalid @enderror"
-                                    >
+                                <select name="storage" class="form-select @error('storage') is-invalid @enderror">
                                     <option value="">-- Chọn dung lượng --</option>
-                                    <option value="128GB" {{ old('storage') == '128GB' ? 'selected' : '' }}>128GB
-                                    </option>
-                                    <option value="256GB" {{ old('storage') == '256GB' ? 'selected' : '' }}>256GB
-                                    </option>
-                                    <option value="512GB" {{ old('storage') == '512GB' ? 'selected' : '' }}>512GB
-                                    </option>
-                                    <option value="1TB" {{ old('storage') == '1TB' ? 'selected' : '' }}>1TB</option>
+                                    @foreach ($attributeService->getStorages() as $value => $label)
+                                        <option value="{{ $value }}"
+                                            {{ old('storage') == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 @error('storage')
                                     <div class="text-danger mt-2">{{ $message }}</div>

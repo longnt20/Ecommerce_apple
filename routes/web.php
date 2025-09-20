@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -108,4 +110,5 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
 
     // Warehouses
     Route::resource('warehouses', WarehouseController::class);
+    Route::resource('product-attributes', ProductAttributeController::class);
 });
