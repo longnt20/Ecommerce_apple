@@ -9,22 +9,34 @@ use Illuminate\Http\Request;
 class ProductAttributeController extends Controller
 {
     public function index(Request $request)
-    {
-        $attributes = ProductAttribute::query()
-            ->when($request->type, function ($query, $type) {
-                $query->byType($type);
-            })
-            ->when($request->search, function ($query, $search) {
-                $query->where('label', 'like', "%{$search}%")
-                      ->orWhere('value', 'like', "%{$search}%");
-            })
-            ->ordered()
-            ->paginate(20);
-
-        $types = ProductAttribute::getTypes();
-
-        return view('admin.product-attributes.index', compact('attributes', 'types'));
+{
+    // Lấy thuộc tính màu sắc
+    $colorQuery = ProductAttribute::where('type', 'color');
+    if ($request->has('search_color')) {
+        $colorQuery->where(function($q) use ($request) {
+            $q->where('value', 'like', '%' . $request->search_color . '%')
+              ->orWhere('label', 'like', '%' . $request->search_color . '%');
+        });
     }
+    $colorAttributes = $colorQuery->orderBy('sort_order')->paginate(10, ['*'], 'color_page');
+
+    // Lấy thuộc tính dung lượng
+    $storageQuery = ProductAttribute::where('type', 'storage');
+    if ($request->has('search_storage')) {
+        $storageQuery->where(function($q) use ($request) {
+            $q->where('value', 'like', '%' . $request->search_storage . '%')
+              ->orWhere('label', 'like', '%' . $request->search_storage . '%');
+        });
+    }
+    $storageAttributes = $storageQuery->orderBy('sort_order')->paginate(10, ['*'], 'storage_page');
+
+    $types = [
+        'color' => 'Màu sắc',
+        'storage' => 'Dung lượng'
+    ];
+
+    return view('admin.product-attributes.index', compact('colorAttributes', 'storageAttributes', 'types'));
+}
 
     public function create()
     {
@@ -38,6 +50,7 @@ class ProductAttributeController extends Controller
             'type' => 'required|in:' . implode(',', array_keys(ProductAttribute::getTypes())),
             'value' => 'required|string|max:255',
             'label' => 'required|string|max:255',
+            'hex_code' => 'required|string|max:7',
             'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
         ]);

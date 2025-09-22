@@ -10,6 +10,7 @@ class ProductAttribute extends Model
         'type',
         'value',
         'label',
+        'hex_code',
         'sort_order',
         'is_active'
     ];
