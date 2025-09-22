@@ -65,7 +65,6 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::patch('/{id}/restore', [ProductVariantController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ProductVariantController::class, 'forceDelete'])->name('force-delete');
     });
-    // routes/admin.php
 
     Route::prefix('inventory')->name('inventory.')->group(function () {
         // Dashboard
@@ -109,6 +108,14 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
     });
 
     // Warehouses
-    Route::resource('warehouses', WarehouseController::class);
+    Route::prefix('warehouses')->as('warehouses.')->group(function(){
+        Route::get('/', [WarehouseController::class, 'index'])->name('index');
+        Route::get('/{warehouse}', [WarehouseController::class, 'show'])->name('show');
+        Route::post('/store', [WarehouseController::class, 'store'])->name('store');
+        Route::get('/edit/{warehouse}', [WarehouseController::class, 'edit'])->name('edit');
+        Route::put('/{warehouse}', [WarehouseController::class, 'update'])->name('update');
+        Route::post('/search',[WarehouseController::class,'search'])->name('search');
+        Route::post('/{id}/toggle-active', [WarehouseController::class, 'toggleActive']);
+    });
     Route::resource('product-attributes', ProductAttributeController::class);
 });
