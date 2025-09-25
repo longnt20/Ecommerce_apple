@@ -11,12 +11,6 @@ use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('admin.dashboard');
-    }
-    return redirect()->route('login');
-});
 // Auth
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -118,4 +112,7 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::post('/{id}/toggle-active', [WarehouseController::class, 'toggleActive']);
     });
     Route::resource('product-attributes', ProductAttributeController::class);
+});
+Route::get('/', function () {
+    return view('clients.client');
 });
