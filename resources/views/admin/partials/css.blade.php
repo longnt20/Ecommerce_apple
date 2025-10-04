@@ -21,6 +21,10 @@
     <link href="{{ asset('assets/libs/dropzone/dropzone.css')}}" rel="stylesheet" type="text/css" />
     <!-- Thêm vào phần <head> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Thêm 3 dòng này để nhúng Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Nền hộp thoại */
 .swal2-popup-custom {
