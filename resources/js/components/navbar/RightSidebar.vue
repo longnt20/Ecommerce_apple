@@ -66,7 +66,7 @@ const tradeInPromos = ref([
 .right-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 .info-card {
   background-color: white;

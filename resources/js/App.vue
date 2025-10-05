@@ -3,11 +3,13 @@
   
   <main>
     <MainContent />
+    <ProductApp/>
   </main>
 </template>
 
 <script setup>
 import AppHeader from './components/header/AppHeader.vue';
+import ProductApp from './components/list-product/ProductApp.vue';
 import MainContent from './components/navbar/MainContent.vue';
 </script>
 

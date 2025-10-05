@@ -51,6 +51,7 @@ import UserButton from './UserButton.vue';
   display: flex;
   align-items: center;
   gap: 15px; /* Tạo khoảng cách giữa các phần tử */
+  box-sizing: border-box;
 }
 
 /* --- Top Bar --- */
