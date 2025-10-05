@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trang chủ</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('assets/images/logo-apple-removebg-preview.png') }}">
+    <title>LongTech</title>
     @vite('resources/js/app.js')
 </head>
 <body>

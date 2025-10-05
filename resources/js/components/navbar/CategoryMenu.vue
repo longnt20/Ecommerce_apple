@@ -1,21 +1,13 @@
 <template>
   <div class="category-menu">
     <ul>
-      <!-- 
-        1. v-for: Lặp qua mảng 'categories' trong script.
-        Với mỗi 'category' trong mảng, nó sẽ tạo ra một thẻ <li>.
-        ':key' là bắt buộc và phải là duy nhất để Vue theo dõi các phần tử.
-      -->
-      <li v-for="category in categories" :key="category.text">
-        <a :href="category.href">
-          <!-- 
-            2. <component :is="...">: Đây là một tính năng mạnh mẽ của Vue.
-            Nó cho phép bạn render một component động dựa trên tên được truyền vào.
-            Ở đây, giá trị của 'category.iconComponent' sẽ quyết định icon nào được hiển thị.
-          -->
-          <component :is="category.iconComponent" :size="20" class="icon" />
-          <span>{{ category.text }}</span>
-          <ChevronRight :size="16" class="arrow-icon" />
+      <li v-for="(category, index) in categories" :key="category.text">
+        <a :href="category.href" class="menu-item">
+          <div class="icon-wrapper">
+            <component :is="category.iconComponent" :size="18" class="icon" />
+          </div>
+          <span class="menu-text">{{ category.text }}</span>
+          <ChevronRight :size="14" class="arrow-icon" />
         </a>
       </li>
     </ul>
@@ -24,24 +16,17 @@
 
 <script setup>
 import { ref } from 'vue';
-// Import tất cả các icon cần thiết từ thư viện
 import {
   Smartphone, Laptop, Headphones, Watch, Home, Puzzle, PcCase,
   Tv, Repeat, Package, Percent, FileText, ChevronRight
 } from 'lucide-vue-next';
 
-// 3. Dữ liệu cho menu
-// Sử dụng ref để bọc mảng. Dù mảng này tĩnh, đây là một thói quen tốt.
-// Mỗi object chứa text, link, và component icon tương ứng.
 const categories = ref([
   { text: 'Điện thoại, Tablet', href: '#', iconComponent: Smartphone },
   { text: 'Laptop', href: '#', iconComponent: Laptop },
   { text: 'Âm thanh, Mic thu âm', href: '#', iconComponent: Headphones },
   { text: 'Đồng hồ, Camera', href: '#', iconComponent: Watch },
-  { text: 'Đồ gia dụng', href: '#', iconComponent: Home },
   { text: 'Phụ kiện', href: '#', iconComponent: Puzzle },
-  { text: 'PC, Màn hình, Máy in', href: '#', iconComponent: PcCase },
-  { text: 'Tivi, Máy lạnh, Tủ lạnh', href: '#', iconComponent: Tv },
   { text: 'Thu cũ đổi mới', href: '#', iconComponent: Repeat },
   { text: 'Hàng cũ', href: '#', iconComponent: Package },
   { text: 'Khuyến mãi', href: '#', iconComponent: Percent },
@@ -50,45 +35,164 @@ const categories = ref([
 </script>
 
 <style scoped>
-/* "scoped" đảm bảo CSS này chỉ áp dụng cho component này */
 .category-menu {
-  background-color: white;
-  border-radius: 12px;
-  padding: 8px 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+  /* Đảm bảo không có khoảng trống */
+  display: inline-block;
+  height: 495px;
 }
 
 ul {
   list-style-type: none;
   margin: 0;
-  padding: 0;
+  padding: 5px;
 }
 
-li a {
+li {
+  margin-bottom: 4px;
+  /* Animation được áp dụng trực tiếp */
+  animation: slideIn 0.4s ease forwards;
+}
+
+li:last-child {
+  margin-bottom: 0;
+}
+
+.menu-item {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
+  padding: 9px 11px;
   text-decoration: none;
   color: #333;
-  font-size: 13px; /* Giảm size một chút */
-  font-weight: 500; /* Tăng độ đậm để dễ đọc hơn */
-  transition: background-color 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-li a:hover {
-  background-color: #f5f5f5;
+.menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.02));
+  transition: width 0.3s ease;
+}
+
+.menu-item:hover::before {
+  width: 100%;
+}
+
+.menu-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+}
+
+.menu-item:hover .arrow-icon {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.menu-item:hover .icon-wrapper {
+  transform: scale(1.1);
+  background-color: #e9ecef;
+}
+
+.icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
 }
 
 .icon {
-  margin-right: 12px;
-  color: #555;
+  color: #c02121;
+  transition: transform 0.3s ease;
 }
 
-span {
-  flex-grow: 1; /* Đẩy mũi tên sang hết bên phải */
+.menu-text {
+  flex-grow: 1;
+  color: #495057;
+  transition: color 0.3s ease;
+}
+
+.menu-item:hover .menu-text {
+  color: #212529;
+  font-weight: 600;
 }
 
 .arrow-icon {
   color: #999;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+/* Animation khi load */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Chỉ áp dụng animation-delay cho 8 items thực tế */
+li:nth-child(1) { animation-delay: 0.05s; }
+li:nth-child(2) { animation-delay: 0.1s; }
+li:nth-child(3) { animation-delay: 0.15s; }
+li:nth-child(4) { animation-delay: 0.2s; }
+li:nth-child(5) { animation-delay: 0.25s; }
+li:nth-child(6) { animation-delay: 0.3s; }
+li:nth-child(7) { animation-delay: 0.35s; }
+li:nth-child(8) { animation-delay: 0.4s; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-menu {
+    border-radius: 12px;
+  }
+  
+  .menu-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .icon-wrapper {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+  }
+}
+
+/* Divider giữa các items */
+li:not(:last-child) {
+  position: relative;
+}
+
+li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 44px;
+  right: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, #f0f0f0, transparent);
 }
 </style>
