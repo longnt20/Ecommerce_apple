@@ -116,3 +116,6 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
 Route::get('/', function () {
     return view('clients.client');
 });
+Route::get('/{any}', function () {
+    return view('clients.client'); // app.blade.php chứa <div id="app"></div>
+})->where('any', '.*');
