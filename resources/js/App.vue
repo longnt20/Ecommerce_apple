@@ -1,6 +1,7 @@
 <template>
-  <AppHeader />
   
+  <AppHeader />
+  <router-view />
   <main>
     <MainContent />
     <ProductApp/>

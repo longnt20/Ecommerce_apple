@@ -1,11 +1,13 @@
 <template>
   <div class="main-product-wrapper">
     <HotSaleSlider />
+    <ListProductPhone/>
   </div>
 </template>
 
 <script setup>
 import HotSaleSlider from './HotSaleSlider.vue';
+import ListProductPhone from './ListProductPhone.vue';
 </script>
 
 <style scoped>

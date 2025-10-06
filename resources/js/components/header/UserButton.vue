@@ -93,10 +93,10 @@
               </div>
 
               <div class="social-login">
-                <button type="button" class="social-btn google">
+                <a class="social-btn google" href="/api/auth/google/redirect">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" />
                   <span>Đăng nhập với Google</span>
-                </button>
+                </a>
                 <button type="button" class="social-btn facebook">
                   <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" width="20" />
                   <span>Đăng nhập với Facebook</span>
@@ -217,7 +217,27 @@ const agreeTerms = ref(false);
 // User state (có thể lấy từ store)
 const isLoggedIn = ref(false);
 const userName = ref('');
+const getUserProfile = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
 
+  try {
+    const res = await axios.get('/api/user', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    isLoggedIn.value = true
+    userName.value = res.data.name
+  } catch (err) {
+    console.error('Không lấy được user:', err)
+    localStorage.removeItem('token')
+    isLoggedIn.value = false
+    userName.value = ''
+  }
+}
+
+onMounted(() => {
+  getUserProfile()
+})
 // Form data
 const loginForm = ref({
   email: '',
