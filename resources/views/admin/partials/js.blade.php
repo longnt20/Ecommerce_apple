@@ -28,13 +28,20 @@
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
-        @endif
+        // Hiển thị lỗi validation //
         @if ($errors->any())
             @foreach ($errors->all() as $error)
                 toastr.error("{{ $error }}");
             @endforeach
+        @endif
+
+        // Hiển thị flash messages //
+        @if (session('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
+
+        @if (session('error'))
+            toastr.error("{{ session('error') }}");
         @endif
 
         @if (session('warning'))
@@ -47,7 +54,7 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            function handleAction(btnSelector, title, message, icon, iconColor, confirmText, confirmClass) {
+            function handleAction(btnSelector, config) {
                 document.querySelectorAll(btnSelector).forEach(function(btn) {
                     btn.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -55,62 +62,101 @@
                         const form = btn.closest('form');
 
                         Swal.fire({
-                            title: title,
-                            html: `<p style="font-size:16px; color:#555;">
-                            ${message} <b style="color:#d33;">"${name}"</b>?
-                        </p>`,
-                            icon: icon,
-                            iconColor: iconColor,
+                            title: config.title,
+                            html: `
+                        <div class="swal-custom-content">
+                            <div class="swal-icon-wrapper">
+                                <i class="${config.iconClass}"></i>
+                            </div>
+                            <p class="swal-message">
+                                ${config.message} 
+                                <span class="swal-item-name">"${name}"</span>?
+                            </p>
+                            ${config.warning ? `<p class="swal-warning">${config.warning}</p>` : ''}
+                        </div>
+                    `,
                             showCancelButton: true,
-                            confirmButtonText: confirmText,
-                            cancelButtonText: '<i class="fa fa-times"></i> Hủy',
+                            confirmButtonText: config.confirmText,
+                            cancelButtonText: '<i class="fa fa-times"></i> Hủy bỏ',
                             reverseButtons: true,
                             buttonsStyling: false,
+                            allowOutsideClick: false,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp'
+                            },
                             customClass: {
-                                confirmButton: confirmClass + ' mx-1',
-                                cancelButton: 'btn btn-secondary mx-1'
+                                popup: 'swal-custom-popup',
+                                title: 'swal-custom-title',
+                                htmlContainer: 'swal-custom-html',
+                                confirmButton: config.confirmClass + ' swal-custom-confirm',
+                                cancelButton: 'swal-custom-cancel',
+                                actions: 'swal-custom-actions'
+                            },
+                            didOpen: () => {
+                                // Thêm hiệu ứng cho icon
+                                const icon = Swal.getPopup().querySelector(
+                                    '.swal-icon-wrapper i');
+                                if (icon) {
+                                    icon.classList.add('animate__animated',
+                                        'animate__heartBeat');
+                                }
                             }
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                form.submit();
+                                // Hiển thị loading
+                                Swal.fire({
+                                    title: 'Đang xử lý...',
+                                    html: '<div class="swal-loading"><div class="spinner"></div></div>',
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        popup: 'swal-loading-popup'
+                                    }
+                                });
+
+                                // Submit form
+                                setTimeout(() => {
+                                    form.submit();
+                                }, 500);
                             }
                         });
                     });
                 });
             }
 
-            // Xóa mềm
-            handleAction(
-                '.btn-delete',
-                'Xóa mềm?',
-                'Bạn chắc chắn muốn xóa mềm',
-                'warning',
-                '#f59e0b',
-                '<i class="fa fa-trash"></i> Xóa mềm',
-                'btn btn-warning'
-            );
+            // Cấu hình cho từng loại action
+            const actionConfigs = {
+                softDelete: {
+                    title: '⚠️ Xác nhận xóa',
+                    message: 'Bạn có chắc chắn muốn xóa',
+                    warning: 'Dữ liệu sẽ được chuyển vào thùng rác và có thể khôi phục lại.',
+                    iconClass: 'fas fa-trash-alt text-warning',
+                    confirmText: '<i class="fas fa-trash"></i> Xóa ngay',
+                    confirmClass: 'btn-gradient-warning'
+                },
+                restore: {
+                    title: '♻️ Khôi phục dữ liệu',
+                    message: 'Bạn muốn khôi phục lại',
+                    iconClass: 'fas fa-undo-alt text-info',
+                    confirmText: '<i class="fas fa-undo"></i> Khôi phục',
+                    confirmClass: 'btn-gradient-info'
+                },
+                forceDelete: {
+                    title: '🚨 Cảnh báo nghiêm trọng',
+                    message: 'Bạn thực sự muốn xóa vĩnh viễn',
+                    warning: '⚠️ Hành động này KHÔNG THỂ hoàn tác! Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.',
+                    iconClass: 'fas fa-exclamation-triangle text-danger',
+                    confirmText: '<i class="fas fa-trash-alt"></i> Xóa vĩnh viễn',
+                    confirmClass: 'btn-gradient-danger'
+                }
+            };
 
-            // Khôi phục
-            handleAction(
-                '.btn-remove',
-                'Khôi phục?',
-                'Bạn muốn khôi phục',
-                'info',
-                '#3b82f6',
-                '<i class="fa fa-undo"></i> Khôi phục',
-                'btn btn-primary'
-            );
-
-            // Xóa cứng
-            handleAction(
-                '.btn-forcedelete',
-                'Xóa vĩnh viễn?',
-                'Bạn chắc chắn muốn xóa vĩnh viễn',
-                'error',
-                '#ef4444',
-                '<i class="fa fa-trash-alt"></i> Xóa vĩnh viễn',
-                'btn btn-danger'
-            );
-
+            // Áp dụng cho các button
+            handleAction('.btn-delete', actionConfigs.softDelete);
+            handleAction('.btn-remove', actionConfigs.restore);
+            handleAction('.btn-forcedelete', actionConfigs.forceDelete);
         });
     </script>

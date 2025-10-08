@@ -8,7 +8,9 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -112,10 +114,25 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::post('/{id}/toggle-active', [WarehouseController::class, 'toggleActive']);
     });
     Route::resource('product-attributes', ProductAttributeController::class);
+    Route::prefix('users')->as('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/trash', [UserController::class, 'trash'])->name('trash');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::get('/{user}', [UserController::class, 'show'])->name('show');
+        Route::post('/store', [UserController::class, 'store'])->name('store');
+        Route::post('/filter', [UserController::class, 'filter'])->name('filter');
+        Route::get('/edit/{user}', [UserController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+        Route::put('/updateEmailVerified/{user}', [UserController::class, 'updateEmailVerified'])->name('updateEmailVerified');
+        Route::patch('/{id}/restore', [UserController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [UserController::class, 'forceDelete'])->name('force-delete');
+    });
 });
 Route::get('/', function () {
     return view('clients.client');
 });
+
 Route::get('/{any}', function () {
     return view('clients.client'); // app.blade.php chứa <div id="app"></div>
 })->where('any', '.*');
