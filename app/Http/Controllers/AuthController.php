@@ -17,6 +17,10 @@ class AuthController extends Controller
                 Auth::logout();
                 return back()->with('error', 'Bạn không phải admin');
             }
+            if (Auth::user()->status === 'blocked') {
+                Auth::logout();
+                return back()->with('error', 'Tài khoản của bạn đã bị khóa');
+            }
             return redirect()->route('admin.dashboard')->with('success','Đăng nhập thành công');
         }
         return back()->with('error','Email hoặc mật khẩu không đúng!!!');
