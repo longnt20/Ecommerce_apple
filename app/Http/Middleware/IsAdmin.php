@@ -16,7 +16,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        if (Auth::check() && Auth::user()->role === 'admin' && Auth::user()->status === 'active')  {
             return $next($request);
         }
         abort(403,'Bạn không có quyền truy cập');

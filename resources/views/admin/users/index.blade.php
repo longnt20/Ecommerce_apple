@@ -245,7 +245,7 @@
                                                         class="badge bg-warning-subtle text-warning text-uppercase">Inactive</span>
                                                 @else
                                                     <span
-                                                        class="badge bg-warning-subtle text-warning text-uppercase">Block</span>
+                                                        class="badge bg-warning-subtle text-danger text-uppercase">Block</span>
                                                 @endif
                                             </td>
                                             <td>

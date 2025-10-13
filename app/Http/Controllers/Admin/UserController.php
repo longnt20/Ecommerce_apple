@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\UserStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
+use App\Mail\AccountBlockedMail;
+use App\Mail\AccountUnblockedMail;
+use App\Mail\RoleChangedMail;
 use App\Mail\UserRoleChangedMail;
 use App\Models\User;
 use App\Traits\LoggableTrait;
@@ -144,22 +148,23 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $currencyAvatar = $user->avatar;
-
+            $oldRole = $user->role;
+            $oldStatus = $user->status;
             if ($request->hasFile('avatar')) {
                 $data['avatar'] = $this->uploadToLocal($request->file('avatar'), self::FOLDER);
             }
 
             $user->update($data);
-            $mailData = null;
 
-            if ($request->has('role')) {
-                $newRole = $request->input('role');
+            // Kiểm tra thay đổi vai trò hoặc trạng thái
+            $newRole = $user->role;
+            $newStatus = $user->status;
 
-                if ($user->role !== $newRole) {
-                    $oldRole = $user->role;
-                    $user->update(['role' => $newRole]);
-                }
+            if ($oldRole !== $newRole || $oldStatus !== $newStatus) {
+                // Bắn event duy nhất, listener sẽ tự gửi mail phù hợp
+                event(new UserStatusChanged($user, $oldStatus, $newStatus, $oldRole, $newRole));
             }
+
             if (
                 isset($data['avatar']) && !empty($data['avatar'])
                 && filter_var($data['avatar'], FILTER_VALIDATE_URL)
@@ -183,25 +188,25 @@ class UserController extends Controller
         }
     }
     public function destroy(User $user)
-{
-    try {
-        if ($user->role = "admin") {
-            return redirect()->back()->with('warning', 'Không thể xóa tài khoản quản trị viên!');
+    {
+        try {
+            if ($user->role = "admin") {
+                return redirect()->back()->with('warning', 'Không thể xóa tài khoản quản trị viên!');
+            }
+
+            $user->delete();
+
+            return redirect()
+                ->route('admin.users.index')
+                ->with('success', 'Đã chuyển vào thùng rác!');
+        } catch (\Exception $e) {
+            $this->logError($e);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
         }
-
-        $user->delete();
-
-        return redirect()
-            ->route('admin.users.index')
-            ->with('success', 'Đã chuyển vào thùng rác!');
-    } catch (\Exception $e) {
-        $this->logError($e);
-
-        return redirect()
-            ->back()
-            ->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
     }
-}
 
     public function trash()
     {

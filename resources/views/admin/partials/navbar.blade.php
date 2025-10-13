@@ -758,11 +758,11 @@
             <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="d-flex align-items-center">
-                    <img class="rounded-circle header-profile-user" src="{{Storage::url(Auth::user()->avatar)}}"
+                    <img class="rounded-circle header-profile-user" src="{{Storage::url(Auth::user()->avatar ?? null )}}"
                         alt="Header Avatar">
                     <span class="text-start ms-xl-2">
                         <span
-                            class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ Auth::user()->name }}</span>
+                            class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ Auth::user()->name ?? null }}</span>
                         <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{ Auth::user()->role }}</span>
                     </span>
                 </span>
