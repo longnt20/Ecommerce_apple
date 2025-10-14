@@ -16,7 +16,7 @@ abstract class BaseCrudController
     protected $updateformRequestClass;
     public function index()
     {
-        $items = $this->service->getAll();
+        $items = $this->service->getAllCate();
         return view("{$this->viewPath}.index", compact('items'));
     }
 

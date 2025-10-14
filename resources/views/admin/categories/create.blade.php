@@ -22,15 +22,6 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">Thêm mới danh mục</h4>
-                     @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                 </div><!-- end card header -->
 
                 <div class="card-body">
