@@ -3,6 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\UserStatusChanged;
+use App\Jobs\SendAccountBlockedMail;
+use App\Jobs\SendAccountUnblockedMail;
+use App\Jobs\SendRoleChangedMail;
 use App\Mail\AccountBlockedMail;
 use App\Mail\AccountUnblockedMail;
 use App\Mail\RoleChangedMail;
@@ -27,18 +30,18 @@ class SendUserStatusEmail
     {
         $user = $event->user;
 
-        // Gửi email khi trạng thái thay đổi
+        // Gửi mail trạng thái
         if ($event->oldStatus !== $event->newStatus) {
             if ($event->newStatus === 'blocked') {
-                Mail::to($user->email)->send(new AccountBlockedMail($user));
+                SendAccountBlockedMail::dispatch($user);
             } elseif ($event->newStatus === 'active') {
-                Mail::to($user->email)->send(new AccountUnblockedMail($user));
+                SendAccountUnblockedMail::dispatch($user);
             }
         }
 
-        // Gửi email khi vai trò thay đổi
+        // Gửi mail thay đổi vai trò
         if ($event->oldRole !== $event->newRole) {
-            Mail::to($user->email)->send(new RoleChangedMail($user, $event->oldRole, $event->newRole));
+            SendRoleChangedMail::dispatch($user, $event->oldRole, $event->newRole);
         }
     }
 }

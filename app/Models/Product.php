@@ -33,5 +33,8 @@ class Product extends Model
     {
         return $this->hasMany(ProductSpec::class);
     }
-
+    public function promotions()
+    {
+        return $this->morphMany(PromotionItem::class, 'item');
+    }
 }

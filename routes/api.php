@@ -14,7 +14,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 // Những route cần token mới truy cập
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::apiResource('/categories', CategoryController::class);
     Route::get('/user', [UserController::class, 'profile']);
 });
+Route::apiResource('/categories', CategoryController::class);
 

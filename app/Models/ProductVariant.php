@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ProductVariant extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['product_id', 'sku', 'price', 'cost_price','thumbnail', 'barcode', 'color', 'storage'];
+    protected $fillable = ['product_id', 'sku', 'price', 'cost_price', 'thumbnail', 'barcode', 'color', 'storage'];
 
     public function product()
     {
@@ -18,5 +18,10 @@ class ProductVariant extends Model
     public function inventory()
     {
         return $this->hasMany(Inventory::class);
+    }
+    
+    public function promotions()
+    {
+        return $this->morphMany(PromotionItem::class, 'item');
     }
 }

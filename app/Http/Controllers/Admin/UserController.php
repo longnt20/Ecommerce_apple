@@ -139,47 +139,43 @@ class UserController extends Controller
     }
     public function update(UpdateUserRequest $request, User $user)
     {
+        $validator = $request->validated();
+        $data = $request->except('avatar', 'email', 'email_verified');
+
+        DB::beginTransaction();
+
         try {
-
-            $validator = $request->validated();
-
-            $data = $request->except('avatar', 'email', 'email_verified');
-
-            DB::beginTransaction();
-
-            $currencyAvatar = $user->avatar;
+            $oldAvatar = $user->avatar;
             $oldRole = $user->role;
             $oldStatus = $user->status;
+
             if ($request->hasFile('avatar')) {
-                $data['avatar'] = $this->uploadToLocal($request->file('avatar'), self::FOLDER);
+                $avatarFile = $request->file('avatar');
+                $data['avatar'] = $this->uploadToLocal($avatarFile, self::FOLDER);
             }
 
             $user->update($data);
 
-            // Kiểm tra thay đổi vai trò hoặc trạng thái
             $newRole = $user->role;
             $newStatus = $user->status;
 
             if ($oldRole !== $newRole || $oldStatus !== $newStatus) {
-                // Bắn event duy nhất, listener sẽ tự gửi mail phù hợp
                 event(new UserStatusChanged($user, $oldStatus, $newStatus, $oldRole, $newRole));
             }
 
-            if (
-                isset($data['avatar']) && !empty($data['avatar'])
-                && filter_var($data['avatar'], FILTER_VALIDATE_URL)
-                && !empty($currencyAvatar) && $currencyAvatar !== self::URLIMAGEDEFAULT
-            ) {
-                $this->deleteFromLocal($currencyAvatar, self::FOLDER);
+            // Xóa avatar cũ nếu có avatar mới và avatar cũ không phải default
+            if (!empty($data['avatar']) && !empty($oldAvatar) && $oldAvatar !== self::URLIMAGEDEFAULT) {
+                $this->deleteFromLocal($oldAvatar, self::FOLDER);
             }
-            // dd($data);
+
             DB::commit();
             return redirect()->route('admin.users.edit', $user)->with('success', 'Cập nhật thành công');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
 
-            if (isset($data['avatar']) && !empty($data['avatar']) && filter_var($data['avatar'], FILTER_VALIDATE_URL)) {
-                $this->deleteFromLocal($data['avatar']);
+            // Cleanup avatar mới nếu có lỗi
+            if (!empty($data['avatar'])) {
+                $this->deleteFromLocal($data['avatar'], self::FOLDER);
             }
 
             $this->logError($e);
@@ -187,6 +183,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
         }
     }
+
     public function destroy(User $user)
     {
         try {

@@ -1,12 +1,12 @@
 <template>
   <div class="category-menu">
     <ul>
-      <li v-for="(category, index) in categories" :key="category.text">
-        <a :href="category.href" class="menu-item">
-          <div class="icon-wrapper">
+      <li v-for="category in categories" :key="category.id">
+        <a :href="`/category/${category.slug}`" class="menu-item">
+           <div class="icon-wrapper">
             <component :is="category.iconComponent" :size="18" class="icon" />
           </div>
-          <span class="menu-text">{{ category.text }}</span>
+          <span class="menu-text">{{ category.name }}</span>
           <ChevronRight :size="14" class="arrow-icon" />
         </a>
       </li>
@@ -15,23 +15,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import {
   Smartphone, Laptop, Headphones, Watch, Home, Puzzle, PcCase,
   Tv, Repeat, Package, Percent, FileText, ChevronRight
 } from 'lucide-vue-next';
+import axios from 'axios';
 
-const categories = ref([
-  { text: 'Điện thoại, Tablet', href: '#', iconComponent: Smartphone },
-  { text: 'Laptop', href: '#', iconComponent: Laptop },
-  { text: 'Âm thanh, Mic thu âm', href: '#', iconComponent: Headphones },
-  { text: 'Đồng hồ, Camera', href: '#', iconComponent: Watch },
-  { text: 'Phụ kiện', href: '#', iconComponent: Puzzle },
-  { text: 'Thu cũ đổi mới', href: '#', iconComponent: Repeat },
-  { text: 'Hàng cũ', href: '#', iconComponent: Package },
-  { text: 'Khuyến mãi', href: '#', iconComponent: Percent },
-  { text: 'Tin công nghệ', href: '#', iconComponent: FileText },
-]);
+const getIconByName = (name) => {
+  const iconMap = {
+    'Điện thoại, Tablet': Smartphone,
+    'Laptop': Laptop,
+    'Âm thanh, Mic thu âm': Headphones,
+    'Đồng hồ, Camera': Watch,
+    'Phụ kiện': Puzzle,
+    'Thu cũ đổi mới': Repeat,
+    'Hàng cũ': Package,
+    'Khuyến mãi': Percent,
+    'Tin công nghệ': FileText,
+  }
+
+  // Nếu không trùng tên nào, trả icon mặc định
+  return iconMap[name] || FileText
+}
+const categories = ref([])
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/categories')
+    const data = response.data.categories.data
+
+    // Gán icon tương ứng
+    categories.value = data.map(cat => ({
+      ...cat,
+      iconComponent: getIconByName(cat.name)
+    }))
+  } catch (error) {
+    console.error('Lỗi khi lấy danh mục:', error)
+  }
+})
 </script>
 
 <style scoped>
