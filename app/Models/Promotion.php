@@ -15,10 +15,15 @@ class Promotion extends Model
         'start_date',
         'end_date',
         'status',
+        'is_featured',
     ];
 
-    public function promotionItems()
+    public function items()
     {
         return $this->hasMany(PromotionItem::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }
