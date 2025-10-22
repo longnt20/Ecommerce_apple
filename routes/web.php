@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductAttributeController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Mail;
@@ -104,13 +106,13 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
     });
 
     // Warehouses
-    Route::prefix('warehouses')->as('warehouses.')->group(function(){
+    Route::prefix('warehouses')->as('warehouses.')->group(function () {
         Route::get('/', [WarehouseController::class, 'index'])->name('index');
         Route::get('/{warehouse}', [WarehouseController::class, 'show'])->name('show');
         Route::post('/store', [WarehouseController::class, 'store'])->name('store');
         Route::get('/edit/{warehouse}', [WarehouseController::class, 'edit'])->name('edit');
         Route::put('/{warehouse}', [WarehouseController::class, 'update'])->name('update');
-        Route::post('/search',[WarehouseController::class,'search'])->name('search');
+        Route::post('/search', [WarehouseController::class, 'search'])->name('search');
         Route::post('/{id}/toggle-active', [WarehouseController::class, 'toggleActive']);
     });
     Route::resource('product-attributes', ProductAttributeController::class);
@@ -127,6 +129,32 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::put('/updateEmailVerified/{user}', [UserController::class, 'updateEmailVerified'])->name('updateEmailVerified');
         Route::patch('/{id}/restore', [UserController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [UserController::class, 'forceDelete'])->name('force-delete');
+    });
+    Route::prefix('promotions')->as('promotions.')->group(function () {
+        Route::get('/', [PromotionController::class, 'index'])->name('index');
+        Route::get('/trash', [PromotionController::class, 'trash'])->name('trash');
+        Route::get('/create', [PromotionController::class, 'create'])->name('create');
+        Route::get('/{promotion}', [PromotionController::class, 'show'])->name('show');
+        Route::post('/store', [PromotionController::class, 'store'])->name('store');
+        Route::post('/filter', [PromotionController::class, 'filter'])->name('filter');
+        Route::get('/edit/{promotion}', [PromotionController::class, 'edit'])->name('edit');
+        Route::put('/{promotion}', [PromotionController::class, 'update'])->name('update');
+        Route::delete('/{promotion}', [PromotionController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/restore', [PromotionController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [PromotionController::class, 'forceDelete'])->name('force-delete');
+    });
+    Route::prefix('banners')->as('banners.')->group(function () {
+        Route::get('/', [BannerController::class, 'index'])->name('index');
+        Route::get('/trash', [BannerController::class, 'trash'])->name('trash');
+        Route::get('/create', [BannerController::class, 'create'])->name('create');
+        Route::get('/{banner}', [BannerController::class, 'show'])->name('show');
+        Route::post('/store', [BannerController::class, 'store'])->name('store');
+        Route::post('/update-order', [BannerController::class, 'updateOrder'])->name('updateOrder');
+        Route::get('/edit/{banner}', [BannerController::class, 'edit'])->name('edit');
+        Route::put('/{banner}', [BannerController::class, 'update'])->name('update');
+        Route::delete('/{banner}', [BannerController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/restore', [BannerController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [BannerController::class, 'forceDelete'])->name('force-delete');
     });
 });
 Route::get('/', function () {

@@ -219,195 +219,20 @@
                     <div class="collapse menu-dropdown" id="sidebarAuth">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="#sidebarSignIn" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarSignIn" data-key="t-signin"> Sign In
+                                <a href="{{ route('admin.banners.index') }}" class="nav-link"
+                                    data-key="t-analytics">
+                                    Danh sách banner
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarSignIn">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-signin-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-signin-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                             <li class="nav-item">
-                                <a href="#sidebarSignUp" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarSignUp" data-key="t-signup"> Sign Up
+                                <a href="{{ route('admin.banners.create') }}" class="nav-link"
+                                    data-key="t-analytics"> Thêm mới banner
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarSignUp">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-signup-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-signup-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#sidebarResetPass" class="nav-link" data-bs-toggle="collapse"
-                                    role="button" aria-expanded="false" aria-controls="sidebarResetPass"
-                                    data-key="t-password-reset">
-                                    Password Reset
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarResetPass">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-pass-reset-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-pass-reset-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#sidebarchangePass" class="nav-link" data-bs-toggle="collapse"
-                                    role="button" aria-expanded="false" aria-controls="sidebarchangePass"
-                                    data-key="t-password-create">
-                                    Password Create
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarchangePass">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-pass-change-basic.html" class="nav-link"
-                                                data-key="t-basic">
-                                                Basic </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-pass-change-cover.html" class="nav-link"
-                                                data-key="t-cover">
-                                                Cover </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#sidebarLockScreen" class="nav-link" data-bs-toggle="collapse"
-                                    role="button" aria-expanded="false" aria-controls="sidebarLockScreen"
-                                    data-key="t-lock-screen">
-                                    Lock Screen
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarLockScreen">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-lockscreen-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-lockscreen-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="#sidebarLogout" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarLogout" data-key="t-logout"> Logout
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarLogout">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-logout-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-logout-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                             <li class="nav-item">
-                                <a href="#sidebarSuccessMsg" class="nav-link" data-bs-toggle="collapse"
-                                    role="button" aria-expanded="false" aria-controls="sidebarSuccessMsg"
-                                    data-key="t-success-message"> Success Message
+                                <a href="{{ route('admin.banners.trash') }}" class="nav-link"
+                                    data-key="t-analytics"> Danh sách banner đã xóa
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarSuccessMsg">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-success-msg-basic.html" class="nav-link"
-                                                data-key="t-basic">
-                                                Basic </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-success-msg-cover.html" class="nav-link"
-                                                data-key="t-cover">
-                                                Cover </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#sidebarTwoStep" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarTwoStep"
-                                    data-key="t-two-step-verification"> Two Step Verification
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarTwoStep">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-twostep-basic.html" class="nav-link" data-key="t-basic">
-                                                Basic
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-twostep-cover.html" class="nav-link" data-key="t-cover">
-                                                Cover
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#sidebarErrors" class="nav-link" data-bs-toggle="collapse" role="button"
-                                    aria-expanded="false" aria-controls="sidebarErrors" data-key="t-errors"> Errors
-                                </a>
-                                <div class="collapse menu-dropdown" id="sidebarErrors">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="auth-404-basic.html" class="nav-link" data-key="t-404-basic">
-                                                404
-                                                Basic </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-404-cover.html" class="nav-link" data-key="t-404-cover">
-                                                404
-                                                Cover </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-404-alt.html" class="nav-link" data-key="t-404-alt"> 404
-                                                Alt
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-500.html" class="nav-link" data-key="t-500"> 500 </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="auth-offline.html" class="nav-link" data-key="t-offline-page">
-                                                Offline Page </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                         </ul>
                     </div>
@@ -523,8 +348,8 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.create') }}" class="nav-link"
-                                    data-key="t-analytics"> Thêm mới người dùng
+                                <a href="{{ route('admin.users.create') }}" class="nav-link" data-key="t-analytics">
+                                    Thêm mới người dùng
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -675,101 +500,21 @@
                     <div class="collapse menu-dropdown" id="sidebarCharts">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="#sidebarApexcharts" class="nav-link" data-bs-toggle="collapse"
-                                    role="button" aria-expanded="false" aria-controls="sidebarApexcharts"
-                                    data-key="t-apexcharts">
-                                    Apexcharts
+                                <a href="{{ route('admin.promotions.index') }}" class="nav-link"
+                                    data-key="t-analytics">
+                                    Danh sách chương trình
                                 </a>
-                                <div class="collapse menu-dropdown" id="sidebarApexcharts">
-                                    <ul class="nav nav-sm flex-column">
-                                        <li class="nav-item">
-                                            <a href="charts-apex-line.html" class="nav-link" data-key="t-line"> Line
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-area.html" class="nav-link" data-key="t-area"> Area
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-column.html" class="nav-link" data-key="t-column">
-                                                Column </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-bar.html" class="nav-link" data-key="t-bar"> Bar
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-mixed.html" class="nav-link" data-key="t-mixed">
-                                                Mixed
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-timeline.html" class="nav-link"
-                                                data-key="t-timeline">
-                                                Timeline </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-range-area.html" class="nav-link"><span
-                                                    data-key="t-range-area">Range Area</span> <span
-                                                    class="badge badge-pill bg-success"
-                                                    data-key="t-new">New</span></a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-funnel.html" class="nav-link"><span
-                                                    data-key="t-funnel">Funnel</span> <span
-                                                    class="badge badge-pill bg-success"
-                                                    data-key="t-new">New</span></a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-candlestick.html" class="nav-link"
-                                                data-key="t-candlstick"> Candlstick </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-boxplot.html" class="nav-link" data-key="t-boxplot">
-                                                Boxplot </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-bubble.html" class="nav-link" data-key="t-bubble">
-                                                Bubble </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-scatter.html" class="nav-link" data-key="t-scatter">
-                                                Scatter </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-heatmap.html" class="nav-link" data-key="t-heatmap">
-                                                Heatmap </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-treemap.html" class="nav-link" data-key="t-treemap">
-                                                Treemap </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-pie.html" class="nav-link" data-key="t-pie"> Pie
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-radialbar.html" class="nav-link"
-                                                data-key="t-radialbar"> Radialbar </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-radar.html" class="nav-link" data-key="t-radar">
-                                                Radar
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="charts-apex-polar.html" class="nav-link"
-                                                data-key="t-polar-area">
-                                                Polar Area </a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </li>
                             <li class="nav-item">
-                                <a href="charts-chartjs.html" class="nav-link" data-key="t-chartjs"> Chartjs </a>
+                                <a href="{{ route('admin.promotions.create') }}" class="nav-link"
+                                    data-key="t-analytics"> Thêm mới chương trình
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a href="charts-echarts.html" class="nav-link" data-key="t-echarts"> Echarts </a>
+                                <a href="{{ route('admin.promotions.trash') }}" class="nav-link"
+                                    data-key="t-analytics">
+                                    Danh sách chương trình đã xóa
+                                </a>
                             </li>
                         </ul>
                     </div>
