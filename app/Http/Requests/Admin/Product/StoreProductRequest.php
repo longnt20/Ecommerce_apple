@@ -32,6 +32,10 @@ class StoreProductRequest extends FormRequest
             'default_price' => 'nullable|numeric',
             'visibility' => 'required|in:public,hidden',
             'status' => 'required|in:published,draft',
+            'variants' => 'nullable|array',
+            'variants.*.sku' => 'nullable|string|max:255',
+            'variants.*.price' => 'nullable|numeric',
+            'variants.*.thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
         ];
     }
     public function messages()
@@ -42,15 +46,42 @@ class StoreProductRequest extends FormRequest
             'short_description.max' => 'Mô tả ngắn không được vượt quá 255 kí tự',
             'category_id.required'  => 'Danh mục không được để trống',
             'category_id.exists'    => 'Danh mục không tồn tại',
-            'thumbnail.image'       =>'Không đúng định dạng ảnh',
-            'thumbnail.mimes'       =>'Không đúng loại ảnh được upload',
-            'thumbnail.max'         =>'Ảnh không được quá 2048MB',
-            'gallery.image'       =>'Không đúng định dạng ảnh',
-            'gallery.mimes'       =>'Không đúng loại ảnh được upload',
-            'gallery.max'         =>'Ảnh không được quá 2048MB',
-            'default_price.numeric'=> 'Giá phải là số',
-            'visibility.required'   =>'Trạng thái hiển thị là bắt buộc',
-            'status.required'       =>'Trạng thái là bắt buộc'
+            'thumbnail.image'       => 'Không đúng định dạng ảnh',
+            'thumbnail.mimes'       => 'Không đúng loại ảnh được upload',
+            'thumbnail.max'         => 'Ảnh không được quá 2048MB',
+            'gallery.image'       => 'Không đúng định dạng ảnh',
+            'gallery.mimes'       => 'Không đúng loại ảnh được upload',
+            'gallery.max'         => 'Ảnh không được quá 2048MB',
+            'default_price.numeric' => 'Giá phải là số',
+            'visibility.required'   => 'Trạng thái hiển thị là bắt buộc',
+            'status.required'       => 'Trạng thái là bắt buộc',
+            'variants.array' => 'Dữ liệu biến thể không hợp lệ.',
+            'variants.*.sku.string' => 'Mã SKU phải là chuỗi ký tự.',
+            'variants.*.sku.max' => 'Mã SKU không được vượt quá 255 ký tự.',
+            'variants.*.price.numeric' => 'Giá biến thể phải là số.',
+            'variants.*.thumbnail.image' => 'Ảnh biến thể phải là định dạng hình ảnh.',
+            'variants.*.thumbnail.mimes' => 'Ảnh biến thể chỉ chấp nhận các định dạng: jpeg, png, jpg, webp, gif.',
+            'variants.*.thumbnail.max' => 'Ảnh biến thể không được vượt quá 2MB.',
         ];
     }
+    // public function withValidator($validator)
+    // {
+    //     $validator->after(function ($validator) {
+    //         $variants = $this->input('variants', []);
+
+    //         foreach ($variants as $index => $variant) {
+    //             $sku = $variant['sku'] ?? null;
+    //             $price = $variant['price'] ?? null;
+
+    //             if ($sku && !$price) {
+    //                 $validator->errors()->add("variants.$index.price", 'Vui lòng nhập giá cho biến thể khi đã có mã SKU.');
+    //             }
+
+    //             if ($price && !$sku) {
+    //                 $validator->errors()->add("variants.$index.sku", 'Vui lòng nhập mã SKU cho biến thể khi đã có giá.');
+    //             }
+    //         }
+    //         dd($this->input('variants'));
+    //     });
+    // }
 }

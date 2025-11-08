@@ -24,12 +24,6 @@
 
 <div class="container-fluid">
 
-    @if (session('success') === true)
-        <div class="alert alert-success">Thao tác thành công</div>
-    @elseif (session('success') === false)
-        <div class="alert alert-danger"><strong>Thao tác không thành công</strong></div>
-    @endif
-
     <div class="row">
         <!-- Thông tin chi tiết -->
         <div class="col-lg-8">

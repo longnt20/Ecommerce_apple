@@ -7,10 +7,12 @@ use App\Http\Requests\Admin\Variant\StoreProductVariantRequest;
 use App\Http\Requests\Admin\Variant\UpdateProductVariantRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Traits\GeneratesBarcode;
 use Illuminate\Http\Request;
 
 class ProductVariantController extends Controller
 {
+    use GeneratesBarcode;
     public function index()
     {
         $productVariants = ProductVariant::latest('id')->paginate(10);
@@ -93,11 +95,5 @@ class ProductVariantController extends Controller
         } catch (\Throwable $th) {
             return back()->with('error','Không thể xóa sản phẩm' . $th->getMessage());
         }
-    }
-    private function generateBarcode()
-    {
-        // Sinh barcode ngẫu nhiên 12 số, thêm checksum để thành EAN13
-        $code = str_pad(mt_rand(1, 999999999999), 12, '0', STR_PAD_LEFT);
-        return $code;
     }
 }

@@ -150,6 +150,49 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                Biến thể
+                            </div>
+                            <div class="card-body">
+                                @if ($product->variants->isEmpty())
+                                    <p><em>Không có biến thể nào.</em></p>
+                                @else
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Sku</th>
+                                                <th>Barcode</th>
+                                                <th>Ảnh</th>
+                                                <th>Màu sắc</th>
+                                                <th>Dung lượng</th>
+                                                <th>Giá bán</th>
+                                                <th>Giá khuyến mãi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($product->variants as $index => $variant)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $variant->sku }}</td>
+                                                    <td>
+                                                        <img src="data:image/png;base64,{!! DNS1D::getBarcodePNG($variant->barcode, 'C128') !!}" alt="barcode" />
+                                                    </td>
+                                                    <td>
+                                                        <img src="{{ Storage::url($variant->thumbnail) }}" alt="" width="100px">
+                                                    </td>
+                                                    <td>{{ $variant->color ?? '-' }}</td>
+                                                    <td>{{ $variant->storage ?? '-' }}</td>
+                                                    <td>{{ number_format($variant->price) }}đ</td>
+                                                    <td>{{ number_format($variant->cost_price) }}đ</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
+                            </div>
+                        </div>
                         <!-- Mô tả chi tiết -->
                         <div class="card shadow-sm border-0">
                             <div class="card-header bg-primary text-white fw-bold">

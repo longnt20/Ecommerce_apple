@@ -493,7 +493,7 @@ class InventoryController extends Controller
                         'name' => $item->productVariant->product->name,
                         'variant' => $item->productVariant->color . ' - ' . $item->productVariant->storage,
                         'sku' => $item->productVariant->sku,
-                        'image' => asset('storage/' . $item->productVariant->product->thumbnail),
+                        'image' => asset('storage/' . $item->productVariant->thumbnail),
                         'quantity' => $item->quantity,
                         'available_quantity' => $item->available_quantity,
                         'unit_cost' => $item->productVariant->cost_price ?? 0
