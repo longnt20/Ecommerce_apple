@@ -60,6 +60,7 @@
                                         <th data-sort="email">Ảnh</th>
                                         <th data-sort="cate">Danh mục</th>
                                         <th data-sort="phone">Giá</th>
+                                        <th>Biến thể</th>
                                         <th data-sort="phone">Hiển thị</th>
                                         <th data-sort="date">Trạng thái</th>
                                         <th data-sort="action">Hành động</th>
@@ -77,11 +78,17 @@
                                             <td class="customer_id">{{ $item->id }}</td>
                                             <td class="customer_name">{{ $item->name }}</td>
                                             <td class="email">
-                                                <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" width="100px">
+                                                <img src="{{ asset('storage/' . $item->thumbnail) }}" alt=""
+                                                    width="100px">
                                             </td>
                                             <td class="customer_name">{{ $item->category->name ?? 'Không xác định' }}</td>
                                             <td class="phone">{{ number_format($item->default_price, 0, ',', '.') }} đ</td>
-                                                                                        <td class="status">
+                                            <td>
+                                                <span
+                                                    class="badge bg-primary-subtle text-primary text-uppercase">{{ $item->variants_count }}
+                                                    Biến thể</span>
+                                            </td>
+                                            <td class="status">
                                                 @if ($item->visibility == 'public')
                                                     <span
                                                         class="badge bg-success-subtle text-success text-uppercase">Public</span>

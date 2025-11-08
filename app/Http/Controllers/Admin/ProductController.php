@@ -7,18 +7,23 @@ use App\Http\Requests\Admin\Product\StoreProductRequest;
 use App\Http\Requests\Admin\Product\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Traits\GeneratesBarcode;
+use App\Traits\LoggableTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    use GeneratesBarcode, LoggableTrait;
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $products = Product::latest('id')->paginate(10);
+        $products = Product::withCount('variants')->latest('id')->paginate(10);
         return view('admin.products.index', compact('products'));
     }
 
@@ -36,7 +41,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        // try {
+        try {
             $data = $request->validated();
             // dd($request->all()); 
             // Upload thumbnail
@@ -67,12 +72,41 @@ class ProductController extends Controller
                     }
                 }
             }
+            if ($request->filled('variants')) {
+                foreach ($request->variants as $variantData) {
+                    // Nếu người dùng không nhập gì ở biến thể này thì bỏ qua
+                    if (empty($variantData['sku']) && empty($variantData['price']) && empty($variantData['thumbnail'])) {
+                        continue;
+                    }
+
+                    $variant = new ProductVariant([
+                        'product_id' => $product->id,
+                        'sku'        => $variantData['sku'] ?? null,
+                        'price'      => $variantData['price'] ?? null,
+                        'cost_price' => $variantData['cost_price'] ?? null,
+                        'color'      => $variantData['color'] ?? null,
+                        'storage'    => $variantData['storage'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+
+                    if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile) {
+                        $path = $variantData['thumbnail']->store('variants', 'public');
+                        $variant->thumbnail = $path;
+                    }
+                    if (empty($variantData['barcode'])) {
+                        $variantData['barcode'] = $this->generateBarcode();
+                    }
+                    $variant->save();
+                }
+            }
+
             return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công');
-        // } 
-        // catch (\Throwable $th) {
-        //     //throw $th;
-        //     return back()->with('error', 'Không thể thêm sản phẩm: ' . $th->getMessage());
-        // }
+        } catch (\Exception $e) {
+            //throw $th;
+            $this->logError($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
+        }
     }
 
     /**
@@ -81,7 +115,7 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $categories = Category::all();
-        $product = Product::with('specs')->findOrFail($id);
+        $product = Product::with(['specs', 'variants'])->findOrFail($id);
         return view('admin.products.show', compact('product', 'categories'));
     }
 
@@ -90,8 +124,14 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = Category::all();
-        $product = Product::with('specs')->findOrFail($id);
+        $categories = Cache::remember('categories_list', 3600, function () {
+            return Category::select('id', 'name')->get();
+        });
+
+        $product = Product::with([
+            'specs:id,product_id,spec_name,spec_value',
+            'variants:id,product_id,sku,price,cost_price,color,storage,thumbnail'
+        ])->findOrFail($id);
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -173,6 +213,78 @@ class ProductController extends Controller
                 // Nếu không có spec nào được gửi lên -> xoá hết
                 $product->specs()->delete();
             }
+            if ($request->filled('variants')) {
+                $existingVariantIds = $product->variants->pluck('id')->toArray(); // lấy danh sách id biến thể cũ
+                $submittedVariantIds = [];
+
+                foreach ($request->variants as $variantData) {
+
+                    // Bỏ qua biến thể rỗng
+                    if (empty($variantData['sku']) && empty($variantData['price']) && empty($variantData['thumbnail'])) {
+                        continue;
+                    }
+
+                    //  Nếu có ID → cập nhật biến thể cũ
+                    if (!empty($variantData['id'])) {
+                        $variant = ProductVariant::find($variantData['id']);
+
+                        if ($variant) {
+                            $variant->update([
+                                'sku'        => $variantData['sku'] ?? null,
+                                'price'      => $variantData['price'] ?? null,
+                                'cost_price' => $variantData['cost_price'] ?? null,
+                                'color'      => $variantData['color'] ?? null,
+                                'storage'    => $variantData['storage'] ?? null,
+                            ]);
+
+                            // Nếu có ảnh mới → cập nhật ảnh
+                            if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile) {
+                                $path = $variantData['thumbnail']->store('variants', 'public');
+                                $variant->thumbnail = $path;
+                                $variant->save();
+                            }
+
+                            $submittedVariantIds[] = $variant->id;
+                        }
+                    }
+
+                    //  Nếu chưa có ID → thêm mới
+                    else {
+                        $variant = new ProductVariant([
+                            'product_id' => $product->id,
+                            'sku'        => $variantData['sku'] ?? null,
+                            'price'      => $variantData['price'] ?? null,
+                            'cost_price' => $variantData['cost_price'] ?? null,
+                            'color'      => $variantData['color'] ?? null,
+                            'storage'    => $variantData['storage'] ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile) {
+                            $path = $variantData['thumbnail']->store('variants', 'public');
+                            $variant->thumbnail = $path;
+                        }
+
+                        // Tự sinh barcode nếu trống
+                        if (empty($variantData['barcode'])) {
+                            $variantData['barcode'] = $this->generateBarcode();
+                        }
+
+                        $variant->barcode = $variantData['barcode'];
+                        $variant->save();
+
+                        $submittedVariantIds[] = $variant->id;
+                    }
+                }
+
+                //  Xóa các biến thể không còn trong request (người dùng đã xóa trên form)
+                $variantsToDelete = array_diff($existingVariantIds, $submittedVariantIds);
+                if (!empty($variantsToDelete)) {
+                    ProductVariant::whereIn('id', $variantsToDelete)->delete();
+                }
+            }
+
             return redirect()->route('admin.products.index')->with('success', 'Cập nhật sản phẩm thành công');
         } catch (\Throwable $th) {
             return back()->with('error', 'Không thể cập nhật sản phẩm: ' . $th->getMessage());
@@ -207,7 +319,8 @@ class ProductController extends Controller
             return back()->with('error', 'Không thể khôi phục sản phẩm: ' . $th->getMessage());
         }
     }
-    public function forceDelete(string $id){
+    public function forceDelete(string $id)
+    {
         try {
             $product = Product::onlyTrashed()->findOrFail($id);
             $product->forceDelete();

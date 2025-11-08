@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\AuthController;
@@ -155,6 +156,18 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::delete('/{banner}', [BannerController::class, 'destroy'])->name('destroy');
         Route::patch('/{id}/restore', [BannerController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [BannerController::class, 'forceDelete'])->name('force-delete');
+    });
+    Route::prefix('posts')->as('posts.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('/trash', [PostController::class, 'trash'])->name('trash');
+        Route::get('/create', [PostController::class, 'create'])->name('create');
+        Route::get('/{post}', [PostController::class, 'show'])->name('show');
+        Route::post('/store', [PostController::class, 'store'])->name('store');
+        Route::get('/edit/{post}', [PostController::class, 'edit'])->name('edit');
+        Route::put('/{post}', [PostController::class, 'update'])->name('update');
+        Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/restore', [PostController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [PostController::class, 'forceDelete'])->name('force-delete');
     });
 });
 Route::get('/', function () {

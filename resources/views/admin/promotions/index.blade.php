@@ -61,6 +61,7 @@
                                         <th data-sort="cate">Danh mục</th>
                                         <th data-sort="phone">Ngày bắt đầu</th>
                                         <th data-sort="phone">Ngày kết thúc</th>
+                                        <th>Nổi bật</th>
                                         <th data-sort="date">Trạng thái</th>
                                         <th data-sort="action">Hành động</th>
                                     </tr>
@@ -82,6 +83,13 @@
                                             <td class="customer_name">{{ $item->category->name ?? 'Không xác định' }}</td>
                                             <td class="phone">{{ $item->start_date }}</td>
                                             <td class="phone">{{ $item->end_date }}</td>
+                                             <td>
+                                                <div class="form-check form-switch form-switch-warning">
+                                                    <input class="form-check-input" type="checkbox" role="switch"
+                                                        name="is_featured" value="{{ $item->id }}"
+                                                        @checked($item->is_featured != null)>
+                                                </div>
+                                            </td>
                                             <td class="status">
                                                 @if ($item->status)
                                                     <span

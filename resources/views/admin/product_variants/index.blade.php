@@ -81,7 +81,7 @@
                                             </td>
                                             <td class="customer_name">{{ number_format($item->price, 0, ',', '.') }} đ</td>
                                             <td class="phone">{{ number_format($item->cost_price, 0, ',', '.') }} đ</td>
-                                            <td class="customer_name">{{ $item->color }}</td>
+                                            <td class="customer_name">{{ $item->color_label ?? 'Không có màu' }}</td>
                                             <td class="customer_name">{{ $item->storage }}</td>
                                             <td>
                                                 <div class="d-flex gap-1">

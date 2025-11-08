@@ -253,7 +253,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <img src="{{ asset('storage/' . $transaction->productVariant->product->thumbnail) }}" 
+                                        <img src="{{ asset('storage/' . $transaction->productVariant->thumbnail) }}" 
                                             class="avatar-xs rounded me-2" alt="">
                                         <div>
                                             <h6 class="mb-0 fs-14">

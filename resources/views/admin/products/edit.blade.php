@@ -198,6 +198,202 @@
                         </div>
                     </div>
                 </div>
+                @inject('attributeService', 'App\Services\ProductAttributeService')
+                <div class="card" style="border-width: 2px;">
+                    <div class="card-header" style="background-color:aliceblue">
+                        <h5 class="card-title mb-0">Biến thể</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="variant-body">
+                            @foreach ($product->variants as $index => $variant)
+                                <div class="variant-item border rounded p-3 mb-3">
+                                    <input type="hidden" name="variants[{{ $index }}][id]"
+                                        value="{{ $variant->id }}">
+
+                                    <div class="row g-2">
+                                        <div class="col-md-2">
+                                            <label>SKU</label>
+                                            <input type="text" name="variants[{{ $index }}][sku]"
+                                                class="form-control" value="{{ $variant->sku }}">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label>Giá bán</label>
+                                            <input type="number" name="variants[{{ $index }}][price]"
+                                                class="form-control" value="{{ $variant->price }}">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label>Giá khuyến mãi</label>
+                                            <input type="number" name="variants[{{ $index }}][cost_price]"
+                                                class="form-control" value="{{ $variant->cost_price }}">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label>Màu sắc</label>
+                                            <select name="variants[{{ $index }}][color]"
+                                                class="form-select @error('color') is-invalid @enderror">
+                                                <option value="{{ $variant->color }}">{{ $variant->color }}</option>
+                                                @foreach ($attributeService->getColors() as $value => $label)
+                                                    <option value="{{ $value }}">
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label>Dung lượng</label>
+                                            <select name="variants[{{ $index }}][storage]"
+                                                class="form-select @error('variants[{{ $index }}][storage]') is-invalid @enderror">
+                                                <option value="{{ $variant->storage }}">{{ $variant->storage }}</option>
+                                                @foreach ($attributeService->getStorages() as $value => $label)
+                                                    <option value="{{ $value }}">
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="d-flex align-items-center justify-content-center">Ảnh</label>
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <div class="position-relative d-inline-block">
+                                                    <div class="position-absolute top-100 start-100 translate-middle">
+                                                        <label for="variant-image-input-{{ $index }}"
+                                                            class="mb-0" data-bs-toggle="tooltip"
+                                                            data-bs-placement="right" title="Select Image">
+                                                            <div class="avatar-xs">
+                                                                <div
+                                                                    class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                    <i class="ri-image-fill"></i>
+                                                                </div>
+                                                            </div>
+                                                        </label>
+
+                                                        <input id="variant-image-input-{{ $index }}"
+                                                            class="form-control d-none variant-image-input" type="file"
+                                                            name="variants[{{ $index }}][thumbnail]"
+                                                            accept="image/png, image/gif, image/jpeg, image/webp">
+                                                    </div>
+
+                                                    <div class="avatar-lg">
+                                                        <div class="avatar-title bg-light rounded variant-img">
+                                                            <img src="{{ $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : asset('images/no-image.png') }}"
+                                                                class="avatar-md h-auto preview-image" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger btn-delete-variant"
+                                                title="Xóa biến thể">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Template thêm mới -->
+                        <template id="variant-template">
+                            <div class="variant-item border rounded p-3 mb-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-2">
+                                        <label>SKU</label>
+                                        <input type="text" name="variants[__INDEX__][sku]" class="form-control">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Giá bán</label>
+                                        <input type="number" name="variants[__INDEX__][price]" class="form-control">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Giá khuyến mãi</label>
+                                        <input type="number" name="variants[__INDEX__][cost_price]"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Màu sắc</label>
+                                        <select name="variants[__INDEX__][color]" class="form-select">
+                                            <option value="">-- Chọn màu sắc --</option>
+                                            @foreach ($attributeService->getColors() as $value => $label)
+                                                <option value="{{ $value }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Dung lượng</label>
+                                        <select name="variants[__INDEX__][storage]" class="form-select">
+                                            <option value="">-- Chọn dung lượng --</option>
+                                            @foreach ($attributeService->getStorages() as $value => $label)
+                                                <option value="{{ $value }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- ẢNH -->
+                                    <div class="col-md-2">
+                                        <label class="d-flex align-items-center justify-content-center">Ảnh</label>
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <div class="position-relative d-inline-block">
+                                                <div class="position-absolute top-100 start-100 translate-middle">
+                                                    <!-- 🔥 Gán id động -->
+                                                    <label for="variant-image-input-__INDEX__" class="mb-0"
+                                                        data-bs-toggle="tooltip" data-bs-placement="right"
+                                                        title="Select Image">
+                                                        <div class="avatar-xs">
+                                                            <div
+                                                                class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                <i class="ri-image-fill"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+
+                                                    <input id="variant-image-input-__INDEX__"
+                                                        class="form-control d-none variant-image-input" type="file"
+                                                        name="variants[__INDEX__][thumbnail]"
+                                                        accept="image/png, image/gif, image/jpeg, image/webp">
+                                                </div>
+
+                                                <div class="avatar-lg">
+                                                    <div class="avatar-title bg-light rounded variant-img">
+                                                        <img src="" class="avatar-md h-auto" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-1 d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete-variant"
+                                            title="Xóa biến thể">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+
+                        <button type="button" id="add-variant-btn" class="btn btn-secondary mt-3">+ Thêm biến
+                            thể</button>
+
+                        <style>
+                            #variant-section table th {
+                                font-size: 0.9rem;
+                                font-weight: 600;
+                            }
+
+                            #variant-section table td input {
+                                min-width: 100px;
+                            }
+                        </style>
+                    </div>
+                    <!-- end card body -->
+                </div>
                 <!-- Mô tả chi tiết -->
                 <div class="card" style="border-width: 2px;">
                     <div class="card-header" style="background-color:aliceblue">
@@ -352,6 +548,62 @@
                     e.target.closest('.gallery-item').remove();
                 }
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBtn = document.getElementById('add-variant-btn');
+            const variantBody = document.getElementById('variant-body');
+            const template = document.getElementById('variant-template').innerHTML;
+
+            let index = {{ $product->variants->count() }};
+
+            addBtn.addEventListener('click', () => {
+                const newVariant = template.replace(/__INDEX__/g, index++);
+                variantBody.insertAdjacentHTML('beforeend', newVariant);
+            });
+            variantBody.addEventListener("change", function(e) {
+                if (e.target.classList.contains("variant-image-input")) {
+                    const file = e.target.files[0];
+                    const variantItem = e.target.closest('.variant-item');
+                    const imgElement = variantItem.querySelector('.variant-img img');
+
+                    if (file && imgElement) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            imgElement.src = evt.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+            variantBody.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-delete-variant')) {
+                    e.target.closest('.variant-item').remove();
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.variant-image-input').forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = e.target.closest('.d-inline-block').querySelector(
+                            '.preview-image');
+                        if (img) {
+                            img.src = event.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+
         });
     </script>
 @endpush

@@ -124,7 +124,8 @@
                                 </div>
                                 <div>
                                     <h5 class="fs-14 mb-1">Bộ sưu tập ảnh</h5>
-                                    <input hidden class="form-control" type="file" id="gallery" name="gallery[]" multiple>
+                                    <input hidden class="form-control" type="file" id="gallery" name="gallery[]"
+                                        multiple>
                                     <!-- Nút bấm giống Dropzone -->
                                     <div id="dropzone-mock" class="border border-2 rounded p-4 text-center"
                                         style="cursor: pointer;">
@@ -187,21 +188,146 @@
                     <!-- end col -->
                     <div>
                         <div class="card" style="border-width: 2px;">
-                        <div class="card-header" style="background-color:aliceblue">
-                            <h5 class="card-title mb-0">Mô tả sản phẩm</h5>
+                            <div class="card-header" style="background-color:aliceblue">
+                                <h5 class="card-title mb-0">Biến thể</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="variant-section" class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="fw-bold text-primary mb-0">📦 Biến thể sản phẩm</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                            id="add-variant-btn">
+                                            <i class="bi bi-plus-circle"></i> Thêm biến thể
+                                        </button>
+                                    </div>
+
+                                    <div class="table-responsive shadow-sm rounded-3">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light text-center">
+                                                <tr>
+                                                    <th style="width: 12%">SKU</th>
+                                                    <th style="width: 10%">Giá bán</th>
+                                                    <th style="width: 10%">Giá nhập</th>
+                                                    <th style="width: 12%">Màu sắc</th>
+                                                    <th style="width: 14%">Bộ nhớ</th>
+                                                    <th style="width: 10%">Ảnh</th>
+                                                    <th style="width: 5%">Xóa</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="variant-body" class="align-middle text-center text-secondary">
+                                                <tr>
+                                                    <td colspan="7" class="py-4 text-muted">Chưa có biến thể nào — hãy
+                                                        nhấn <strong>“Thêm biến thể”</strong></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @inject('attributeService', 'App\Services\ProductAttributeService')
+                                <!-- Template để clone -->
+                                <template id="variant-template">
+                                    <tr class="variant-row">
+                                        <td><input type="text" name="variants[][sku]"
+                                                class="form-control form-control-sm" placeholder="Mã SKU" required></td>
+                                        <td><input type="number" name="variants[][price]"
+                                                class="form-control form-control-sm" step="0.01" placeholder="0.00"
+                                                required></td>
+                                        <td><input type="number" name="variants[][cost_price]"
+                                                class="form-control form-control-sm" step="0.01" placeholder="0.00">
+                                        </td>
+                                        <td>
+                                            <select name="variants[][color]"
+                                                class="form-select @error('color') is-invalid @enderror">
+                                                <option value="">-- Chọn màu sắc --</option>
+                                                @foreach ($attributeService->getColors() as $value => $label)
+                                                    <option value="{{ $value }}"
+                                                        {{ old('variants[][color]') == $value ? 'selected' : '' }}>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('color')
+                                                <div class="text-danger mt-2">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            <select name="variants[][storage]"
+                                                class="form-select @error('variants[][storage]') is-invalid @enderror">
+                                                <option value="">-- Chọn dung lượng --</option>
+                                                @foreach ($attributeService->getStorages() as $value => $label)
+                                                    <option value="{{ $value }}"
+                                                        {{ old('variants[][storage]') == $value ? 'selected' : '' }}>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <div class="position-relative d-inline-block">
+                                                    <div class="position-absolute top-100 start-100 translate-middle">
+                                                        <label for="variant-image-input" class="mb-0"
+                                                            data-bs-toggle="tooltip" data-bs-placement="right"
+                                                            title="Select Image">
+                                                            <div class="avatar-xs">
+                                                                <div
+                                                                    class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                    <i class="ri-image-fill"></i>
+                                                                </div>
+                                                            </div>
+                                                        </label>
+                                                        <input class="form-control d-none variant-image-input"
+                                                            value="" type="file" name="variants[][thumbnail]"
+                                                            accept="image/png, image/gif, image/jpeg, image/webp">
+                                                    </div>
+                                                    <div class="avatar-lg">
+                                                        <div class="avatar-title bg-light rounded variant-img">
+                                                            <img src="" class="avatar-md h-auto" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger remove-variant-btn"
+                                                title="Xóa biến thể">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+
+                                <style>
+                                    #variant-section table th {
+                                        font-size: 0.9rem;
+                                        font-weight: 600;
+                                    }
+
+                                    #variant-section table td input {
+                                        min-width: 100px;
+                                    }
+                                </style>
+                            </div>
+                            <!-- end card body -->
                         </div>
-                        <div class="card-body">
-                            <textarea name="description" id="description" hidden></textarea>
+                        <div>
+                            <div class="card" style="border-width: 2px;">
+                                <div class="card-header" style="background-color:aliceblue">
+                                    <h5 class="card-title mb-0">Mô tả sản phẩm</h5>
+                                </div>
+                                <div class="card-body">
+                                    <textarea name="description" id="description" hidden></textarea>
+                                </div>
+                                <!-- end card body -->
+                            </div>
                         </div>
-                        <!-- end card body -->
                     </div>
+                    <!-- end row -->
+                    <div class="text-end mb-3">
+                        <button type="submit" class="btn btn-success w-sm">Submit</button>
+                        {{-- <button type="button" onclick="console.log(new FormData(this.form));">Test Form</button> --}}
                     </div>
-                </div>
-                <!-- end row -->
-                <div class="text-end mb-3">
-                    <button type="submit" class="btn btn-success w-sm">Submit</button>
-                    {{-- <button type="button" onclick="console.log(new FormData(this.form));">Test Form</button> --}}
-                </div>
             </form>
         </div>
     </div>
@@ -224,7 +350,7 @@
         const input = document.getElementById("gallery");
         const dropzoneMock = document.getElementById("dropzone-mock");
         const previewContainer = document.getElementById("preview-container");
-        
+
         // Khi click vùng dropzone -> mở file chọn
         dropzoneMock.addEventListener("click", () => input.click());
 
@@ -273,23 +399,21 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // preview image
-            const input = document.getElementById("product-image-input");
-            const preview = document.getElementById("product-img");
+            const productInput = document.getElementById("product-image-input");
+            const productPreview = document.getElementById("product-img");
 
-            input.addEventListener("change", function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        preview.src = e.target.result; // gán ảnh vào thẻ img
-                    };
-
-                    reader.readAsDataURL(file); // đọc file thành base64
-                } else {
-                    preview.src = ""; // nếu bỏ chọn thì reset preview
-                }
-            });
+            if (productInput) {
+                productInput.addEventListener("change", function() {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = e => productPreview.src = e.target.result;
+                        reader.readAsDataURL(file);
+                    } else {
+                        productPreview.src = "";
+                    }
+                });
+            }
             let specIndex = 1;
 
             // nút thêm
@@ -314,6 +438,72 @@
                     e.target.closest('tr').remove();
                 }
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBtn = document.getElementById('add-variant-btn');
+            const variantBody = document.getElementById('variant-body');
+            const template = document.getElementById('variant-template').innerHTML;
+
+            let variantIndex = 0; // 💡 Biến đếm số dòng biến thể
+
+            addBtn.addEventListener('click', () => {
+                // Nếu là dòng "chưa có biến thể" thì xóa nó trước khi thêm dòng mới
+                if (variantBody.children.length === 1 && variantBody.children[0].querySelector(
+                        'td[colspan]')) {
+                    variantBody.innerHTML = '';
+                }
+
+                // 💡 Thay thế tất cả 'variants[][' thành 'variants[<index>]['
+                const newRowHTML = template.replaceAll('variants[][', `variants[${variantIndex}][`);
+
+                // Tạo phần tử DOM từ HTML đã thay thế
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = newRowHTML;
+
+                // Thêm dòng mới vào bảng
+                variantBody.appendChild(newRow);
+
+                variantIndex++; // Tăng chỉ số
+            });
+
+            variantBody.addEventListener("change", function(e) {
+                if (e.target.classList.contains("variant-image-input")) {
+                    const file = e.target.files[0];
+                    // tìm ảnh trong cùng hàng
+                    const imgElement = e.target.closest('.position-relative').querySelector(
+                        '.variant-img img');
+
+                    if (file && imgElement) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            imgElement.src = evt.target.result; // ✅ gán src cho thẻ img
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+            variantBody.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-variant-btn')) {
+                    e.target.closest('tr').remove();
+
+                    // Nếu xóa hết thì thêm dòng thông báo lại
+                    if (variantBody.children.length === 0) {
+                        variantBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-4 text-muted">Chưa có biến thể nào — hãy nhấn <strong>“Thêm biến thể”</strong></td>
+                    </tr>`;
+                    }
+                }
+            });
+        });
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.ri-image-fill')) {
+                const container = e.target.closest('.position-relative');
+                const input = container.querySelector('.variant-image-input');
+                if (input) input.click();
+            }
         });
     </script>
 @endpush

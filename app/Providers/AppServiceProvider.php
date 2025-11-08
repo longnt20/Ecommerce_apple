@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\ProductAttribute;
 use App\Observers\ProductAttributeObserver;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Paginator::useBootstrapFive();
     }
 
     /**
