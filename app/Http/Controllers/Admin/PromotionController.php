@@ -42,7 +42,7 @@ class PromotionController extends Controller
 
         $variantProducts = ProductVariant::query()
             ->with(['product:id,name']) // Chỉ load id & name của product
-            ->get(['id', 'product_id', 'price', 'thumbnail']); // Chỉ lấy cột cần
+            ->get(['id', 'product_id','sku','color','storage', 'price', 'thumbnail']); // Chỉ lấy cột cần
 
         return view('admin.promotions.create', compact('categories', 'baseProducts', 'variantProducts'));
     }

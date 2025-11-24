@@ -24,7 +24,7 @@ const cartCount = ref(5);
 .cart-button {
   background: transparent;
   border: none;
-  padding: 8px 12px;
+  padding:10px 8px 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 8px;
