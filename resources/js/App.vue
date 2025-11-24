@@ -1,16 +1,12 @@
 <template>
-  
   <AppHeader />
   <router-view />
-  <main>
-    <MainContent />
-    <ProductApp/>
-  </main>
+
 </template>
 
 <script setup>
 import AppHeader from './components/header/AppHeader.vue';
-import ProductApp from './components/list-product/ProductApp.vue';
+import ProductApp from './components/HomePage/HomPage.vue';
 import MainContent from './components/navbar/MainContent.vue';
 </script>
 
@@ -20,7 +16,7 @@ import MainContent from './components/navbar/MainContent.vue';
   Khai báo các biến màu và font ở đây để dễ dàng tái sử dụng và quản lý.
 */
 :root {
-  --primary-color: #d70018;
+  --primary-color: #3B82F6;
   --text-color: #333333;
   --text-color-light: #555555;
   --text-color-white: #ffffff;

@@ -41,4 +41,15 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
+    public function inventories()
+    {
+        return $this->hasManyThrough(
+            Inventory::class,
+            ProductVariant::class,
+            'product_id',       // product_variants.product_id
+            'product_variant_id', // inventory.product_variant_id
+            'id',               // products.id
+            'id'                // product_variants.id
+        );
+    }
 }

@@ -258,6 +258,8 @@
                                             </th>
                                             <th>Sản phẩm gốc</th>
                                             <th>Ảnh</th>
+                                            <th>Màu</th>
+                                            <th>Dung lượng</th>
                                             <th>SKU</th>
                                             <th>Giá</th>
                                         </tr>
@@ -279,6 +281,8 @@
                                                     <img src="{{ Storage::url($variant->thumbnail) }}" alt=""
                                                         srcset="" width="50px">
                                                 </td>
+                                                <td>{{$variant->color_label}}</td>
+                                                <td>{{$variant->storage}}</td>
                                                 <td>{{ $variant->sku }}</td>
                                                 <td>{{ number_format($variant->price) }}đ</td>
                                             </tr>

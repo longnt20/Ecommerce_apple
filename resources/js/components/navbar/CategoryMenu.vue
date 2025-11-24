@@ -141,7 +141,7 @@ li:last-child {
 }
 
 .icon {
-  color: #c02121;
+  color: #3B82F6;
   transition: transform 0.3s ease;
 }
 
