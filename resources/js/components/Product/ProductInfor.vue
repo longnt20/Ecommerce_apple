@@ -2,24 +2,41 @@
   <div class="product-header container">
     <!-- LEFT: Title + rating + actions -->
     <div class="left-block">
-      <h1 class="product-title">Điện thoại iPhone 16 Pro Max 256GB</h1>
+      <h1 class="product-title">{{ formattedName  }}</h1>
 
-      <div class="rating-row">
-        <div class="star">⭐</div>
+      <div class="rating-row top-row">
+        <Star class="icon-star" />
         <span class="rating-score">4.9</span>
         <span class="rating-count">(346 đánh giá)</span>
       </div>
-        <div class="rating-row">
-        <a class="action-btn" href="#">❤ Yêu thích</a>
+
+      <!-- HÀNG 2: ACTION BUTTONS -->
+      <div class="rating-row bottom-row">
+        <a class="action-btn" href="#">
+          <Heart class="icon" />
+          Yêu thích
+        </a>
+
         <span class="divider"></span>
 
-        <a class="action-btn" href="#">💬 Hỏi đáp</a>
+        <a class="action-btn" href="#">
+          <MessageCircle class="icon" />
+          Hỏi đáp
+        </a>
+
         <span class="divider"></span>
 
-        <a class="action-btn" href="#">⚙ Thông số</a>
+        <a class="action-btn" href="#">
+          <Settings class="icon" />
+          Thông số
+        </a>
+
         <span class="divider"></span>
 
-        <a class="action-btn" href="#">➕ So sánh</a>
+        <a class="action-btn" href="#">
+          <Scale class="icon" />
+          So sánh
+        </a>
       </div>
     </div>
 
@@ -27,15 +44,15 @@
     <div class="price-box">
       <div class="price-column">
         <div class="label">Giá sản phẩm</div>
-        <div class="price-main">30.390.000đ</div>
-        <div class="price-old">34.990.000đ</div>
+        <div class="price-main">{{ product?.selected_variant?.final_price }}đ </div>
+        <div class="price-old">{{ product?.selected_variant?.original_price }}đ</div>
       </div>
 
       <div class="vertical-line"></div>
 
       <div class="price-column">
         <div class="label promo-label">Thu cũ lên đời chỉ từ</div>
-        <div class="price-main">28.390.000đ</div>
+        <div class="price-main">{{ promoPrice }}đ</div>
         <div class="price-sale">Trợ giá đến 2.000.000</div>
       </div>
     </div>
@@ -43,8 +60,31 @@
 </template>
 
 <script setup>
-</script>
+import { Star, Heart, MessageCircle, Settings, Scale } from "lucide-vue-next";
+import { computed } from "vue";
+const props = defineProps({
+  product: {
+    type: Object,
+    default: null
+  }
+})
+const promoPrice = computed(() => {
+  if (!props.product?.selected_variant) return 0;
+  const price = Number(props.product?.selected_variant?.final_price.replace(/\./g, ''));
+  const result = price - 2000000;
+  return result.toLocaleString('vi-VN'); // "23.990.000"
+})
+const formattedName = computed(() => {
+  if (!props.product) return "";
 
+  const baseName = props.product.name;
+  const variant = props.product?.selected_variant;
+
+  if (!variant) return baseName;
+
+  return `${baseName} - ${variant.storage}`;
+});
+</script>
 <style scoped>
 .container {
   max-width: 1200px;
@@ -96,7 +136,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  min-width: 500px;
+  min-width: 570px;
   margin-right: 13px;
   margin-bottom: 10px;
 }
@@ -136,5 +176,63 @@
   width: 1px;
   height: 55px;
   background: #d2d9e6;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.top-row {
+  margin-bottom: 6px;
+}
+
+.icon-star {
+  width: 18px;
+  height: 18px;
+  color: #ffca28;
+  /* vàng */
+  fill: #ffc107;
+}
+
+.rating-score {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.rating-count {
+  color: #666;
+}
+
+/* BOTTOM ACTIONS */
+.bottom-row {
+  margin-top: 4px;
+  gap: 10px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: #007bff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.action-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Divider */
+.divider {
+  width: 1px;
+  height: 14px;
+  background: #ddd;
+  margin: 0 4px;
 }
 </style>

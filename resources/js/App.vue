@@ -1,12 +1,13 @@
 <template>
   <AppHeader />
   <router-view />
-
+  <GlobalLoading />
 </template>
 
 <script setup>
 import AppHeader from './components/header/AppHeader.vue';
 import ProductApp from './components/HomePage/HomPage.vue';
+import GlobalLoading from './components/loading/GlobalLoading.vue';
 import MainContent from './components/navbar/MainContent.vue';
 </script>
 
@@ -29,7 +30,7 @@ import MainContent from './components/navbar/MainContent.vue';
 */
 body {
   margin: 0;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   font-family: var(--font-family-main); /* <-- Áp dụng font ở đây */
   color: var(--text-color);
   -webkit-font-smoothing: antialiased; /* Làm chữ mượt hơn trên Chrome/Safari */

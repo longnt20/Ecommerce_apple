@@ -34,6 +34,7 @@ class HomeController extends Controller
                             return [
                                 'id' => $variant->id,
                                 'product_id' => $product->id,
+                                'slug' => $product->slug,
                                 'name' => $product->name . ' - ' . ($variant->storage ?? ''),
                                 'category_id' => $product->category_id,
                                 'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
@@ -54,6 +55,7 @@ class HomeController extends Controller
                     return [[
                         'id' => $product->id,
                         'product_id' => $product->id,
+                        'slug' => $product->slug,
                         'name' => $product->name,
                         'category_id' => $product->category_id,
                         'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
@@ -125,20 +127,28 @@ class HomeController extends Controller
             $blogs = Post::where('category_id', $product->category_id)
                 ->latest()
                 ->take(5)
-                ->get(['id', 'title', 'thumbnail', 'created_at']);
+                ->get(['id', 'title', 'thumbnail', 'created_at'])
+                ->map(function ($blog) {
+                    $blog->thumbnail = asset('storage/' . $blog->thumbnail);
+                    return $blog;
+                });
 
             // Format biến thể
             $variants = $product->variants->map(function ($variant) use ($product) {
                 $originalPrice = $variant->price ?? 0;
                 $finalPrice = $variant->cost_price ?? $originalPrice;
-
+                // 🔥 LẤY TỒN KHO
+                $stockQuantity = $variant->inventory->sum('quantity');
+                $availableStock = $variant->inventory->sum('available_quantity');
                 return [
                     'id' => $variant->id,
                     'storage' => $variant->storage,
-                    'color' => $variant->color,
+                    'color' => $variant->color_label,
                     'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : null,
                     'original_price' => number_format($originalPrice, 0, ',', '.'),
                     'final_price' => number_format($finalPrice, 0, ',', '.'),
+                    'stock_quantity' => $stockQuantity,
+                    'available_quantity' => $availableStock,
                 ];
             });
 
@@ -157,18 +167,14 @@ class HomeController extends Controller
                 $selectedVariant = (object) $variants->first();
             }
 
-            /* ---- Format tên sản phẩm theo dung lượng đã chọn ---- */
-            $productName = $product->name;
-            if (!empty($selectedVariant->storage)) {
-                $productName .= ' - ' . $selectedVariant->storage;
-            }
-
             // Dữ liệu trả về
             $data = [
                 'id' => $product->id,
-                'name' => $productName,
+                'name' => $product->name,
                 'slug'  => $product->slug,
-                'gallery' => $product->gallery,
+                'gallery' => collect($product->gallery)->map(function ($path) {
+                    return asset('storage/' . $path);
+                }),
                 'warehouse' => $warehouses,
                 'warehouse_count' => $warehouses->count(),
                 'specs' => $product->specs->map(function ($spec) {
@@ -191,7 +197,7 @@ class HomeController extends Controller
                 ],
                 'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
                 'variants' => $variants,
-                'blogs'     =>$blogs,
+                'blogs'     => $blogs,
                 'short_description' => $product->short_description,
                 'description' => $product->description,
 

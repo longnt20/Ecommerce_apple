@@ -69,7 +69,6 @@ import UserButton from './UserButton.vue';
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 0 0 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;

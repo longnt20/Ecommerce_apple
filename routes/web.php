@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Mail;
@@ -169,6 +170,12 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::patch('/{id}/restore', [PostController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [PostController::class, 'forceDelete'])->name('force-delete');
     });
+    Route::prefix('reviews')->as('reviews.')->group(function () {
+            Route::get('/', [ReviewController::class, 'index'])->name('index');
+            Route::get('/{review}', [ReviewController::class, 'show'])->name('show');
+            Route::patch('/{id}/toggle-status', [ReviewController::class, 'toggleStatus'])
+                ->name('toggleStatus');
+        });
 });
 Route::get('/', function () {
     return view('clients.client');
