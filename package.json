@@ -14,8 +14,11 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.1.0",
         "@vitejs/plugin-vue": "^6.0.1",
+        "bootstrap": "^5.3.8",
         "lucide-vue-next": "^0.544.0",
+        "pinia": "^3.0.4",
         "swiper": "^12.0.3",
         "three": "^0.181.2",
         "vue": "^3.5.22",

@@ -1,128 +1,124 @@
 <template>
-    <div class="feature-box">
-        <div class="feature-content">
-            <!-- LEFT IMAGE (optional) -->
-            <div class="image-box" v-if="images && images.length">
-                <img :src="images[0]" alt="iphone" />
-            </div>
-
-        
-        </div>
-
-        <!-- BOTTOM SLIDER -->
-        <div class="bottom-slider">
-            <button class="arrow-btn" @click="prevThumb">‹</button>
-
-            <!-- Thumbnails -->
-            <div class="thumb-list">
-                <div v-for="(img, index) in images" :key="index" class="thumb-item" @click="selectThumb(index)">
-                    <img :src="img" />
-                </div>
-            </div>
-
-            <button class="arrow-btn" @click="nextThumb">›</button>
-        </div>
+  <div class="gallery-wrapper">
+    <div class="main-swiper-container" @mouseenter="showNav = true" @mouseleave="showNav = false">
+      <swiper :modules="[Thumbs, Navigation]" :thumbs="{ swiper: thumbsSwiper }" :navigation="showNav"
+              class="main-swiper" @swiper="onMainSwiper">
+        <swiper-slide v-for="(img, i) in images" :key="i">
+          <img :src="img" class="main-img" />
+        </swiper-slide>
+      </swiper>
     </div>
+
+    <!-- THUMBNAILS -->
+    <div class="thumb-container">
+      <swiper :modules="[Thumbs, Navigation]" @swiper="setThumbsSwiper" slides-per-view="6" space-between="10"
+              navigation class="thumb-swiper">
+        <swiper-slide v-for="(img, i) in images" :key="i" :class="{ active: i === activeIndex }">
+          <img :src="img" class="thumb-img" @click="setActive(i)" />
+        </swiper-slide>
+      </swiper>
+    </div>
+  </div>
 </template>
-<script></script>
+
+<script setup>
+import { ref, computed, watch } from "vue";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import { Navigation, Thumbs } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+
+const props = defineProps({
+  product: Object,
+  variantImage: String
+});
+
+const thumbsSwiper = ref(null);
+const mainSwiper = ref(null);
+const activeIndex = ref(0);
+const showNav = ref(false);
+
+function setThumbsSwiper(swiper) { thumbsSwiper.value = swiper; }
+function onMainSwiper(swiper) { mainSwiper.value = swiper; }
+function setActive(i) { 
+  activeIndex.value = i; 
+  if (mainSwiper.value) mainSwiper.value.slideTo(i); 
+}
+
+// Gộp ảnh chính + gallery
+const images = computed(() => {
+  const gallery = Array.isArray(props.product?.gallery) ? props.product.gallery : [];
+
+  if (props.variantImage) return [props.variantImage, ...gallery];
+
+  const main = props.product?.thumbnail ? [props.product.thumbnail] : [];
+  return [...main, ...gallery];
+});
+
+// Watch biến thể mới → đổi slide
+watch(() => props.variantImage, (newImg) => {
+  if (newImg && mainSwiper.value) mainSwiper.value.slideTo(0);
+});
+</script>
+
 
 <style scoped>
-/* MAIN CARD */
-.feature-box {
-    background: linear-gradient(135deg, #d86b86, #f6d1a6);
-    border-radius: 20px;
-    padding: 24px;
-    color: white;
+.gallery-wrapper {
+
+    margin: auto;
 }
 
-/* TOP CONTENT: IMG + TEXT */
-.feature-content {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-}
+/* ẢNH LỚN */
+.main-swiper {
 
-.image-box img {
-    width: 260px;
-    height: 320px;
-    object-fit: cover;
-    border-radius: 14px;
-    background: #fff;
-}
-
-.text-box {
-    flex: 1;
-}
-
-.text-box h2 {
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-}
-
-.text-box ul {
-    list-style: disc;
-    padding-left: 20px;
-    font-size: 16px;
-    line-height: 1.55;
-    margin: 0;
-}
-
-/* BOTTOM SLIDER */
-.bottom-slider {
-    margin-top: 20px;
-    padding-top: 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    overflow-x: auto;
-    white-space: nowrap;
-}
-
-.main-btn {
-    min-width: 140px;
-    height: 70px;
-    border: 2px solid #ddcfcf;
+    border: 1px solid rgb(178, 167, 167);
     border-radius: 12px;
-    background: #fff;
-    color: #333;
     display: flex;
-    flex-direction: column;
+    /* Căn giữa slide */
     justify-content: center;
     align-items: center;
-    font-size: 14px;
-    cursor: pointer;
 }
 
-.thumb-list {
-    display: flex;
-    gap: 12px;
+.main-swiper img {
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto;
+    /* Căn giữa ảnh */
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    /* Giữ đúng tỷ lệ hình */
 }
 
-.thumb-item {
-    width: 70px;
-    height: 70px;
+/* THUMBNAILS */
+.thumb-swiper {
+    margin-top: 15px;
+}
+
+.swiper-wrapper {
+    gap: 2px;
+}
+
+.thumb-swiper .swiper-slide.active img {
+    border: 2px solid red;
+    padding: 2px;
     border-radius: 10px;
-    background: white;
-    padding: 4px;
-    cursor: pointer;
 }
 
-.thumb-item img {
+.thumb-swiper .swiper-slide {
+    width: auto !important;
+    margin: 5px !important;
+    /* Xóa luôn margin dư */
+    padding: 0 !important;
+}
+
+.thumb-swiper img {
     width: 100%;
-    height: 100%;
+    height: 75px;
     object-fit: cover;
-}
-
-/* NEXT ARROW */
-.arrow-btn {
-    width: 36px;
-    height: 70px;
-    background: white;
     border-radius: 10px;
-    border: none;
-    font-size: 24px;
     cursor: pointer;
+    border: 2px solid rgb(210, 201, 201);
 }
 </style>

@@ -17,21 +17,19 @@
       </a>
     </div>
     <div class="right-box">
-        <div class="tabs">
-          <button v-for="(tab, index) in tabs" 
-        :key="tab.id" 
-        :class="['tab-btn', index === activeTabIndex ? 'active' : '']"
-        @click="changeTab(tab.id, index)">
-    {{ tab.name }}
-</button>
-        </div>
+      <div class="tabs">
+        <button v-for="(tab, index) in tabs" :key="tab.id"
+          :class="['tab-btn', index === activeTabIndex ? 'active' : '']" @click="changeTab(tab.id, index)">
+          {{ tab.name }}
+        </button>
+      </div>
       <div class="bottom-box">
         <div class="product-swiper swiper rounded-2xl">
           <div class="swiper-wrapper">
             <div v-for="product in filteredProducts" :key="product.id" class="swiper-slide">
               <div class="branch-23">
                 <div class="branch-24">
-                  <a class="a1" :href="product.link">
+                  <RouterLink class="a1" :to="{ name: 'product-detail', params: { slug: product.slug } }">
                     <span class="sp-2">
                       <img :alt="product.name" loading="lazy" width="300" height="300" decoding="async" data-nimg="1"
                         class="img-4" :src="product.thumbnail" :style="{ color: 'transparent' }" />
@@ -49,28 +47,28 @@
                         Trả góp <span class="sp-5">0%</span>
                       </span>
                     </div>
-                  </a>
-                  <div class="branch-29">
-                    <div class="branch-30">
-                      <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
-                        class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
-                        </path>
-                      </svg>
-                      <span>{{ product.rating }}</span>
+                    </RouterLink>
+                    <div class="branch-29">
+                      <div class="branch-30">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
+                          class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
+                          </path>
+                        </svg>
+                        <span>{{ product.rating }}</span>
+                      </div>
+                      <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
+                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
+                          stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1em" width="1em"
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                          </path>
+                        </svg>
+                        <span class="var">Yêu thích</span>
+                      </button>
                     </div>
-                    <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
-                      <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                        stroke-linejoin="round" class="favourite" height="1em" width="1em"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                        </path>
-                      </svg>
-                      <span class="var">Yêu thích</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -91,6 +89,7 @@ import { Grid, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import "swiper/css/grid";
+import { RouterLink } from 'vue-router'
 const products = ref([])
 const swiperRef = ref(null)
 const filteredProducts = ref([])
@@ -102,8 +101,8 @@ const backgrounds = {
   discountBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png',
   zeroInsBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png'
 }
-const activeTabId = ref(16)      
-const activeTabIndex = ref(0)   
+const activeTabId = ref(16)
+const activeTabIndex = ref(0)
 onMounted(async () => {
   try {
     const res = await fetch('http://127.0.0.1:8000/api/home/')
@@ -434,6 +433,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   /* ~204px */
   border-radius: 1rem;
   /* 16px */
+  border: 1px solid #e5e5e5;
   background-color: #fff;
   animation: fade-in 0.5s ease-in-out forwards;
 }
@@ -798,6 +798,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   margin-bottom: 14px;
   /* chỉnh theo ý bạn */
 }
+
 .tabs {
   display: flex;
   border-bottom: 1px solid #eee;
@@ -826,13 +827,13 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: #3B82F6; /* đỏ */
+  background: #3B82F6;
+  /* đỏ */
 }
 
 /* Gradient nền phía sau text */
 .tab-btn.active {
   color: #3B82F6;
-  background: linear-gradient(to bottom, #ffffff, #E0F2FE, #93C5FD);  
+  background: linear-gradient(to bottom, #ffffff, #E0F2FE, #93C5FD);
 }
-
 </style>

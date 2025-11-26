@@ -1,14 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import LoginSuccess from "../components/status/LoginSuccess.vue";
 import App from "../App.vue";
-import DetailProduct from "../components/Product/DetailProduct.vue";
-import HomPage from "../components/HomePage/HomPage.vue";
 
 // Import pages
 import Home from '../pages/Home.vue'
 import Product from '../pages/Product.vue'
 import ProductDetail from '../pages/ProductDetail.vue'
-
+import { useLoadingStore } from "../effects/loading";
 const routes = [
   {
     path: '/',
@@ -21,16 +19,29 @@ const routes = [
     component: Product
   },
   {
-    path: '/test-products',
+    path: '/:slug',
     name: 'product-detail',
     component: ProductDetail,
     props: true
+  },
+  {
+    path: '/login-success',
+    name: 'login.success',
+    component: LoginSuccess
   }
 ]
-
 const router = createRouter({
     history: createWebHistory(),
     routes,
 });
+router.beforeEach((to, from, next) => {
+  const loading = useLoadingStore()
+  loading.show()
+  next()
+})
 
+router.afterEach(() => {
+  const loading = useLoadingStore()
+  setTimeout(() => loading.hide(), 300) // mượt hơn
+})  
 export default router;

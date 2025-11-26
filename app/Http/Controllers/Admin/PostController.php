@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Posts\StorePostRequest;
-use App\Http\Requests\Admin\Posts\UpdatePostRequest;
+use App\Http\Requests\Admin\Post\StorePostRequest;
+use App\Http\Requests\Admin\Post\UpdatePostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
