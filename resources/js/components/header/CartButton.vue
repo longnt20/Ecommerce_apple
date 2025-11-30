@@ -1,30 +1,34 @@
 <template>
-  <button class="cart-button">
-    <div class="cart-content">
-      <div class="cart-icon-wrapper">
-        <ShoppingCart :size="20" />
-        <span v-if="cartCount > 0" class="cart-badge">
-          {{ cartCount > 99 ? '99+' : cartCount }}
-        </span>
+  <router-link to="/cart">
+    <button class="cart-button">
+      <div class="cart-content">
+        <div class="cart-icon-wrapper">
+
+          <ShoppingCart :size="20" />
+          <span v-if="cart.totalQty > 0" class="cart-badge">
+            {{ cart.totalQty }}
+          </span>
+        </div>
+        <span class="cart-label">Giỏ hàng</span>
+
       </div>
-      <span class="cart-label">Giỏ hàng</span>
-    </div>
-  </button>
+    </button>
+  </router-link>
 </template>
 
 <script setup>
 import { ShoppingCart } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { useCartStore } from '../../effects/cart';
 
-// Props hoặc có thể lấy từ store
-const cartCount = ref(5);
+const cart = useCartStore()
 </script>
 
 <style scoped>
 .cart-button {
   background: transparent;
   border: none;
-  padding:10px 8px 12px;
+  padding: 10px 8px 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 8px;
@@ -84,9 +88,11 @@ const cartCount = ref(5);
   0% {
     box-shadow: 0 0 0 0 rgba(238, 90, 85, 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 8px rgba(238, 90, 85, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(238, 90, 85, 0);
   }
@@ -97,7 +103,7 @@ const cartCount = ref(5);
   .cart-label {
     display: none;
   }
-  
+
   .cart-button {
     padding: 8px;
   }
@@ -108,7 +114,7 @@ const cartCount = ref(5);
   .cart-content {
     color: #f0f0f0;
   }
-  
+
   .cart-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }

@@ -8,7 +8,7 @@
                 <span>Giao nhanh 2 giờ hoặc nhận tại cửa hàng</span>
             </button>
 
-            <button class="btn-cart">
+            <button class="btn-cart" @click="addToCart">
                 
                     <span class="fa-layers fa-fw" style="font-size: 20px;">
                     <i class="fa-solid fa-cart-shopping"></i>
@@ -19,7 +19,27 @@
 
     </div>
 </template>
+<script setup>
+import { ref } from 'vue';
+import { useCartStore } from '../../effects/cart';
 
+const props = defineProps({
+  product: {
+    type: Object,
+    default: null,
+  },
+  selectedVariant: {
+    type: Object,
+    default: null,
+  }
+});
+
+const quantity = ref(1);
+const cart = useCartStore();
+const addToCart = async () => {
+  await cart.addToCart(props.product.id, props.selectedVariant?.id, quantity.value);
+  alert("Đã thêm vào giỏ hàng!");
+};</script>
 <style scoped>
 .buy-box {
     margin-right: 40px;

@@ -26,7 +26,7 @@
         @variant-selected="onVariantSelected"/>
         
         <!-- Buttons Mua hàng -->
-         <BuyButton :product="store.product"/>
+         <BuyButton :product="store.product" :selectedVariant="store.product?.selected_variant" />
 
          <!-- Cửa hàng chi nhánh -->
         <StoreBranch :product="store.product"/>
