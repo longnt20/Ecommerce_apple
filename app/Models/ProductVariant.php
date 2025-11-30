@@ -29,4 +29,12 @@ class ProductVariant extends Model
         $attributeService = app(ProductAttributeService::class);
         return $attributeService->getColors()[$this->color] ?? null;
     }
+    protected $appends = ['thumbnail_url','color_label'];
+
+    public function getThumbnailUrlAttribute()
+    {
+        return $this->thumbnail
+            ? asset('storage/' . $this->thumbnail)
+            : null;
+    }
 }

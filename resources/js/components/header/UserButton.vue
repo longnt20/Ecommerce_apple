@@ -222,7 +222,7 @@ const getUserProfile = async () => {
   if (!token) return
 
   try {
-    const res = await axios.get('/api/user', {
+    const res = await axios.get('http://127.0.0.1:8000/api/user', {
       headers: { Authorization: `Bearer ${token}` }
     })
     isLoggedIn.value = true

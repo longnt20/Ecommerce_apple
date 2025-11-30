@@ -10,24 +10,24 @@ import { onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import { useLoadingStore } from '../../effects/loading'
+import { useCartStore } from '../../effects/cart'
 const loading = useLoadingStore()
 const route = useRoute()
 const router = useRouter()
 
-onMounted(() => {
+onMounted(async () => {
   loading.show()
   const token = route.query.token
 
   if (token) {
-    // 🔹 Lưu token
     localStorage.setItem('token', token)
-
-    // 🔹 Hiển thị thông báo toast
     toast.success('Đăng nhập Google thành công!')
 
-    // 🔹 Chuyển về trang chủ sau 1.5 giây
+    const cart = useCartStore()
+    await cart.syncAfterLogin()   // OK
+
     setTimeout(() => {
-       loading.hide()
+      loading.hide()
       router.push('/')
     }, 1500)
   } else {
@@ -36,4 +36,5 @@ onMounted(() => {
     router.push('/')
   }
 })
+
 </script>

@@ -41,7 +41,8 @@ const getIconByName = (name) => {
 const categories = ref([])
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/categories')
+    const response = await axios.get('http://127.0.0.1:8000/api/categories')
+    
     const data = response.data.categories.data
 
     // Gán icon tương ứng

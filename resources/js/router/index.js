@@ -7,6 +7,7 @@ import Home from '../pages/Home.vue'
 import Product from '../pages/Product.vue'
 import ProductDetail from '../pages/ProductDetail.vue'
 import { useLoadingStore } from "../effects/loading";
+import CartPage from "../components/Cart/CartPage.vue";
 const routes = [
   {
     path: '/',
@@ -22,6 +23,12 @@ const routes = [
     path: '/:slug',
     name: 'product-detail',
     component: ProductDetail,
+    props: true
+  },
+    {
+    path: '/cart',
+    name: 'cart-page',
+    component: CartPage,
     props: true
   },
   {
