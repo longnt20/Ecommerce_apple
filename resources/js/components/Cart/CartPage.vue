@@ -45,7 +45,7 @@
             {{ formatPrice(item.quantity * item.price_at_add) }}
           </div>
 
-          <button class="item-remove" @click="cart.removeItem(item.id)">×</button>
+          <button class="item-remove" @click="cart.removeItem(item.id)"><Trash2 /></button>
         </div>
       </div>
 
@@ -75,6 +75,7 @@
 <script setup>
 import { onMounted } from "vue"
 import { useCartStore } from "../../effects/cart"
+import { Trash2 } from "lucide-vue-next"
 
 const cart = useCartStore()
 
@@ -175,7 +176,6 @@ const formatPrice = (value) => {
 }
 
 .item-remove {
-  font-size: 22px;
   background: none;
   border: none;
   cursor: pointer;

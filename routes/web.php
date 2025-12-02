@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Api\CheckoutController;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
@@ -180,7 +181,7 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
 Route::get('/', function () {
     return view('clients.client');
 });
-
+Route::get('/vnpay/return', [CheckoutController::class, 'vnpReturn']);
 Route::get('/{any}', function () {
     return view('clients.client'); // app.blade.php chứa <div id="app"></div>
 })->where('any', '.*');

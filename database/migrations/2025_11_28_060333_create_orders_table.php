@@ -17,8 +17,18 @@ return new class extends Migration
         $table->string('code')->unique(); // Mã đơn hàng
         $table->decimal('total_price', 12, 2)->default(0);
         $table->decimal('shipping_fee', 12, 2)->default(0);
+        $table->decimal('discount_amount', 12, 2)->default(0);
         $table->decimal('final_amount', 12, 2)->default(0);
-
+        $table->enum('payment_method', [
+            'COD',      
+            'VNPAY',   
+            'MOMO',   
+        ])->default('COD');
+        $table->enum('payment_status', [
+            'unpaid',      
+            'paid',   
+            'refunded',   
+        ])->default('unpaid');
         // Trạng thái đơn hàng
         $table->enum('status', [
             'pending',      // chưa xử lý
@@ -27,10 +37,21 @@ return new class extends Migration
             'completed',    // hoàn thành
             'cancelled'     // hủy
         ])->default('pending');
+        $table->string('transaction_id',255)->nullable();
+        // Địa chỉ giao hàng
+            $table->string('fullname')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('email')->nullable();
+            $table->string('address')->nullable();
+            $table->string('ward')->nullable();
+            $table->string('district')->nullable();
+            $table->string('province')->nullable();
+            $table->text('note')->nullable();
 
-        $table->string('customer_name');
-        $table->string('phone');
-        $table->string('address');
+            // Thời gian
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+            $table->timestamp('cancelled_at')->nullable();
 
         $table->timestamps();
     });

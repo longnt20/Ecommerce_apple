@@ -34,8 +34,7 @@ export const useCartStore = defineStore("cart", {
                 this.items = res.data.items ?? [];
                 this.totalPrice = res.data.total_price ?? 0;
                 this.totalQuantity = res.data.total_quantity ?? 0;
-                
-            }  catch (e) {
+            } catch (e) {
                 if (e.response) {
                     console.error("API Error:", e.response.data); // sẽ thấy chi tiết lỗi 422
                     alert(JSON.stringify(e.response.data));
@@ -77,11 +76,10 @@ export const useCartStore = defineStore("cart", {
             try {
                 const res = await axios.put(
                     `http://127.0.0.1:8000/api/cart/item/${itemId}`,
-                    {
-                        quantity: qty,
-                    }
+                    { quantity: qty }
                 );
-                this.items = res.data.data ?? [];
+
+                this.items = res.data.items ?? res.data.data ?? [];
             } catch (e) {
                 console.error("updateQty:", e);
             }
@@ -92,12 +90,12 @@ export const useCartStore = defineStore("cart", {
                 const res = await axios.delete(
                     `http://127.0.0.1:8000/api/cart/item/${itemId}`
                 );
-                this.items = res.data.data ?? [];
+
+                this.items = res.data.items ?? res.data.data ?? [];
             } catch (e) {
                 console.error("removeItem:", e);
             }
         },
-
         async syncAfterLogin() {
             try {
                 const res = await axios.post(
