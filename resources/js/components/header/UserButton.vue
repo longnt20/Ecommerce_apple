@@ -4,6 +4,26 @@
     <UserCircle2 :size="20" />
     <span class="user-label">{{ isLoggedIn ? userName : 'Đăng nhập' }}</span>
   </button>
+  <!-- User Menu Dropdown -->
+<Transition name="fade">
+  <div
+    v-if="isLoggedIn && showUserMenu"
+    class="user-dropdown"
+    @click.stop
+  >
+    <div class="user-info">
+      <strong>{{ userName }}</strong>
+      <span class="email">{{ userEmail }}</span>
+    </div>
+
+    <router-link to="/profile" class="menu-item">Tài khoản của tôi</router-link>
+    <router-link to="/orders" class="menu-item">Đơn mua</router-link>
+
+    <button class="menu-item logout" @click="logout">
+      Đăng xuất
+    </button>
+  </div>
+</Transition>
 
   <!-- Auth Modal -->
   <Teleport to="body">
@@ -213,6 +233,17 @@ const showPassword = ref(false);
 const isLoading = ref(false);
 const rememberMe = ref(false);
 const agreeTerms = ref(false);
+const showUserMenu = ref(false)
+const userEmail = ref('')
+
+const openModal = () => {
+  if (isLoggedIn.value) {
+    showUserMenu.value = !showUserMenu.value
+  } else {
+    showModal.value = true
+    document.body.style.overflow = 'hidden'
+  }
+}
 
 // User state (có thể lấy từ store)
 const isLoggedIn = ref(false);
@@ -227,6 +258,8 @@ const getUserProfile = async () => {
     })
     isLoggedIn.value = true
     userName.value = res.data.name
+    userEmail.value = res.data.email
+
   } catch (err) {
     console.error('Không lấy được user:', err)
     localStorage.removeItem('token')
@@ -251,17 +284,24 @@ const registerForm = ref({
   confirmPassword: ''
 });
 
-// Methods
-const openModal = () => {
-  if (isLoggedIn.value) {
-    // Nếu đã đăng nhập, hiển thị menu user
-    console.log('Show user menu');
-  } else {
-    showModal.value = true;
-    document.body.style.overflow = 'hidden';
+const closeUserMenu = (e) => {
+  if (!e.target.closest('.user-button') && !e.target.closest('.user-dropdown')) {
+    showUserMenu.value = false
   }
-};
-
+}
+onMounted(() => {
+  document.addEventListener('click', closeUserMenu)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', closeUserMenu)
+})
+const logout = () => {
+  localStorage.removeItem('token')
+  isLoggedIn.value = false
+  userName.value = ''
+  userEmail.value = ''
+  showUserMenu.value = false
+}
 const closeModal = () => {
   showModal.value = false;
   document.body.style.overflow = '';
@@ -734,4 +774,90 @@ onUnmounted(() => {
     background: #333;
   }
 }
+/* === USER DROPDOWN MENU === */
+.user-dropdown {
+  position: absolute;
+  top: 120px;
+  right: 180px;
+  width: 240px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 12px 0;
+  animation: fadeIn 0.18s ease-out;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+/* Header user info */
+.user-dropdown .user-info {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.user-dropdown .user-info strong {
+  font-size: 15px;
+  color: #222;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.user-dropdown .user-info .email {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Menu items */
+.menu-item {
+  padding: 12px 18px;
+  display: block;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+  font-size: 14px;
+  user-select: none;
+  border: none;      /* <== FIX */
+  outline: none;     /* <== FIX */
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background: #f8f9fa;
+}
+
+/* Nút đăng xuất */
+.logout {
+  color: #e63946;
+  font-weight: 500;
+}
+
+.logout:hover {
+  background: #ffe8e8 !important;
+  color: #d62828;
+}
+
+/* Xóa focus viền đen của button */
+.menu-item:focus,
+.logout:focus,
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 </style>

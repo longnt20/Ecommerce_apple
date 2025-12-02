@@ -3,12 +3,12 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes
@@ -16,6 +16,17 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+Route::get('/provinces', function () {
+    return file_get_contents("https://provinces.open-api.vn/api/p/");
+});
+
+Route::get('/districts/{id}', function ($id) {
+    return file_get_contents("https://provinces.open-api.vn/api/p/$id?depth=2");
+});
+
+Route::get('/wards/{id}', function ($id) {
+    return file_get_contents("https://provinces.open-api.vn/api/d/$id?depth=2");
+});
 // Những route cần token mới truy cập
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -23,9 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::apiResource('/categories', CategoryController::class);
 Route::apiResource('/promotions', PromotionController::class);
-Route::get('/promotion-categories',[PromotionController::class, 'promotionCategories']);
+Route::get('/promotion-categories', [PromotionController::class, 'promotionCategories']);
 
-Route::get('/home',[HomeController::class, 'homeProducts']);
+Route::get('/home', [HomeController::class, 'homeProducts']);
 
 Route::middleware("auth:sanctum")->group(function () {
     Route::get("/cart", [CartController::class, "getCart"]);
@@ -33,9 +44,9 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::put("/cart/item/{item}", [CartController::class, "update"]);
     Route::delete("/cart/item/{item}", [CartController::class, "remove"]);
     Route::delete("/cart", [CartController::class, "clear"]);
+
+    // Tạo đơn + Thanh toán (VNPay hoặc COD)
+    Route::post('/checkout', [CheckoutController::class, 'process']);
+
 });
 Route::get('/{slug}', [HomeController::class, 'productDetail']);
-
-
-
-

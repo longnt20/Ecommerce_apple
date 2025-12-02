@@ -9,6 +9,16 @@ import AppHeader from './components/header/AppHeader.vue';
 import ProductApp from './components/HomePage/HomPage.vue';
 import GlobalLoading from './components/loading/GlobalLoading.vue';
 import MainContent from './components/navbar/MainContent.vue';
+
+import { onMounted } from "vue"
+import { useCartStore } from './effects/cart';
+
+
+const cart = useCartStore()
+
+onMounted(() => {
+  cart.loadCart()
+})
 </script>
 
 <style> /* Bỏ "scoped" đi để style này áp dụng cho toàn bộ trang */
