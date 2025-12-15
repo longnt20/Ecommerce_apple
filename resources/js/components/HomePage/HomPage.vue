@@ -16,8 +16,8 @@ import ListProductPhone from './ListProductPhone.vue';
   margin: 10px auto; /* Tạo khoảng cách trên dưới và căn giữa */
   padding: 0 10px;
 }
-.main-product-wrapper,
+/* .main-product-wrapper,
 .main-product-wrapper * {
   box-sizing: content-box !important;
-}
+} */
 </style>

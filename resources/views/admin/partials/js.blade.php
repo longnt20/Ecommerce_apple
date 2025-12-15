@@ -27,6 +27,8 @@
     <script src="{{ asset('assets/libs/dropzone/dropzone-min.js') }}"></script>
 
     <script src="{{ asset('assets/js/pages/ecommerce-product-create.init.js') }}"></script>
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>

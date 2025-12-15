@@ -35,7 +35,7 @@ class HomeController extends Controller
                                 'id' => $variant->id,
                                 'product_id' => $product->id,
                                 'slug' => $product->slug,
-                                'name' => $product->name . ' - ' . ($variant->storage ?? ''),
+                                'name' => $product->name . ' ' . ($variant->storage ?? ''),
                                 'category_id' => $product->category_id,
                                 'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
                                 'original_price' => number_format($originalPrice, 0, ',', '.'),

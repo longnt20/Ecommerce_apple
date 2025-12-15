@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
@@ -176,6 +177,12 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
             Route::get('/{review}', [ReviewController::class, 'show'])->name('show');
             Route::patch('/{id}/toggle-status', [ReviewController::class, 'toggleStatus'])
                 ->name('toggleStatus');
+        });
+    Route::prefix('orders')->as('orders.')->group(function () {
+            Route::get('/', [OrderController::class, 'index'])->name('index');
+            Route::get('/{id}', [OrderController::class, 'show'])->name('show');
+            Route::post('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
+
         });
 });
 Route::get('/', function () {

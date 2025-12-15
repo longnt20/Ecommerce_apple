@@ -6,76 +6,61 @@
 
       <!-- Địa chỉ -->
       <section class="card shipping-card">
-  <h3>Địa chỉ giao hàng</h3>
-
-  <!-- Họ tên -->
-  <div class="form-group">
-    <label>Họ và tên</label>
-    <input v-model="shipping.name" type="text" placeholder="Nguyễn Văn A" />
-  </div>
-
-  <!-- Số điện thoại -->
-  <div class="form-group">
-    <label>Số điện thoại</label>
-    <input v-model="shipping.phone" type="text" placeholder="0123 456 789" />
-  </div>
-
-  <!-- Email -->
-  <div class="form-group">
-    <label>Email</label>
-    <input v-model="shipping.email" type="email" placeholder="email@gmail.com" />
-  </div>
-
-  <!-- Tỉnh / Thành phố -->
-  <div class="form-group">
-    <label>Tỉnh / Thành phố</label>
-    <select v-model="shipping.province_id" @change="fetchDistricts">
-      <option value="">-- Chọn tỉnh/thành --</option>
-      <option v-for="p in provinces" :key="p.code" :value="p.code">{{ p.name }}</option>
-    </select>
-  </div>
-
-  <!-- Quận / Huyện -->
-  <div class="form-group">
-    <label>Quận / Huyện</label>
-    <select v-model="shipping.district_id" @change="fetchWards" :disabled="districts.length === 0">
-      <option value="">-- Chọn quận/huyện --</option>
-      <option v-for="d in districts" :key="d.code" :value="d.code">{{ d.name }}</option>
-    </select>
-  </div>
-
-  <!-- Phường / Xã -->
-  <div class="form-group">
-    <label>Phường / Xã</label>
-    <select v-model="shipping.ward_id" :disabled="wards.length === 0">
-      <option value="">-- Chọn phường/xã --</option>
-      <option v-for="w in wards" :key="w.code" :value="w.code">{{ w.name }}</option>
-    </select>
-  </div>
-
-  <!-- Địa chỉ -->
-  <div class="form-group">
-    <label>Địa chỉ cụ thể</label>
-    <input v-model="shipping.address" type="text" placeholder="Số nhà, đường..." />
-  </div>
-</section>
-
-
-      <!-- Sản phẩm -->
-      <section class="card">
-        <h3>Sản phẩm</h3>
-
-        <div v-for="item in cart.items" :key="item.id" class="product-row">
-          <img :src="item.variant.thumbnail_url" class="thumb" />
-
-          <div class="info">
-            <h4>{{ item.product.name }}</h4>
-            <p>Màu: <strong>{{ item.variant?.color_label }}</strong> | Dung lượng: <strong>{{ item.variant?.storage }}</strong></p>
-            <p>Số lượng: x{{ item.quantity }}</p>
+        <h3>Địa chỉ giao hàng</h3>
+        <!-- Họ tên -->
+        <div class="row">
+          <div class="form-group col-6">
+            <label>Họ và tên</label>
+            <input v-model="shipping.name" type="text" placeholder="Vui lòng nhập họ tên" name="fullname" />
           </div>
 
-          <div class="price">
-            {{ format(item.quantity * item.price_at_add) }}đ
+          <!-- Số điện thoại -->
+          <div class="form-group col-6">
+            <label>Số điện thoại</label>
+            <input v-model="shipping.phone" type="text" placeholder="Nhập số điện thoại người nhận hàng" name="phone" />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email</label>
+          <input v-model="shipping.email" type="email" placeholder="Nhập email của bạn" name="email" />
+        </div>
+
+        <div class="row">
+          <!-- Tỉnh / Thành phố -->
+          <div class="form-group col-6">
+            <label>Tỉnh / Thành phố</label>
+            <select v-model="shipping.province_id" @change="fetchDistricts" name="province">
+              <option value="">-- Chọn tỉnh/thành --</option>
+              <option v-for="p in provinces" :key="p.code" :value="p.code">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <!-- Quận / Huyện -->
+          <div class="form-group col-6">
+            <label>Quận / Huyện</label>
+            <select v-model="shipping.district_id" @change="fetchWards" :disabled="districts.length === 0" name="district">
+              <option value="">-- Chọn quận/huyện --</option>
+              <option v-for="d in districts" :key="d.code" :value="d.code">{{ d.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Phường / Xã -->
+          <div class="form-group col-6">
+            <label>Phường / Xã</label>
+            <select v-model="shipping.ward_id" :disabled="wards.length === 0" name="ward">
+              <option value="">-- Chọn phường/xã --</option>
+              <option v-for="w in wards" :key="w.code" :value="w.code">{{ w.name }}</option>
+            </select>
+          </div>
+
+          <!-- Địa chỉ -->
+          <div class="form-group col-6">
+            <label>Địa chỉ cụ thể</label>
+            <input v-model="shipping.address" type="text" placeholder="Số nhà, đường..." name="address" />
           </div>
         </div>
       </section>
@@ -100,7 +85,23 @@
     <div class="checkout-right">
       <section class="card summary">
         <h3>Đơn hàng</h3>
+        <div v-for="item in cart.items" :key="item.id" class="product-row">
+          <img :src="item.variant.thumbnail_url ?? item.variant.thumbnail" class="thumb" />
 
+          <div class="product">
+            <div class="info">
+              <h5>{{ item.product.name }}</h5>
+              Màu: <strong>{{ item.variant?.color_label ?? item.variant.color }}</strong>
+              <p>Dung lượng: <strong>{{ item.variant?.storage }}</strong></p>
+            </div>
+            <div class="quantity">
+              <p>{{ item.quantity }}</p>
+            </div>
+            <div class="price">
+              <p>{{ format(item.quantity * item.price_at_add) }}đ</p>
+            </div>
+          </div>
+        </div>
         <div class="summary-row">
           <span>Tạm tính</span>
           <strong>{{ format(subtotal) }}đ</strong>
@@ -129,19 +130,42 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import { useBuyNowStore } from "../../effects/buynow";
+
 
 // Cart
+// const cart = ref({ items: [] });
+// const mode = ref("cart");
+const buyNow = useBuyNowStore();
 const cart = ref({ items: [] });
-
 onMounted(async () => {
+  const mode = new URLSearchParams(window.location.search).get("mode");
+
+  // BUY NOW MODE
+  if (mode === "buy-now" && buyNow.active) {
+    cart.value.items = [
+      {
+        id: 0,
+        product: buyNow.product,
+        variant: buyNow.variant,
+        quantity: buyNow.quantity,
+        price_at_add: Number(buyNow.variant.final_price.toString().replace(/\./g, ""))
+      }
+    ];
+
+    console.log(">>> BUY NOW DATA:", cart.value.items);
+    return;
+  }
+
+  // NORMAL CART MODE
   const res = await axios.get("http://127.0.0.1:8000/api/cart", {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    }
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   });
+
   cart.value = res.data;
 });
-
 // Dữ liệu form
 const shipping = ref({
   name: "",
@@ -208,14 +232,32 @@ const submitCheckout = async () => {
   }
 
   loading.value = true;
-
+  
   try {
+    shipping.value.ward_name = wards.value.find(w => w.code == shipping.value.ward_id)?.name;
+    shipping.value.district_name = districts.value.find(d => d.code == shipping.value.district_id)?.name;
+    shipping.value.province_name = provinces.value.find(p => p.code == shipping.value.province_id)?.name;
+    const payload = {
+      payment_method: paymentMethod.value,
+      items: cart.value.items.map(item => ({
+        product_id: item.product.id,
+        variant_id: item.variant.id,
+        quantity: item.quantity,
+        price: item.price_at_add
+      })),
+      fullname: shipping.value.name,
+      phone: shipping.value.phone,
+      email: shipping.value.email,
+      address: shipping.value.address,
+      ward: shipping.value.ward_name,
+      district: shipping.value.district_name,
+      province: shipping.value.province_name,
+      note: shipping.value.note ?? null,
+    };
+
     const res = await axios.post(
       "http://127.0.0.1:8000/api/checkout",
-      {
-        payment_method: paymentMethod.value,
-        shipping: shipping.value
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -223,21 +265,28 @@ const submitCheckout = async () => {
       }
     );
 
-    // Nếu là VNPay → redirect URL
     if (paymentMethod.value === "vnpay") {
       window.location.href = res.data.payment_url;
     } else {
-      // COD → chuyển sang trang thành công
       window.location.href = `/payment-success?order_id=${res.data.order_id}&amount=${res.data.final_amount}&method=COD`;
     }
 
   } catch (err) {
-    alert(err.response?.data?.error ?? "Lỗi không xác định");
+    console.error("CHECKOUT ERROR:", err);
+
+    if (err.response) {
+      console.error("SERVER RESPONSE:", err.response.data);
+      alert("SERVER ERROR: " + JSON.stringify(err.response.data));
+    } else {
+      alert("NETWORK ERROR: " + err.message);
+    }
   }
 
   loading.value = false;
 };
+
 </script>
+
 
 
 <style scoped>
@@ -250,14 +299,21 @@ const submitCheckout = async () => {
 }
 
 .checkout-left {
-  flex: 2;
+  flex: 50%;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 .checkout-right {
-  flex: 1;
+  flex: 50%;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .card {
@@ -270,6 +326,7 @@ const submitCheckout = async () => {
 .product-row {
   display: flex;
   align-items: center;
+  width: 100%;
   border-bottom: 1px solid #eee;
   padding: 15px 0;
 }
@@ -282,6 +339,11 @@ const submitCheckout = async () => {
   margin-right: 15px;
 }
 
+.product-row .info {
+  padding-top: 15px;
+  font-size: 14px;
+}
+
 .payment-option {
   display: block;
   padding: 10px 0;
@@ -291,6 +353,7 @@ const submitCheckout = async () => {
 .summary {
   position: sticky;
   top: 20px;
+  justify-content: space-between;
 }
 
 .summary-row,
@@ -318,6 +381,7 @@ const submitCheckout = async () => {
   cursor: pointer;
   border: none;
 }
+
 .shipping-card {
   padding: 16px;
   border-radius: 6px;
@@ -351,4 +415,29 @@ const submitCheckout = async () => {
   border-radius: 4px;
 }
 
+.quantity {
+  width: 30px;
+  /* chiều rộng ô */
+  height: 30px;
+  /* chiều cao ô → vuông */
+  border: 1px solid #ccc;
+  /* viền */
+  border-radius: 6px;
+  /* bo góc (tùy thích) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* căn giữa nội dung */
+  background: #f8f8f8;
+  /* màu nền nhẹ */
+  margin-left: 10px;
+  /* khoảng cách với bên cạnh */
+}
+
+.quantity p {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  font-size: 14px;
+}
 </style>

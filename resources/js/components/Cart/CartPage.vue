@@ -63,7 +63,7 @@
           <span>{{ formatPrice(cart.totalPrice) }}</span>
         </div>
 
-        <router-link to="/checkout">
+        <router-link to="/checkout?mode=cart">
           <button class="checkout-btn">Tiến hành thanh toán</button>
         </router-link>
       </div>

@@ -31,7 +31,7 @@ onMounted(() => {
   --text-color: #333333;
   --text-color-light: #555555;
   --text-color-white: #ffffff;
-  --font-family-main: 'Inter', sans-serif; /* <-- SỬ DỤNG FONT INTER */
+  --font-family-main: 'Inter','Inter Fallback' ,Arial,sans-serif;; /* <-- SỬ DỤNG FONT INTER */
 }
 
 /* 

@@ -34,7 +34,7 @@
                       <img :alt="product.name" loading="lazy" width="300" height="300" decoding="async" data-nimg="1"
                         class="img-4" :src="product.thumbnail" :style="{ color: 'transparent' }" />
                     </span>
-                    <h3 class="title-ss">{{ product.name }}</h3>
+                    <h3 class="title-ss">{{ product.name }} | Chính Hãng VN/A</h3>
                     <div class="branch-26">
                       <p class="price">{{ product.final_price }}đ</p>
                       <p class="cost-price">{{ product.original_price }}đ</p>
@@ -47,7 +47,6 @@
                         Trả góp <span class="sp-5">0%</span>
                       </span>
                     </div>
-                    </RouterLink>
                     <div class="branch-29">
                       <div class="branch-30">
                         <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
@@ -69,7 +68,9 @@
                         <span class="var">Yêu thích</span>
                       </button>
                     </div>
+                  </RouterLink>
                 </div>
+
               </div>
             </div>
           </div>
@@ -152,7 +153,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   margin: 0 auto;
   /* center the content */
   padding: 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Inter Fallback', Arial, sans-serif;
 }
 
 .left-box {
@@ -194,6 +195,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   /* py-0 -> padding dưới = 0 */
   line-height: 1;
   /* leading-none -> line-height = 1 */
+  text-decoration: none;
 }
 
 .cps-image-cdn {
@@ -436,6 +438,21 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   border: 1px solid #e5e5e5;
   background-color: #fff;
   animation: fade-in 0.5s ease-in-out forwards;
+  justify-content: center;
+  /* căn giữa ngang */
+  align-items: center;
+  /* căn giữa dọc */
+  /* overflow: hidden; */
+}
+
+/* Cho ảnh có animation mượt */
+.branch-24 img {
+  transition: transform 0.5s ease;
+}
+
+/* Khi hover toàn bộ card, ảnh phóng to */
+.branch-24:hover img {
+  transform: scale(1);
 }
 
 /* Keyframes cho hiệu ứng fade-in */
@@ -474,16 +491,13 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 .img-4 {
   opacity: 1;
   object-fit: contain;
+  transform: scale(0.85);
+  /* thu nhỏ ảnh */
+  transform-origin: center;
   aspect-ratio: 1 / 1;
   height: auto;
   width: 100%;
-  transform: scale(0.9);
-  transition: opacity 0.5s, transform 0.3s;
-}
-
-/* Khi hover parent group */
-.group:hover .img-4 {
-  transform: scale(0.95);
+  transition: 0.3s ease;
 }
 
 .title-ss {
@@ -498,13 +512,14 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   line-height: 1.5rem;
   font-weight: 700;
   color: #111827;
+  text-decoration: none;
 }
 
 /* Responsive trên màn hình ≥ 640px */
 @media (min-width: 640px) {
   .title-ss {
     height: 3rem;
-    font-size: 1rem;
+    font-size: 0.93rem;
     white-space: normal;
     word-break: break-word;
   }
@@ -541,13 +556,12 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   margin-bottom: 2rem;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 0.375rem;
   /* 6px */
 }
 
 .branch-26 .price {
-  font-size: 15px;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #e91030;
   /* primary-600 */
@@ -557,13 +571,13 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 /* Responsive màn ≥ 640px */
 @media (min-width: 640px) {
   .price {
-    font-size: 0.875rem;
+    font-size: 1rem;
     /* text-medium */
   }
 }
 
 .branch-26 .cost-price {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #D1D5DB;
   text-decoration: line-through;
 }
@@ -648,7 +662,6 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.625rem 0 0.625rem;
   /* pt-1.5 px-2.5 pb-2.5 */
 }
 
