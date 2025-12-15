@@ -3,11 +3,10 @@
 
         <!-- HÀNG 1: MUA NGAY + GIỎ HÀNG -->
         <div class="action-row">
-            <button class="btn-buy-now">
+            <button class="btn-buy-now"  @click="buyNowAction">
                 <strong>MUA NGAY</strong> <br>
                 <span>Giao nhanh 2 giờ hoặc nhận tại cửa hàng</span>
             </button>
-
             <button class="btn-cart" @click="addToCart">
                 
                     <span class="fa-layers fa-fw" style="font-size: 20px;">
@@ -22,6 +21,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useCartStore } from '../../effects/cart';
+import { useBuyNowStore } from '../../effects/buynow';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   product: {
@@ -39,7 +40,26 @@ const cart = useCartStore();
 const addToCart = async () => {
   await cart.addToCart(props.product.id, props.selectedVariant?.id, quantity.value);
   alert("Đã thêm vào giỏ hàng!");
-};</script>
+};
+
+const router = useRouter()
+
+const buyNow = useBuyNowStore();
+
+const buyNowAction = () => {
+  if (!props.selectedVariant) {
+    return alert("Vui lòng chọn màu/dung lượng!");
+  }
+
+  buyNow.set({
+    product: props.product,
+    variant: props.selectedVariant,
+    quantity: quantity.value,
+  });
+
+  router.push("/checkout?mode=buy-now");
+};
+</script>
 <style scoped>
 .buy-box {
     margin-right: 40px;

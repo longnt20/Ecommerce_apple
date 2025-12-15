@@ -5,6 +5,16 @@ import router from './router';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-import { createPinia } from 'pinia';
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'  
 
-createApp(App).use(createPinia()).use(router).mount('#app')
+const app = createApp(App)
+
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)   
+
+app.use(pinia)
+app.use(router)
+
+app.mount('#app')
+

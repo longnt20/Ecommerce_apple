@@ -2,18 +2,18 @@
   <!-- User Button -->
   <button class="user-button" @click="openModal">
     <UserCircle2 :size="20" />
-    <span class="user-label">{{ isLoggedIn ? userName : 'Đăng nhập' }}</span>
+    <span class="user-label">{{ auth.isLoggedIn ? auth.user?.name : 'Đăng nhập' }}</span>
   </button>
   <!-- User Menu Dropdown -->
 <Transition name="fade">
   <div
-    v-if="isLoggedIn && showUserMenu"
+    v-if="auth.isLoggedIn && showUserMenu"
     class="user-dropdown"
     @click.stop
   >
     <div class="user-info">
-      <strong>{{ userName }}</strong>
-      <span class="email">{{ userEmail }}</span>
+     <strong>{{ auth.user?.name }}</strong>
+    <span class="email">{{ auth.user?.email }}</span>
     </div>
 
     <router-link to="/profile" class="menu-item">Tài khoản của tôi</router-link>
@@ -215,29 +215,30 @@
 
 <script setup>
 import { 
-  UserCircle2, 
-  X, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  User,
-  Loader2 
-} from 'lucide-vue-next';
-import { ref, onMounted, onUnmounted } from 'vue';
+  UserCircle2, X, Mail, Lock, Eye, EyeOff, User, Loader2 
+} from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
+import { useAuthStore } from '../../effects/auth'
 
-// State
-const showModal = ref(false);
-const activeTab = ref('login');
-const showPassword = ref(false);
-const isLoading = ref(false);
-const rememberMe = ref(false);
-const agreeTerms = ref(false);
+const auth = useAuthStore()
+
+// Modal state
+const showModal = ref(false)
+const activeTab = ref('login')
+const showPassword = ref(false)
+const isLoading = ref(false)
 const showUserMenu = ref(false)
-const userEmail = ref('')
 
+// Form state
+const loginForm = ref({ email: '', password: '' })
+const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '' })
+const rememberMe = ref(false)
+const agreeTerms = ref(false)
+
+// Open modal or menu
 const openModal = () => {
-  if (isLoggedIn.value) {
+  if (auth.isLoggedIn) {
     showUserMenu.value = !showUserMenu.value
   } else {
     showModal.value = true
@@ -245,140 +246,75 @@ const openModal = () => {
   }
 }
 
-// User state (có thể lấy từ store)
-const isLoggedIn = ref(false);
-const userName = ref('');
-const getUserProfile = async () => {
-  const token = localStorage.getItem('token')
-  if (!token) return
-
-  try {
-    const res = await axios.get('http://127.0.0.1:8000/api/user', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    isLoggedIn.value = true
-    userName.value = res.data.name
-    userEmail.value = res.data.email
-
-  } catch (err) {
-    console.error('Không lấy được user:', err)
-    localStorage.removeItem('token')
-    isLoggedIn.value = false
-    userName.value = ''
-  }
-}
-
+// Fetch user when component loads
 onMounted(() => {
-  getUserProfile()
+  auth.fetchUser()
 })
-// Form data
-const loginForm = ref({
-  email: '',
-  password: ''
-});
 
-const registerForm = ref({
-  name: '',
-  email: '',
-  password: '',
-  confirmPassword: ''
-});
-
+// Close dropdown when click outside
 const closeUserMenu = (e) => {
   if (!e.target.closest('.user-button') && !e.target.closest('.user-dropdown')) {
     showUserMenu.value = false
   }
 }
-onMounted(() => {
-  document.addEventListener('click', closeUserMenu)
-})
-onUnmounted(() => {
-  document.removeEventListener('click', closeUserMenu)
-})
-const logout = () => {
-  localStorage.removeItem('token')
-  isLoggedIn.value = false
-  userName.value = ''
-  userEmail.value = ''
-  showUserMenu.value = false
-}
+
+onMounted(() => document.addEventListener('click', closeUserMenu))
+onUnmounted(() => document.removeEventListener('click', closeUserMenu))
+
+// Close modal
 const closeModal = () => {
-  showModal.value = false;
-  document.body.style.overflow = '';
-  resetForms();
-};
+  showModal.value = false
+  document.body.style.overflow = ''
+  resetForms()
+}
 
 const resetForms = () => {
-  loginForm.value = { email: '', password: '' };
-  registerForm.value = { name: '', email: '', password: '', confirmPassword: '' };
-  showPassword.value = false;
-  agreeTerms.value = false;
-};
+  loginForm.value = { email: '', password: '' }
+  registerForm.value = { name: '', email: '', password: '', confirmPassword: '' }
+  showPassword.value = false
+  agreeTerms.value = false
+}
 
+// Login
 const handleLogin = async () => {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    // Call API login
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-    
-    // Success
-    isLoggedIn.value = true;
-    userName.value = 'Nguyễn Văn A';
-    closeModal();
-    
-    // Show success message
-    console.log('Đăng nhập thành công');
-  } catch (error) {
-    console.error('Login error:', error);
+    await auth.login(loginForm.value.email, loginForm.value.password)
+    closeModal()
+  } catch (err) {
+    alert("Sai tài khoản hoặc mật khẩu")
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
+// Register
 const handleRegister = async () => {
-  // Validate passwords match
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    alert('Mật khẩu không khớp!');
-    return;
+    return alert("Mật khẩu không khớp!")
   }
 
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    // Call API register
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-    
-    // Success - switch to login tab
-    activeTab.value = 'login';
-    resetForms();
-    
-    // Show success message
-    console.log('Đăng ký thành công');
-  } catch (error) {
-    console.error('Register error:', error);
+    await auth.register(
+      registerForm.value.name,
+      registerForm.value.email,
+      registerForm.value.password
+    )
+
+    alert("Đăng ký thành công! Hãy đăng nhập.")
+    activeTab.value = 'login'
+    resetForms()
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 
-const handleForgotPassword = () => {
-  console.log('Forgot password');
-  // Navigate to forgot password page or show forgot password modal
-};
+const logout = () => {
+  auth.logout()
+  showUserMenu.value = false
+}
 
-// Handle ESC key
-const handleEsc = (e) => {
-  if (e.key === 'Escape' && showModal.value) {
-    closeModal();
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('keydown', handleEsc);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleEsc);
-});
 </script>
 
 <style scoped>
