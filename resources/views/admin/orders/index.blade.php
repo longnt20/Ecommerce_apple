@@ -27,60 +27,8 @@
 @endsection
 
 @section('content')
-    {{-- THỐNG KÊ --}}
-    <div class="row cursor-pointer">
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card stats-card total-card">
-                <div class="card-body text-center">
-                    <div class="stat-icon text-primary">
-                        <i class="la la-shopping-cart"></i>
-                    </div>
-                    <h5 class="card-title text-muted mb-2">Tổng đơn hàng</h5>
-                    <h3 class="card-text fw-bold">{{ $orders_total ?? 0 }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card stats-card approved-card">
-                <div class="card-body text-center">
-                    <div class="stat-icon text-info">
-                        <i class="la la-history"></i>
-                    </div>
-                    <h5 class="card-title text-muted mb-2">Đơn chờ xác nhận</h5>
-                    <h3 class="card-text fw-bold text-info">{{ $orders_pending ?? 0 }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card stats-card pending-card">
-                <div class="card-body text-center">
-                    <div class="stat-icon text-warning">
-                        <i class="la la-truck"></i>
-                    </div>
-                    <h5 class="card-title text-muted mb-2">Đơn đang giao</h5>
-                    <h3 class="card-text fw-bold text-warning">{{ $orders_shipping ?? 0 }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card stats-card rejected-card">
-                <div class="card-body text-center">
-                    <div class="stat-icon text-success">
-                        <i class="la la-check-circle"></i>
-                    </div>
-                    <h5 class="card-title text-muted mb-2">Đơn đã giao</h5>
-                    <h3 class="card-text fw-bold text-success">{{ $orders_delivered ?? 0 }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- NỘI DUNG CHÍNH --}}
-    <div class="container-fluid">
-        <div class="row">
+    <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0">Quản lí đơn hàng</h4>
@@ -93,7 +41,68 @@
                 </div>
             </div>
         </div>
+    <div class="container-fluid">
+            {{-- THỐNG KÊ --}}
+    <div class="row cursor-pointer">
+        <div class="col-12 col-sm-6 col-md mb-1">
+            <div class="card stats-card total-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-primary">
+                        <i class="la la-shopping-cart"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-2">Tổng đơn hàng</h5>
+                    <h3 class="card-text fw-bold">{{ $orders_total ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
 
+        <div class="col-12 col-sm-6 col-md mb-1">
+            <div class="card stats-card pending-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-warning">
+                        <i class="la la-history"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-2">Đơn chờ xác nhận</h5>
+                    <h3 class="card-text fw-bold text-warning">{{ $orders_pending ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md mb-1">
+            <div class="card stats-card shipping-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-info">
+                        <i class="la la-truck"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-2">Đơn đang giao</h5>
+                    <h3 class="card-text fw-bold text-info">{{ $orders_shipping ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md mb-1">
+            <div class="card stats-card approved-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-success">
+                        <i class="la la-check-circle"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-2">Đơn đã giao</h5>
+                    <h3 class="card-text fw-bold text-success">{{ $orders_delivered ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md mb-1">
+            <div class="card stats-card rejected-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon text-danger">
+                       <i class="la la-times-circle"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-2">Đơn đã hủy</h5>
+                    <h3 class="card-text fw-bold text-danger">{{ $orders_cancelled ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
         {{-- TABLE --}}
         <div class="row">
             <div class="col-lg-12">

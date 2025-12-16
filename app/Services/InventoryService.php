@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Services;
+
 use App\Models\Inventory;
 use App\Models\InventoryTransaction;
 use Illuminate\Support\Facades\DB;
 
 class InventoryService
 {
-     public function import($warehouseId, $productVariantId, $quantity, $unitCost = null, $notes = null)
+    public function import($warehouseId, $productVariantId, $quantity, $unitCost = null, $notes = null)
     {
         return DB::transaction(function () use ($warehouseId, $productVariantId, $quantity, $unitCost, $notes) {
             // Get or create inventory record
@@ -22,7 +24,7 @@ class InventoryService
             );
 
             $beforeQuantity = $inventory->quantity;
-            
+
             // Update inventory
             $inventory->quantity += $quantity;
             $inventory->available_quantity += $quantity;
@@ -62,7 +64,7 @@ class InventoryService
             }
 
             $beforeQuantity = $inventory->quantity;
-            
+
             // Update inventory
             $inventory->quantity -= $quantity;
             $inventory->available_quantity -= $quantity;
@@ -217,13 +219,84 @@ class InventoryService
         });
     }
 
+    public function commitOrder($warehouseId, $productVariantId, $quantity, $orderId)
+    {
+        return DB::transaction(function () use ($warehouseId, $productVariantId, $quantity, $orderId) {
+
+            $inventory = Inventory::where('warehouse_id', $warehouseId)
+                ->where('product_variant_id', $productVariantId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$inventory) {
+                throw new \DomainException(
+                    "Chưa tồn tại tồn kho cho sản phẩm {$productVariantId} tại kho {$warehouseId}"
+                );
+            }
+
+            $beforeQuantity = $inventory->quantity;
+
+            // Commit stock
+            $inventory->reserved_quantity -= $quantity;
+            $inventory->quantity -= $quantity;
+            $inventory->save();
+
+            InventoryTransaction::create([
+                'warehouse_id'       => $warehouseId,
+                'product_variant_id' => $productVariantId,
+                'type'               => 'commit',
+                'quantity'           => -$quantity,
+                'before_quantity'    => $beforeQuantity,
+                'after_quantity'     => $inventory->quantity,
+                'reference_type'     => 'order',
+                'reference_id'       => $orderId,
+                'status'             => 'completed',
+                'notes'              => 'Confirm order'
+            ]);
+        });
+    }
+
+    public function releaseOrder($warehouseId, $productVariantId, $quantity, $orderId)
+    {
+        return DB::transaction(function () use ($warehouseId, $productVariantId, $quantity, $orderId) {
+
+            $inventory = Inventory::where('warehouse_id', $warehouseId)
+                ->where('product_variant_id', $productVariantId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$inventory) {
+                throw new \DomainException(
+                    "Chưa tồn tại tồn kho cho sản phẩm tại kho {$warehouseId}"
+                );
+            }
+
+            $inventory->reserved_quantity -= $quantity;
+            $inventory->available_quantity += $quantity;
+            $inventory->save();
+
+            InventoryTransaction::create([
+                'warehouse_id'       => $warehouseId,
+                'product_variant_id' => $productVariantId,
+                'type'               => 'release',
+                'quantity'           => $quantity,
+                'before_quantity'    => $inventory->quantity,
+                'after_quantity'     => $inventory->quantity,
+                'reference_type'     => 'order',
+                'reference_id'       => $orderId,
+                'status'             => 'completed',
+                'notes'              => 'Cancel order'
+            ]);
+        });
+    }
+
     /**
      * Check stock availability across all warehouses
      */
     public function checkAvailability($productVariantId, $quantity = null)
     {
         $query = Inventory::where('product_variant_id', $productVariantId);
-        
+
         if ($quantity) {
             return $query->where('available_quantity', '>=', $quantity)->exists();
         }

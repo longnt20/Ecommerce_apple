@@ -201,8 +201,9 @@
                         <h5 class="mb-0">Tiến độ đơn hàng</h5>
                         <div class="d-flex gap-2">
                             @foreach ($nextStatuses as $status)
-                            <form method="POST" action="{{ route('admin.orders.update-status', $order) }}">
+                            <form method="POST" action="{{ route('admin.orders.update-status', $order->id) }}" onsubmit="console.log(this.action)">
                                 @csrf
+                                @method('PATCH')
                                 <input type="hidden" name="status" value="{{ $status }}">
 
                                 <button class="btn {{ $status === 'cancelled' ? 'btn-danger' : 'btn-success' }}">

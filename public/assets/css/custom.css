@@ -98,6 +98,12 @@ File: Custom Css File
     --icon-color: #ffb822;
 }
 
+.shipping-card {
+    --gradient-start: #4292d4;
+    --gradient-end: #44c4fa;
+    --icon-color: #5b73e8;
+}
+
 .rejected-card {
     --gradient-start: #f46a6a;
     --gradient-end: #f7a7a7;

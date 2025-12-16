@@ -180,8 +180,8 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         });
     Route::prefix('orders')->as('orders.')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('index');
-            Route::get('/{id}', [OrderController::class, 'show'])->name('show');
-            Route::post('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
+            Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+            Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
 
         });
 });
