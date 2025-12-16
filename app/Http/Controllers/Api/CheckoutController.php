@@ -130,7 +130,7 @@ class CheckoutController extends Controller
             if ($paymentMethod === 'cod') {
                 $order->update([
                     'payment_status' => 'unpaid',
-                    'status' => 'confirmed'
+                    'status' => 'pending'
                 ]);
 
                 return response()->json([
