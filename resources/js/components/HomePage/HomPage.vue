@@ -2,10 +2,12 @@
   <div class="main-product-wrapper">
     <HotSaleSlider />
     <ListProductPhone/>
+    <AccessoryGrid />
   </div>
 </template>
 
 <script setup>
+import AccessoryGrid from './AccessoryGrid.vue';
 import HotSaleSlider from './HotSaleSlider.vue';
 import ListProductPhone from './ListProductPhone.vue';
 </script>

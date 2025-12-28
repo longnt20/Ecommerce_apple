@@ -1,20 +1,34 @@
 <template>
   <div class="my-container">
     <div class="left-box">
-      <a href="#" class="a1">
-        <span class="cps-image-cdn">
-          <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
-            src="https://cdn2.cellphones.com.vn/insecure/rs:fill:214:530/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K6F050R8WY7PZK75J36ST4CV.png"
-            alt="Banner iphone 17 pro home desktop" class="my-image" :style="{ color: `transparent` }">
-        </span>
-      </a>
-      <a href="#" class="a1">
-        <span class="cps-image-cdn">
-          <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
-            src="https://cdn2.cellphones.com.vn/insecure/rs:fill:214:530/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K6F050ZM5Q7TATVRHDGHEMAV.jpg"
-            alt="Banner iphone 17 pro home desktop" class="my-image" :style="{ color: `transparent` }">
-        </span>
-      </a>
+      <!-- BANNER ĐIỆN THOẠI -->
+      <div v-if="activeTabId === 16" class="banner-wrapper">
+        <a href="#" class="a1">
+          <span class="cps-image-cdn"> <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
+              src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01KD248R7BAM3B5C5X0BMHPMKP.png"
+              alt="Banner iphone 17 pro home desktop" class="my-image" :style="{ color: transparent }"> </span>
+        </a>
+        <a href="#" class="a2">
+          <span class="cps-image-cdn"> <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
+              src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01KBYCAYZCSCAQCDXSKTJX1TWB.png"
+              alt="Banner iphone 17 pro home desktop" class="my-image" :style="{ color: transparent }"> </span>
+        </a>
+      </div>
+
+      <!-- BANNER LAPTOP -->
+      <div v-else-if="activeTabId === 17" class="banner-wrapper">
+        <a href="#" class="a1">
+          <span class="cps-image-cdn"> <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
+              src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
+              alt="Banner laptop home desktop 1" class="my-image" :style="{ color: transparent }"> </span>
+        </a>
+        <a href="#" class="a2">
+          <span class="cps-image-cdn"> <img loading="lazy" width="214" height="530" decoding="async" data-nimg="1"
+              src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01KAT2MC172RE7DNF84QSF6PFP.png"
+              alt="Banner laptop home desktop 1" class="my-image" :style="{ color: transparent }"> </span>
+        </a>
+      </div>
+
     </div>
     <div class="right-box">
       <div class="tabs">
@@ -22,6 +36,33 @@
           :class="['tab-btn', index === activeTabIndex ? 'active' : '']" @click="changeTab(tab.id, index)">
           {{ tab.name }}
         </button>
+      </div>
+      <div class="category-brand">
+
+        <div class="category-wrapper">
+
+          <div class="category-row" ref="row">
+            <div v-for="item in categories" :key="item.id" class="category-card">
+              <img :src="item.icon" />
+              <div class="category-name">{{ item.name }}</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BRAND ROW -->
+        <div class="brand-row">
+          <div class="brand-list">
+            <button v-for="brand in brands" :key="brand" class="brand-pill">
+              {{ brand }}
+            </button>
+          </div>
+
+          <a href="#" class="view-all">
+            Xem tất cả <span>›</span>
+          </a>
+        </div>
+
       </div>
       <div class="bottom-box">
         <div class="product-swiper swiper rounded-2xl">
@@ -38,6 +79,9 @@
                     <div class="branch-26">
                       <p class="price">{{ product.final_price }}đ</p>
                       <p class="cost-price">{{ product.original_price }}đ</p>
+                    </div>
+                    <div class="badge-box">
+                      <div class="">Trả góp 0% - 0đ phụ thu - 0đ trả trước - kỳ hạn đến 6 tháng</div>
                     </div>
                     <div class="branch-27" :style="{ backgroundImage: `url(${backgrounds.discountBadge})` }">
                       Giảm <span class="sp-3">{{ product.discount_percent }}%</span>
@@ -78,7 +122,6 @@
           <div class="swiper-button-prev product-prev"></div>
           <div class="swiper-button-next product-next"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -98,10 +141,32 @@ const tabs = ref([
   { id: 16, name: 'Điện thoại' },
   { id: 17, name: 'LapTop' }
 ])
+const categories = [
+  { id: 1, name: 'Điện thoại chơi game', icon: '/logos/iphone-16-pro-max.webp' },
+  { id: 2, name: 'Điện thoại pin trâu', icon: '/logos/iphone-17-pro-256-gb.webp' },
+  { id: 3, name: 'Điện thoại 5G', icon: '/logos/iphone-15-plus_1__1.webp' },
+  { id: 4, name: 'Điện thoại chụp ảnh đẹp', icon: '/logos/iphone_17_256gb-3_2.webp' },
+  { id: 5, name: 'Điện thoại vừa tay', icon: '/logos/iphone_air-3_2.webp' },
+]
+
+const brands = [
+  'Apple', 'Samsung', 'Xiaomi', 'OPPO', 'TECNO',
+  'HONOR', 'Nubia', 'Sony', 'Nokia', 'Infinix'
+]
 const backgrounds = {
   discountBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png',
   zeroInsBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png'
 }
+const row = ref(null)
+
+const scrollRight = () => {
+  row.value.scrollLeft += 220
+}
+
+const scrollLeft = () => {
+  row.value.scrollLeft -= 220
+}
+
 const activeTabId = ref(16)
 const activeTabIndex = ref(0)
 onMounted(async () => {
@@ -148,12 +213,8 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   display: flex;
   /* flex-direction: column; */
   gap: 1rem;
-  max-width: 1280px;
-  /* max-w-screen-xl */
-  margin: 0 auto;
   /* center the content */
-  padding: 1rem;
-  font-family: 'Inter', 'Inter Fallback', Arial, sans-serif;
+  margin-right: 16px;
 }
 
 .left-box {
@@ -165,7 +226,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   /* flex-col -> sắp xếp theo cột */
   justify-content: space-between;
   /* justify-between -> dàn đều theo trục chính */
-  gap: 0.75rem;
+  gap: 1rem;
   /* gap-3 -> khoảng cách 12px giữa các phần tử con */
 }
 
@@ -197,31 +258,45 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   /* leading-none -> line-height = 1 */
   text-decoration: none;
 }
-
+.a2 {
+  display: block;
+  /* block */
+  height: fit-content;
+  /* h-fit -> chiều cao vừa đủ nội dung */
+  width: 100%;
+  /* w-full -> chiếm 100% chiều ngang */
+  padding-top: 20px;
+  padding-left: 10px;
+  /* py-0 -> padding trên = 0 */
+  padding-bottom: 0;
+  /* py-0 -> padding dưới = 0 */
+  line-height: 1;
+  /* leading-none -> line-height = 1 */
+  text-decoration: none;
+}
 .cps-image-cdn {
   position: relative;
   /* relative */
-  display: inline-block;
   /* inline-block */
-  width: 100%;
+  display: block;
+  width: 214px;
+  height: 530px;
+  background: #ffffff;
+  /* nền đệm nếu ảnh không đủ tỷ lệ */
   /* w-full */
   border-radius: 1rem;
   /* rounded-2xl -> 1rem (16px) */
-  object-fit: cover;
-  /* object-cover */
-  transition: all 150ms ease;
-  /* transition-all duration-150 */
 }
 
 .my-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* QUAN TRỌNG */
+  object-position: center;
   opacity: 1;
   /* opacity-100 */
   border-radius: 1rem;
-  /* rounded-2xl = 1rem (16px) */
-  object-fit: cover;
-  /* object-cover (ghi đè object-contain) */
-  transition: all 150ms ease;
-  /* transition-all duration-150 (ghi đè transition-opacity duration-500) */
 }
 
 .right-box {
@@ -431,7 +506,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 12.75rem;
+  min-height: 13rem;
   /* ~204px */
   border-radius: 1rem;
   /* 16px */
@@ -509,8 +584,8 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   height: 2.25rem;
   width: 200px;
   font-size: 0.75rem;
-  line-height: 1.5rem;
-  font-weight: 700;
+  line-height: 1.3rem;
+  font-weight: 600;
   color: #111827;
   text-decoration: none;
 }
@@ -519,7 +594,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 @media (min-width: 640px) {
   .title-ss {
     height: 3rem;
-    font-size: 0.93rem;
+    font-size: 1rem;
     white-space: normal;
     word-break: break-word;
   }
@@ -553,7 +628,6 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 }
 
 .branch-26 {
-  margin-bottom: 2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
@@ -816,6 +890,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   display: flex;
   border-bottom: 1px solid #eee;
   height: 3.75rem;
+  margin-top: 12px;
 }
 
 .tab-btn {
@@ -848,5 +923,137 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 .tab-btn.active {
   color: #3B82F6;
   background: linear-gradient(to bottom, #ffffff, #E0F2FE, #93C5FD);
+}
+
+.category-brand {
+  background: #fff;
+  padding-top: 16px;
+}
+
+.category-wrapper {
+  position: relative;
+}
+
+.category-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: hidden;
+  /* ẨN SCROLL BAR */
+  scroll-behavior: smooth;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.nav-btn.left {
+  left: 0
+}
+
+.nav-btn.right {
+  right: 0
+}
+
+
+.category-card {
+  width: 200px;
+  height: 68px;
+  /* cao hơn để đủ 2 dòng */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.category-card img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  width: 85px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* CHỈ 2 DÒNG */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.brand-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.brand-pill {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.brand-pill:hover {
+  border-color: #d70018;
+  color: #d70018;
+}
+
+.view-all {
+  font-size: 14px;
+  color: #2563eb;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.badge-box {
+  margin-bottom: 2.5rem;
+  /* mb-1 */
+  display: flex;
+  /* d-flex */
+  align-items: center;
+  /* align-items-center */
+  gap: 0.25rem;
+  /* gap-1 */
+  border-radius: 0.25rem;
+  /* rounded */
+  background-color: #f3f4f6;
+  /* bg-light */
+  padding: 0.25rem;
+  /* p-1 */
+  color: #212529;
+  line-height: 1.2rem;
+  /* text-dark */
+  font-size: 12px;
+  /* small */
 }
 </style>

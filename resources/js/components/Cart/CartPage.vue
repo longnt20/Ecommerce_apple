@@ -96,6 +96,7 @@ const formatPrice = (value) => {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
+  background-color: #ffffff;
 }
 
 .cart-title {

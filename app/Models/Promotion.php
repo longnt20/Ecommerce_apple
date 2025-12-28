@@ -16,6 +16,7 @@ class Promotion extends Model
         'end_date',
         'status',
         'is_featured',
+        'frame_id'
     ];
 
     public function items()
@@ -25,5 +26,8 @@ class Promotion extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    public function frame(){
+        return $this->belongsTo(Frame::class);
     }
 }

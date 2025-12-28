@@ -32,6 +32,7 @@ const props = defineProps({
     padding: 16px;
     background: #fff;
     width: 100%;
+    margin-left: 5px;
 }
 
 .specs-header {
@@ -40,6 +41,7 @@ const props = defineProps({
     align-items: center;
     margin-bottom: 12px;
     margin-top: 20px;
+    margin-left: 10px;
 }
 
 .specs-header h2 {
@@ -57,6 +59,7 @@ const props = defineProps({
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid #ded2d2;
+    margin-left: 10px;
 }
 
 .specs-table {

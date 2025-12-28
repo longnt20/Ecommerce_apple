@@ -1,6 +1,7 @@
 <template>
   <AppHeader />
   <router-view />
+  <Snowfall />
   <GlobalLoading />
 </template>
 
@@ -12,6 +13,7 @@ import MainContent from './components/navbar/MainContent.vue';
 
 import { onMounted } from "vue"
 import { useCartStore } from './effects/cart';
+import Snowfall from './components/Snowfall.vue';
 
 
 const cart = useCartStore()
@@ -39,6 +41,10 @@ onMounted(() => {
   Áp dụng font cho toàn bộ trang.
 */
 body {
+  background: url(https://cdn2.cellphones.com.vn/x/media/wysiwyg/Web/campaign/2025/1920x1080_BG_Homepage_Noel-v2.jpg);
+      background-size: cover;
+    background-position: left top;
+    background-attachment: fixed;
   margin: 0;
   background-color: #ffffff;
   font-family: var(--font-family-main); /* <-- Áp dụng font ở đây */

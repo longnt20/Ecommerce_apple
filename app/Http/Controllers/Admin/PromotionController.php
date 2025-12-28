@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Promotion\StorePromotionRequest;
 use App\Models\Category;
+use App\Models\Frame;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Promotion;
@@ -39,12 +40,12 @@ class PromotionController extends Controller
             ->whereNull('deleted_at') // Nếu có soft delete
             ->orderBy('name')
             ->get(['id', 'name', 'default_price', 'thumbnail']); // Chỉ lấy cột cần dùng
-
+        $frames = Frame::where('is_active', 1)->get();
         $variantProducts = ProductVariant::query()
             ->with(['product:id,name']) // Chỉ load id & name của product
             ->get(['id', 'product_id','sku','color','storage', 'price', 'thumbnail']); // Chỉ lấy cột cần
 
-        return view('admin.promotions.create', compact('categories', 'baseProducts', 'variantProducts'));
+        return view('admin.promotions.create', compact('categories', 'baseProducts', 'variantProducts','frames'));
     }
     public function store(StorePromotionRequest $request)
     {

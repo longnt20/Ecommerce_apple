@@ -96,6 +96,7 @@ const formattedName = computed(() => {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  margin-left: 20px;
   align-items: flex-start;
 }
 
@@ -103,6 +104,7 @@ const formattedName = computed(() => {
 .product-title {
   font-size: 26px;
   font-weight: 700;
+  margin-left: 10px;
   margin-bottom: 8px;
 }
 
@@ -112,6 +114,7 @@ const formattedName = computed(() => {
   gap: 8px;
   color: #5a5a5a;
   font-size: 15px;
+  margin-left: 10px;
 }
 
 .divider {

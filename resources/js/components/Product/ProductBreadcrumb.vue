@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-vue-next";
 </script>
 
 <template>
-  <nav class="container breadcrumb" style="margin-top: 10px; margin-bottom: 15px;">
+  <nav class="container breadcrumb" style="padding-left: 20px; padding-top: 15px; margin-bottom: 15px;">
     <a href="#">Trang chủ</a>
     <ChevronRight class="divider" />
 

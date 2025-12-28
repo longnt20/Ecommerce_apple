@@ -17,7 +17,7 @@ class PromotionController extends Controller
     {
         try {
             $categoryId = $request->query('category_id');
-            $promotion = Promotion::with(['category', 'items.item'])
+            $promotion = Promotion::with(['category', 'items.item', 'frame'])
                 ->where('is_featured', true)
                 ->where('status', 1)
                 ->whereDate('start_date', '<=', now())
@@ -35,8 +35,29 @@ class PromotionController extends Controller
                 'data' => [
                     'id' => $promotion->id,
                     'name' => $promotion->name,
-                    'thumbnail' => $promotion->thumbnail,
+                    'thumbnail' => $promotion->thumbnail ? asset('storage/' . $promotion->thumbnail)
+                            : null,
                     'slug' => $promotion->slug,
+                    'frame' => $promotion->frame ? [
+                        'id' => $promotion->frame->id,
+                        'name' => $promotion->frame->name,
+                        'top_background' => $promotion->frame->top_background
+                            ? asset('storage/' . $promotion->frame->top_background)
+                            : null,
+                        'bottom_background' => $promotion->frame->bottom_background
+                            ? asset('storage/' . $promotion->frame->bottom_background)
+                            : null,
+                        'ribbon_image' => $promotion->frame->ribbon_image
+                            ? asset('storage/' . $promotion->frame->ribbon_image)
+                            : null,
+                        'left_decor_image' => $promotion->frame->left_decor_image
+                            ? asset('storage/' . $promotion->frame->left_decor_image)
+                            : null,
+                        'right_decor_image' => $promotion->frame->right_decor_image
+                            ? asset('storage/' . $promotion->frame->right_decor_image)
+                            : null,
+                        'is_active'=> $promotion->frame->is_active,
+                    ] : null,
                     'start_date' => $promotion->start_date,
                     'end_date' => $promotion->end_date,
                     'items' => $promotion->items->map(function ($item) {
@@ -64,6 +85,7 @@ class PromotionController extends Controller
                                 ? $model->product->name . ' - ' . $model->storage
                                 : $model->name,
                             'category_id' => $model->product->category->id ?? $model->category->id ?? null,
+                            'slug' => $model->product->slug,
                             'thumbnail' => asset('storage/' . $model->thumbnail),
                             'original_price' => number_format($originalPrice, 0, ',', '.'),
                             'final_price' => number_format($finalPrice, 0, ',', '.'),

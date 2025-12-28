@@ -1,7 +1,122 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Tạo Chương Trình Khuyến Mãi')
+@push('page-css')
+    <style>
+        .frame-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+        }
 
+        .frame-preview-mini {
+            position: relative;
+            height: 150px;
+            background: #f3f3f3;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .frame-preview-mini div {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+
+        .bg-top {
+            top: 15px;
+            left: 12px;
+            width: 88%;
+            height: 55px;
+            z-index: 1;
+        }
+
+        .bg-bottom {
+            left: 10px;
+            top: 30px;
+            width: 90%;
+            height: 100px;
+            z-index: 2;
+        }
+
+        .ribbon {
+            width: 100%;
+            height: 10%;
+            top: 30px;
+            left: 30%;
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            z-index: 5;
+        }
+
+        .decor-left {
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            left: 17px;
+            top: 40px;
+            width: 30px;
+            z-index: 4;
+            height: 30%;
+        }
+
+        .decor-right {
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            right: -13px;
+            top: 40px;
+            width: 30px;
+            z-index: 4;
+            height: 30%;
+        }
+        .bg-top-preview {
+            left: 12px;
+            width: 93%;
+            height: 45px;
+            z-index: 1;
+        }
+
+        .bg-bottom-preview {
+            left: 10px;
+            top: 30px;
+            width: 95%;
+            height: 120px;
+            z-index: 2;
+        }
+
+        .ribbon-preview {
+            width: 100%;
+            height: 20%;
+            right: 25%;
+            z-index: 5;
+        }
+
+        .decor-left-preview {
+            transform: translateX(-50%);
+            left: 17px;
+            top: 28px;
+            width: 35px;
+            z-index: 4;
+            height: 30%;
+        }
+
+        .decor-right-preview {
+            transform: translateX(-50%);
+            right: -13px;
+            top: 27px;
+            width: 35px;
+            z-index: 4;
+            height: 30%;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="container-fluid">
         <div class="card">
@@ -16,15 +131,15 @@
                     <div class="form-section mb-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="">
-                               <h5 class=" mb-3">Thông Tin Cơ Bản</h5>
+                                <h5 class=" mb-3">Thông Tin Cơ Bản</h5>
                             </div>
                             <div class="form-check">
-                            <label class="form-check-label" for="is_featured">
-                                Chương trình nổi bật
-                            </label>
-                            <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured"
-                                value="1" {{ old('is_featured') ? 'checked' : '' }}>
-                        </div>
+                                <label class="form-check-label" for="is_featured">
+                                    Chương trình nổi bật
+                                </label>
+                                <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured"
+                                    value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-8">
@@ -59,25 +174,134 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Thumbnail</label>
-                            <input type="file" name="thumbnail"
-                                class="form-control @error('thumbnail') is-invalid @enderror" value="{{ old('thumbnail') }}"
-                                placeholder="URL hoặc đường dẫn ảnh">
-                            @error('thumbnail')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Thumbnail</label>
+                                <input type="file" name="thumbnail"
+                                    class="form-control @error('thumbnail') is-invalid @enderror"
+                                    value="{{ old('thumbnail') }}" placeholder="URL hoặc đường dẫn ảnh">
+                                @error('thumbnail')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <label class="form-label mt-2">Mô tả</label>
+                                <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="4"
+                                    placeholder="Mô tả chi tiết về chương trình khuyến mãi">{{ old('description') }}</textarea>
+                                @error('description')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Mô tả</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="4"
-                                placeholder="Mô tả chi tiết về chương trình khuyến mãi">{{ old('description') }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                            <div class="col-md-4 mb-3">
+                                <!-- Khung áp dụng -->
+                                <div class="form-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label mb-0">
+                                            Khung áp dụng <span class="text-danger">*</span>
+                                        </label>
 
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                            data-bs-target="#frameModal">
+                                            Chọn khung
+                                        </button>
+                                    </div>
+
+                                    <input type="hidden" name="frame_id" id="frame_id">
+
+                                    {{-- Empty state --}}
+                                    <div id="frameEmptyState" class="border rounded text-center text-muted py-4" style="height:160px;">
+                                        <i class="fas fa-box-open fa-2x mb-2"></i>
+                                        <div>Chưa chọn khung chương trình</div>
+                                    </div>
+
+                                    {{-- Selected frame preview --}}
+                                    <div id="selectedFramePreview" class="card mt-2 d-none">
+                                        <div class="card-body">
+                                            <div class="frame-preview-mini mb-2">
+                                                <div id="preview-top" class="bg-top-preview"></div>
+                                                <div id="preview-bottom" class="bg-bottom-preview"></div>
+                                                <div id="preview-ribbon" class="ribbon-preview"></div>
+                                                <div id="preview-left" class="decor-left-preview"></div>
+                                                <div id="preview-right" class="decor-right-preview"></div>
+                                            </div>
+
+                                            <div class="fw-semibold" id="selectedFrameName"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="frameModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Chọn khung</h5>
+                                        <button type="button" class="btn btn-sm btn-close"
+                                            data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            @foreach ($frames as $frame)
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="card frame-item h-100">
+                                                        <div class="card-body p-2">
+
+                                                            <div class="frame-preview-mini mb-2">
+                                                                @if ($frame->top_background)
+                                                                    <div class="bg-top"
+                                                                        style="background-image:url({{ Storage::url($frame->top_background) }})">
+                                                                    </div>
+                                                                @endif
+                                                                @if ($frame->bottom_background)
+                                                                    <div class="bg-bottom"
+                                                                        style="background-image:url({{ Storage::url($frame->bottom_background) }})">
+                                                                    </div>
+                                                                @endif
+                                                                @if ($frame->ribbon_image)
+                                                                    <div class="ribbon"
+                                                                        style="background-image:url({{ Storage::url($frame->ribbon_image) }})">
+                                                                    </div>
+                                                                @endif
+                                                                @if ($frame->left_decor_image)
+                                                                    <div class="decor-left"
+                                                                        style="background-image:url({{ Storage::url($frame->left_decor_image) }})">
+                                                                    </div>
+                                                                @endif
+                                                                @if ($frame->right_decor_image)
+                                                                    <div class="decor-right"
+                                                                        style="background-image:url({{ Storage::url($frame->right_decor_image) }})">
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+
+                                                            <div class="small fw-semibold text-center mb-2">
+                                                                {{ $frame->name }}
+                                                            </div>
+
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-primary w-100 btn-choose-frame"
+                                                                data-id="{{ $frame->id }}"
+                                                                data-name="{{ $frame->name }}"
+                                                                data-top="{{ $frame->top_background ? Storage::url($frame->top_background) : '' }}"
+                                                                data-bottom="{{ $frame->bottom_background ? Storage::url($frame->bottom_background) : '' }}"
+                                                                data-ribbon="{{ $frame->ribbon_image ? Storage::url($frame->ribbon_image) : '' }}"
+                                                                data-left="{{ $frame->left_decor_image ? Storage::url($frame->left_decor_image) : '' }}"
+                                                                data-right="{{ $frame->right_decor_image ? Storage::url($frame->right_decor_image) : '' }}">
+                                                                Chọn khung
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
@@ -281,8 +505,8 @@
                                                     <img src="{{ Storage::url($variant->thumbnail) }}" alt=""
                                                         srcset="" width="50px">
                                                 </td>
-                                                <td>{{$variant->color_label}}</td>
-                                                <td>{{$variant->storage}}</td>
+                                                <td>{{ $variant->color_label }}</td>
+                                                <td>{{ $variant->storage }}</td>
                                                 <td>{{ $variant->sku }}</td>
                                                 <td>{{ number_format($variant->price) }}đ</td>
                                             </tr>
@@ -479,5 +703,37 @@
                 }
             });
         });
+    </script>
+    <script>
+        document.querySelectorAll('.btn-choose-frame').forEach(btn => {
+            btn.addEventListener('click', function() {
+
+                document.getElementById('frame_id').value = this.dataset.id;
+                document.getElementById('selectedFrameName').innerText = this.dataset.name;
+
+                setBg('preview-top', this.dataset.top);
+                setBg('preview-bottom', this.dataset.bottom);
+                setBg('preview-ribbon', this.dataset.ribbon);
+                setBg('preview-left', this.dataset.left);
+                setBg('preview-right', this.dataset.right);
+
+                document.getElementById('frameEmptyState').classList.add('d-none');
+                document.getElementById('selectedFramePreview').classList.remove('d-none');
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById('frameModal')
+                ).hide();
+            });
+        });
+
+        function setBg(id, url) {
+            const el = document.getElementById(id);
+            if (url) {
+                el.style.backgroundImage = `url(${url})`;
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
     </script>
 @endpush

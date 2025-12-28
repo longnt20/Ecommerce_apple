@@ -199,6 +199,77 @@
                                             id="add-variant-btn">
                                             <i class="bi bi-plus-circle"></i> Thêm biến thể
                                         </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                            data-bs-toggle="modal" data-bs-target="#bulkVariantModal">
+                                            Tạo nhiều biến thể
+                                        </button>
+                                    </div>
+                                     @inject('attributeService', 'App\Services\ProductAttributeService')
+                                    <div class="modal fade" id="bulkVariantModal" tabindex="-1">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                            <div class="modal-content">
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Tạo nhiều biến thể</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <!-- COLOR -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Màu sắc</label>
+                                                        <select id="bulk-color" class="form-select">
+                                                            <option value="">-- Chọn màu --</option>
+                                                            @foreach ($attributeService->getColors() as $value => $label)
+                                                                <option value="{{ $value }}">{{ $label }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- STORAGE -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Dung lượng</label>
+                                                        <div class="d-flex gap-3 flex-wrap">
+                                                            @foreach ($attributeService->getStorages() as $value => $label)
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input bulk-storage"
+                                                                        type="checkbox" value="{{ $value }}"
+                                                                        data-label="{{ $label }}">
+                                                                    <label
+                                                                        class="form-check-label">{{ $label }}</label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- IMAGE -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Ảnh cho màu</label>
+                                                        <input type="file" id="bulk-image" name="bulk_thumbnail" class="form-control"
+                                                            accept="image/*">
+                                                    </div>
+
+                                                    <!-- PRICE BY STORAGE -->
+                                                    <div id="bulk-price-wrapper" class="row g-3"></div>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">
+                                                        Hủy
+                                                    </button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        id="confirm-bulk-variant">
+                                                        Tạo biến thể
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="table-responsive shadow-sm rounded-3">
@@ -223,7 +294,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                @inject('attributeService', 'App\Services\ProductAttributeService')
+                               
                                 <!-- Template để clone -->
                                 <template id="variant-template">
                                     <tr class="variant-row">
@@ -266,7 +337,8 @@
                                             <div class="d-flex align-items-center justify-content-center gap-2">
                                                 <div class="position-relative d-inline-block">
                                                     <div class="position-absolute top-100 start-100 translate-middle">
-                                                        <label for="variant-image-input" class="mb-0"
+                                                        <label class="mb-0 choose-image"
+                                                            data-index=""
                                                             data-bs-toggle="tooltip" data-bs-placement="right"
                                                             title="Select Image">
                                                             <div class="avatar-xs">
@@ -323,9 +395,11 @@
                             </div>
                         </div>
                     </div>
+                    <!-- CHỈ 1 INPUT DUY NHẤT -->
+                        <input type="file" id="globalVariantImage" hidden accept="image/*">
                     <!-- end row -->
                     <div class="text-end mb-3">
-                        <button type="submit" class="btn btn-success w-sm">Submit</button>
+                        <button type="submit" class="btn btn-success w-sm">Lưu sản phẩm</button>
                         {{-- <button type="button" onclick="console.log(new FormData(this.form));">Test Form</button> --}}
                     </div>
             </form>
@@ -506,4 +580,168 @@
             }
         });
     </script>
+    <script>
+const storageCheckboxes = document.querySelectorAll('.bulk-storage')
+const priceWrapper = document.getElementById('bulk-price-wrapper')
+
+storageCheckboxes.forEach(cb => {
+  cb.addEventListener('change', renderBulkPrices)
+})
+
+function renderBulkPrices() {
+  priceWrapper.innerHTML = ''
+
+  storageCheckboxes.forEach(cb => {
+    if (cb.checked) {
+      priceWrapper.insertAdjacentHTML('beforeend', `
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-semibold">
+            ${cb.dataset.label}
+          </label>
+
+          <input
+            type="number"
+            class="form-control mb-2 bulk-price"
+            data-storage="${cb.value}"
+            placeholder="Giá bán"
+          >
+
+          <input
+            type="number"
+            class="form-control bulk-sale-price"
+            data-storage="${cb.value}"
+            placeholder="Giá khuyến mãi"
+          >
+        </div>
+      `)
+    }
+  })
+}
+
+</script>
+<script>
+document
+  .getElementById('confirm-bulk-variant')
+  .addEventListener('click', () => {
+    const color = document.getElementById('bulk-color').value
+    const imageInput = document.getElementById('bulk-image')
+
+    const prices = document.querySelectorAll('.bulk-price')
+    const salePrices = document.querySelectorAll('.bulk-sale-price')
+
+    const tbody = document.getElementById('variant-body')
+    const template = document.getElementById('variant-template')
+
+    if (!color || !prices.length) {
+      alert('Vui lòng chọn màu và dung lượng')
+      return
+    }
+
+    prices.forEach(priceInput => {
+  const storage = priceInput.dataset.storage
+  const price = priceInput.value
+  if (!price) return
+
+  const saleInput = [...salePrices].find(
+    sp => sp.dataset.storage === storage
+  )
+  const salePrice = saleInput?.value || ''
+
+  const row = template.content.cloneNode(true)
+
+  // 🔑 index duy nhất cho 1 biến thể
+  const variantIndex = Date.now() + Math.random()
+  row.querySelector('.choose-image').dataset.index = variantIndex;
+  // ===== SET NAME ĐÚNG CHUẨN =====
+  row.querySelector('[name="variants[][sku]"]')
+    .setAttribute('name', `variants[${variantIndex}][sku]`)
+
+  row.querySelector('[name="variants[][price]"]')
+    .setAttribute('name', `variants[${variantIndex}][price]`)
+
+  row.querySelector('[name="variants[][cost_price]"]')
+    .setAttribute('name', `variants[${variantIndex}][cost_price]`)
+
+  row.querySelector('[name="variants[][color]"]')
+    .setAttribute('name', `variants[${variantIndex}][color]`)
+
+  row.querySelector('[name="variants[][storage]"]')
+    .setAttribute('name', `variants[${variantIndex}][storage]`)
+
+  row.querySelector('.variant-image-input')
+   .setAttribute('name', `variants[${variantIndex}][thumbnail]`);
+
+  // ===== SET VALUE =====
+  row.querySelector(`[name="variants[${variantIndex}][sku]"]`).value =
+    `SKU-${color}-${storage}-${Date.now()}`
+
+  row.querySelector(`[name="variants[${variantIndex}][price]"]`).value = price
+  row.querySelector(`[name="variants[${variantIndex}][cost_price]"]`).value = salePrice
+  row.querySelector(`[name="variants[${variantIndex}][color]"]`).value = color
+  row.querySelector(`[name="variants[${variantIndex}][storage]"]`).value = storage 
+  // preview ảnh (không gán file)
+  if (imageInput.files.length) {
+  const file = imageInput.files[0]
+
+  const input = row.querySelector('.variant-image-input')
+
+  const dt = new DataTransfer()
+  dt.items.add(file)
+  input.files = dt.files
+
+  // preview
+  const img = row.querySelector('.variant-img img')
+  img.src = URL.createObjectURL(file)
+}
+
+  tbody.appendChild(row)
+})
+
+    // đóng modal
+    bootstrap.Modal.getInstance(
+      document.getElementById('bulkVariantModal')
+    ).hide()
+  })
+
+</script>
+<script>
+let activeVariantIndex = null;
+const globalInput = document.getElementById('globalVariantImage');
+
+// Click chọn ảnh cho từng biến thể
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.choose-image');
+    if (!btn) return;
+
+    activeVariantIndex = btn.dataset.index;
+
+    // reset để chọn lại cùng 1 file vẫn trigger change
+    globalInput.value = '';
+    globalInput.click();
+});
+
+// Khi đã chọn file
+globalInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file || activeVariantIndex === null) return;
+
+    const input = document.querySelector(
+        `input[name="variants[${activeVariantIndex}][thumbnail]"]`
+    );
+
+    if (!input) return;
+
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+
+    // preview ảnh
+    const row = input.closest('.variant-row');
+    const img = row.querySelector('.variant-img img');
+    if (img) {
+        img.src = URL.createObjectURL(file);
+    }
+});
+</script>
+
 @endpush

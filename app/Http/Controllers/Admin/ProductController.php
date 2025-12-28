@@ -72,13 +72,27 @@ class ProductController extends Controller
                     }
                 }
             }
+            // dd($request->file('variants'));
             if ($request->filled('variants')) {
-                foreach ($request->variants as $variantData) {
-                    // Nếu người dùng không nhập gì ở biến thể này thì bỏ qua
-                    if (empty($variantData['sku']) && empty($variantData['price']) && empty($variantData['thumbnail'])) {
+                foreach ($request->variants as $index => $variantData) {
+
+                    // bỏ qua variant rỗng
+                    if (
+                        empty($variantData['sku']) &&
+                        empty($variantData['price']) &&
+                        !$request->hasFile("variants.$index.thumbnail")
+                    ) {
                         continue;
                     }
+                    $thumbnailPath = null;
 
+                    if (
+                        isset($variantData['thumbnail']) &&
+                        $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile &&
+                        $variantData['thumbnail']->isValid()
+                    ) {
+                        $thumbnailPath = $variantData['thumbnail']->store('variants', 'public');
+                    }
                     $variant = new ProductVariant([
                         'product_id' => $product->id,
                         'sku'        => $variantData['sku'] ?? null,
@@ -86,20 +100,25 @@ class ProductController extends Controller
                         'cost_price' => $variantData['cost_price'] ?? null,
                         'color'      => $variantData['color'] ?? null,
                         'storage'    => $variantData['storage'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now()
+                        'thumbnail'  => $thumbnailPath,
                     ]);
-
-                    if (isset($variantData['thumbnail']) && $variantData['thumbnail'] instanceof \Illuminate\Http\UploadedFile) {
-                        $path = $variantData['thumbnail']->store('variants', 'public');
+                    // dd($variant);
+                    // ✅ LẤY FILE ĐÚNG CÁCH
+                    if ($request->hasFile("variants.$index.thumbnail")) {
+                        $file = $request->file("variants.$index.thumbnail");
+                        $path = $file->store('variants', 'public');
                         $variant->thumbnail = $path;
                     }
+
+                    // barcode
                     if (empty($variantData['barcode'])) {
-                        $variantData['barcode'] = $this->generateBarcode();
+                        $variant->barcode = $this->generateBarcode();
                     }
+
                     $variant->save();
                 }
             }
+
 
             return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công');
         } catch (\Exception $e) {

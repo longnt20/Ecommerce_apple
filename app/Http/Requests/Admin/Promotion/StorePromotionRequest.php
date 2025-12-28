@@ -24,7 +24,8 @@ class StorePromotionRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
+            'frame_id' => 'required|exists:frames,id',
             'thumbnail' => 'nullable|image|max:255',
             'description' => 'nullable|string',
             'start_date' => 'required|date',

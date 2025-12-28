@@ -15,7 +15,6 @@ import RightSidebar from './RightSidebar.vue';
 <style scoped>
 .main-content-wrapper {
   max-width: 1200px;
-  margin: 10px auto; /* Tạo khoảng cách trên dưới và căn giữa */
   display: grid;
   /* Định nghĩa layout 3 cột với kích thước và khoảng cách */
   grid-template-columns: 240px 1fr 280px;
