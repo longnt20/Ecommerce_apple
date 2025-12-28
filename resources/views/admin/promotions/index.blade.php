@@ -1,5 +1,86 @@
 @extends('admin.layouts.app')
 @section('title', 'Danh sách chương trình khuyến mãi')
+@push('page-css')
+    <style>
+        .frame-item {
+            width: 300px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .frame-preview-mini {
+            position: relative;
+            height: 180px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .frame-preview-mini div {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+
+        .bg-top {
+            top: 30px;
+            left: 12px;
+            width: 95%;
+            height: 55px;
+            z-index: 1;
+        }
+
+        .bg-bottom {
+            top: 50px;
+            width: 100%;
+            height: 130px;
+            z-index: 2;
+        }
+
+        .ribbon {
+            width: 100%;
+            height: 15%;
+            top: 35px;
+            left: 30%;
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            z-index: 5;
+        }
+        .title {
+            height: 15%;
+            top: 38px;
+            left: 30%;
+            transform: translateX(-50%);
+            z-index: 6;
+        }
+        .decor-left {
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            left: 20px;
+            top: 60px;
+            width: 40px;
+            z-index: 4;
+            height: 30%;
+        }
+
+        .decor-right {
+            transform: translateX(-50%);
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: contain;
+            right: -20px;
+            top: 40px;
+            width: 40px;
+            z-index: 4;
+            height: 30%;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -8,7 +89,8 @@
 
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item active"><a href="javascript: void(0);">Quản lí chương trình khuyến mãi</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript: void(0);">Quản lí chương trình khuyến mãi</a>
+                        </li>
                         <li class="breadcrumb-item">Danh sách chương trình khuyến mãi</li>
                     </ol>
                 </div>
@@ -57,7 +139,7 @@
                                         </th>
                                         <th data-sort="customer_id">ID</th>
                                         <th data-sort="customer_name">Tên chương trình</th>
-                                        <th data-sort="email">Ảnh</th>
+                                        <th data-sort="email">Khung</th>
                                         <th data-sort="cate">Danh mục</th>
                                         <th data-sort="phone">Ngày bắt đầu</th>
                                         <th data-sort="phone">Ngày kết thúc</th>
@@ -77,13 +159,48 @@
                                             </th>
                                             <td class="customer_id">{{ $item->id }}</td>
                                             <td class="customer_name">{{ $item->name }}</td>
-                                            <td class="email">
-                                                <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" width="100px" style="background-color: rgb(255, 47, 0)">
+                                            <td>
+                                                <div class="frame-item">
+                                                    <div class="frame-preview-mini mb-2">
+                                                        @if ($item->frame->top_background)
+                                                            <div class="bg-top"
+                                                                style="background-image:url({{ asset(Storage::url($item->frame->top_background)) }})">
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($item->frame->bottom_background)
+                                                            <div class="bg-bottom"
+                                                                style="background-image:url({{ asset(Storage::url($item->frame->bottom_background)) }})">
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($item->frame->ribbon_image)
+                                                            <div class="ribbon"
+                                                                style="background-image:url({{ asset(Storage::url($item->frame->ribbon_image)) }})">
+                                                            </div>
+                                                        @endif
+                                                        <div class="title">
+                                                            <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                                                alt="" width="100px">
+                                                        </div>
+                                                        @if ($item->frame->left_decor_image)
+                                                            <div class="decor-left"
+                                                                style="background-image:url({{ asset(Storage::url($item->frame->left_decor_image)) }})">
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($item->frame->right_decor_image)
+                                                            <div class="decor-right"
+                                                                style="background-image:url({{ asset(Storage::url($item->frame->right_decor_image)) }})">
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td class="customer_name">{{ $item->category->name ?? 'Không xác định' }}</td>
                                             <td class="phone">{{ $item->start_date }}</td>
                                             <td class="phone">{{ $item->end_date }}</td>
-                                             <td>
+                                            <td>
                                                 <div class="form-check form-switch form-switch-warning">
                                                     <input class="form-check-input" type="checkbox" role="switch"
                                                         name="is_featured" value="{{ $item->id }}"

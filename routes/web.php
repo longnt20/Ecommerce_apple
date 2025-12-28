@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\FrameController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PostController;
@@ -172,18 +173,29 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::patch('/{id}/restore', [PostController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [PostController::class, 'forceDelete'])->name('force-delete');
     });
+    Route::prefix('frames')->as('frames.')->group(function () {
+        Route::get('/', [FrameController::class, 'index'])->name('index');
+        Route::get('/trash', [FrameController::class, 'trash'])->name('trash');
+        Route::get('/create', [FrameController::class, 'create'])->name('create');
+        Route::get('/{frame}', [FrameController::class, 'show'])->name('show');
+        Route::post('/store', [FrameController::class, 'store'])->name('store');
+        Route::get('/edit/{frame}', [FrameController::class, 'edit'])->name('edit');
+        Route::put('/{frame}', [FrameController::class, 'update'])->name('update');
+        Route::delete('/{frame}', [FrameController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/restore', [FrameController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete', [FrameController::class, 'forceDelete'])->name('force-delete');
+    });
     Route::prefix('reviews')->as('reviews.')->group(function () {
-            Route::get('/', [ReviewController::class, 'index'])->name('index');
-            Route::get('/{review}', [ReviewController::class, 'show'])->name('show');
-            Route::patch('/{id}/toggle-status', [ReviewController::class, 'toggleStatus'])
-                ->name('toggleStatus');
-        });
+        Route::get('/', [ReviewController::class, 'index'])->name('index');
+        Route::get('/{review}', [ReviewController::class, 'show'])->name('show');
+        Route::patch('/{id}/toggle-status', [ReviewController::class, 'toggleStatus'])
+            ->name('toggleStatus');
+    });
     Route::prefix('orders')->as('orders.')->group(function () {
-            Route::get('/', [OrderController::class, 'index'])->name('index');
-            Route::get('/{order}', [OrderController::class, 'show'])->name('show');
-            Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
-
-        });
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
+    });
 });
 Route::get('/', function () {
     return view('clients.client');

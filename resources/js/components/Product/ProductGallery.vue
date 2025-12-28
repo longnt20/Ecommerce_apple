@@ -78,6 +78,7 @@ watch(() => props.variantImage, (newImg) => {
     /* Căn giữa slide */
     justify-content: center;
     align-items: center;
+    margin-left: 10px;
 }
 
 .main-swiper img {
@@ -94,6 +95,7 @@ watch(() => props.variantImage, (newImg) => {
 /* THUMBNAILS */
 .thumb-swiper {
     margin-top: 15px;
+    margin-left: 5px;
 }
 
 .swiper-wrapper {

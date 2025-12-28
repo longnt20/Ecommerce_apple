@@ -103,6 +103,9 @@ watch(
   color: #333;
   padding-bottom: 50px;
   font-size: 14px;
+  width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
 }
 
 .container {

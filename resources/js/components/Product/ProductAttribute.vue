@@ -149,6 +149,7 @@ export default {
 .storage-list {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 .color-item.disabled {
   opacity: 0.4;
@@ -159,10 +160,12 @@ export default {
   padding: 14px 26px;
   border: 1.5px solid #ddd;
   border-radius: 10px;
-  font-size: 17px;
+  font-size: 14px;
   cursor: pointer;
   position: relative;
   transition: 0.15s;
+  max-width: 140px;
+  word-break: break-word;
 }
 
 .storage-item.active {

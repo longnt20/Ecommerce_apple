@@ -98,6 +98,7 @@ onMounted(() => {
   display: flex;
   gap: 24px;
   padding: 16px 16px 16px 0;
+  margin-left: 10px;
 }
 
 .left {

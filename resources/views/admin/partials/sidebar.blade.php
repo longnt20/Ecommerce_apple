@@ -398,6 +398,12 @@
                                     Danh sách chương trình
                                 </a>
                             </li>
+                             <li class="nav-item">
+                                <a href="{{ route('admin.frames.index') }}" class="nav-link"
+                                    data-key="t-analytics">
+                                    Danh sách khung chương trình
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="{{ route('admin.promotions.create') }}" class="nav-link"
                                     data-key="t-analytics"> Thêm mới chương trình

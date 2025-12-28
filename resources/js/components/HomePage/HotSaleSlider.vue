@@ -6,13 +6,14 @@
       }">
         <div class="branch-3">
           <div class="branch-4">
-            <img class="img-1" src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/flashsale/fs-tab-title-8-1.png"
-              alt="Flash Sale - Tab" width="412" height="101">
+            <img class="img-1" :src="backgrounds.ribbon" alt="Flash Sale - Tab" width="412" height="101">
             <div class="branch-5">
               <div class="branch-6">
                 <div :style="{ textAlign: 'center' }">
-                  <img src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/tagline-hot-sale.png" alt="title"
-                    :style="{ height: '60px' }">
+                  <div v-if="promotion">
+                    <img :src="promotion.thumbnail" alt="title" :style="{ height: '60px' }" />
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -23,10 +24,8 @@
       <div class="branch-7" :style="{
         background: `url(${backgrounds.flashSaleBlock}) center center / 100% 100% no-repeat`
       }">
-        <img class="img-2" src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/flashsale/fs-gift-box-8-1-2.png"
-          alt="Gift Box">
-        <img class="img-3" src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/flashsale/fs-gift-box-8-1.png"
-          alt="Gift Box">
+        <img class="img-2" :src="backgrounds.giftLeft" alt="Gift Box">
+        <img class="img-3" :src="backgrounds.giftRight" alt="Gift Box">
 
         <div class="branch-8">
           <div class="branch-9" id="HotSale_hotSale__011o1">
@@ -61,58 +60,58 @@
 
             <div class="branch-22" :style="{ overflow: 'visible' }">
               <div class="hotsale-swiper swiper swiper-horizontal rounded-2xl">
-                  <div class="swiper-wrapper">
-                    <div v-for="product in filteredProducts" :key="product.id" class="swiper-slide !h-auto">
-                      <div class="branch-23">
-                        <div class="branch-24">
-                          <a class="a1" :href="product.link">
-                            <span class="sp-2">
-                              <img :alt="product.name" loading="lazy" width="300" height="300" decoding="async"
-                                data-nimg="1" class="img-4" :src="product.thumbnail" :style="{ color: 'transparent' }">
-                            </span>
-                            <h3 class="title-ss">{{ product.name }}</h3>
-                            <div class="branch-26">
-                              <p class="price">{{ product.final_price }}đ</p>
-                              <p class="cost-price">{{ product.original_price }}đ</p>
-                            </div>
-                            <div class="branch-27" :style="{
-                              backgroundImage: `url(${backgrounds.discountBadge})`
-                            }">
-                              Giảm <span class="sp-3">{{ product.discount_percent }}%</span>
-                            </div>
-                            <div class="branch-28" :style="{
-                              background: `url(${backgrounds.zeroInsBadge})`
-                            }">
-                              <span class="sp-4">
-                                Trả góp <span class="sp-5">0%</span>
-                              </span>
-                            </div>
-                          </a>
-                          <div class="branch-29">
-                            <div class="branch-30">
-                              <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
-                                class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                  d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
-                                </path>
-                              </svg>
-                              <span>{{ product.rating }}</span>
-                            </div>
-                            <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
-                              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
-                                stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1em"
-                                width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                                </path>
-                              </svg>
-                              <span class="var">Yêu thích</span>
-                            </button>
+                <div class="swiper-wrapper">
+                  <div v-for="product in filteredProducts" :key="product.id" class="swiper-slide !h-auto">
+                    <div class="branch-23">
+                      <div class="branch-24">
+                        <RouterLink class="a1" :to="{ name: 'product-detail', params: { slug: product.slug } }">
+                          <span class="sp-2">
+                            <img :alt="product.name" loading="lazy" width="300" height="300" decoding="async"
+                              data-nimg="1" class="img-4" :src="product.thumbnail" :style="{ color: 'transparent' }">
+                          </span>
+                          <h3 class="title-ss">{{ product.name }} | Chính Hãng VN/A</h3>
+                          <div class="branch-26">
+                            <p class="price">{{ product.final_price }}đ</p>
+                            <p class="cost-price">{{ product.original_price }}đ</p>
                           </div>
+                          <div class="branch-27" :style="{
+                            backgroundImage: `url(${backgrounds.discountBadge})`
+                          }">
+                            Giảm <span class="sp-3">{{ product.discount_percent }}%</span>
+                          </div>
+                          <div class="branch-28" :style="{
+                            background: `url(${backgrounds.zeroInsBadge})`
+                          }">
+                            <span class="sp-4">
+                              Trả góp <span class="sp-5">0%</span>
+                            </span>
+                          </div>
+                        <div class="branch-29">
+                          <div class="branch-30">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
+                              class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
+                              </path>
+                            </svg>
+                            <span>{{ product.rating }}</span>
+                          </div>
+                          <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
+                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
+                              stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1em" width="1em"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                              </path>
+                            </svg>
+                            <span class="var">Yêu thích</span>
+                          </button>
                         </div>
+                      </RouterLink> 
                       </div>
                     </div>
                   </div>
+                </div>
                 <div class="swiper-button-prev hotsale-prev"></div>
                 <div class="swiper-button-next hotsale-next"></div>
               </div>
@@ -130,7 +129,7 @@ import Swiper from 'swiper'
 import { Autoplay, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
-
+import { RouterLink } from 'vue-router'
 const promotion = ref(null)
 const products = ref([])
 const swiperRef = ref(null)
@@ -145,12 +144,16 @@ const isBeforeStart = computed(() => now.value < startTime)
 const isEnded = computed(() => now.value > endTime)
 let timerInterval = null
 // Background images
-const backgrounds = {
-  flashSaleHeader: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/flashsale/fs-head-8-1.png',
-  flashSaleBlock: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/flashsale/bg-block-fs-8-1-desk.png',
+const backgrounds = ref({
+  flashSaleHeader: '',
+  flashSaleBlock: '',
+  giftLeft: '',
+  giftRight: '',
+  ribbon: '',
+  title: '',
   discountBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png',
   zeroInsBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png'
-}
+})
 
 const tabs = ref([])
 const activeTab = ref(0)
@@ -167,6 +170,18 @@ onMounted(async () => {
     const productData = await resProducts.json()
 
     promotion.value = productData.data
+
+    if (promotion.value.frame) {
+      const frame = promotion.value.frame
+
+      backgrounds.value.flashSaleHeader = frame.top_background
+      backgrounds.value.flashSaleBlock = frame.bottom_background
+      backgrounds.value.ribbon = frame.ribbon_image
+      backgrounds.value.giftLeft = frame.left_decor_image
+      backgrounds.value.giftRight = frame.right_decor_image
+
+    }
+
     products.value = promotion.value.items || []
     filteredProducts.value = products.value
     const toLocal = date => new Date(date.replace(' ', 'T') + '+07:00').getTime()
@@ -180,7 +195,7 @@ onMounted(async () => {
 
     // Đợi DOM render xong rồi khởi tạo Swiper
     await nextTick()
-    const hotsale_swiper =  new Swiper('.hotsale-swiper', {
+    const hotsale_swiper = new Swiper('.hotsale-swiper', {
       modules: [Navigation, Autoplay],
       slidesPerView: 5,
       spaceBetween: 8,
@@ -911,6 +926,17 @@ const toggleFavorite = (productId) => {
   /* 16px */
   background-color: #fff;
   animation: fade-in 0.5s ease-in-out forwards;
+  text-decoration: none;
+}
+
+/* Cho ảnh có animation mượt */
+.branch-24 img {
+  transition: transform 0.5s ease;
+}
+
+/* Khi hover toàn bộ card, ảnh phóng to */
+.branch-24:hover img {
+  transform: scale(1);
 }
 
 /* Keyframes cho hiệu ứng fade-in */
@@ -928,6 +954,7 @@ const toggleFavorite = (productId) => {
   flex: 1 1 0%;
   padding: 0.625rem;
   padding-bottom: 0;
+  text-decoration: none;
 }
 
 .sp-2 {
@@ -968,10 +995,12 @@ const toggleFavorite = (productId) => {
   -webkit-box-orient: vertical;
   overflow: hidden;
   height: 2.25rem;
+  width: 200px;
   font-size: 0.75rem;
-  line-height: 1.5rem;
-  font-weight: 700;
+  line-height: 1.3rem;
+  font-weight: 600;
   color: #111827;
+  text-decoration: none;
 }
 
 /* Responsive trên màn hình ≥ 640px */
@@ -979,6 +1008,8 @@ const toggleFavorite = (productId) => {
   .title-ss {
     height: 2.625rem;
     font-size: 1rem;
+    white-space: normal;
+    word-break: break-word;
   }
 }
 
@@ -1019,7 +1050,7 @@ const toggleFavorite = (productId) => {
 }
 
 .branch-26 .price {
-  font-size: 15px;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #e91030;
   /* primary-600 */
@@ -1029,13 +1060,13 @@ const toggleFavorite = (productId) => {
 /* Responsive màn ≥ 640px */
 @media (min-width: 640px) {
   .price {
-    font-size: 0.875rem;
+    font-size: 1rem;
     /* text-medium */
   }
 }
 
 .branch-26 .cost-price {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #D1D5DB;
   text-decoration: line-through;
 }

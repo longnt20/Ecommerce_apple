@@ -60,6 +60,7 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-top: 20px;
+  margin-left: 10px;
 }
 
 .commit-box {
@@ -104,5 +105,6 @@ export default {
     font-size: 20px;
     font-weight: 700;
     margin-top: 30px;
+    margin-left: 10px;
 }
 </style>
