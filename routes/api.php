@@ -50,3 +50,8 @@ Route::middleware("auth:sanctum")->group(function () {
 
 });
 Route::get('/{slug}', [HomeController::class, 'productDetail']);
+Route::get('/products/{product}/variants', function ($productId) {
+    return \App\Models\ProductVariant::where('product_id', $productId)
+        ->get(['id', 'sku', 'color', 'storage', 'cost_price']);
+});
+

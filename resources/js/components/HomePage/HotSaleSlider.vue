@@ -1,17 +1,17 @@
 <template>
-  <div class="main">
+  <div class="main" v-if="promotion && filteredProducts.length">
     <div class="branch-1">
       <div class="branch-2" :style="{
-        background: `url(${backgrounds.flashSaleHeader}) center center / 100% 100% no-repeat`
+        background: `url(${backgrounds?.flashSaleHeader}) center center / 100% 100% no-repeat`
       }">
         <div class="branch-3">
           <div class="branch-4">
-            <img class="img-1" :src="backgrounds.ribbon" alt="Flash Sale - Tab" width="412" height="101">
+            <img class="img-1" :src="backgrounds?.ribbon" alt="Flash Sale - Tab" width="412" height="101">
             <div class="branch-5">
               <div class="branch-6">
                 <div :style="{ textAlign: 'center' }">
                   <div v-if="promotion">
-                    <img :src="promotion.thumbnail" alt="title" :style="{ height: '60px' }" />
+                    <img :src="promotion?.thumbnail" alt="title" :style="{ height: '60px' }" />
                   </div>
 
                 </div>
@@ -22,10 +22,10 @@
       </div>
 
       <div class="branch-7" :style="{
-        background: `url(${backgrounds.flashSaleBlock}) center center / 100% 100% no-repeat`
+        background: `url(${backgrounds?.flashSaleBlock}) center center / 100% 100% no-repeat`
       }">
-        <img class="img-2" :src="backgrounds.giftLeft" alt="Gift Box">
-        <img class="img-3" :src="backgrounds.giftRight" alt="Gift Box">
+        <img class="img-2" :src="backgrounds?.giftLeft" alt="Gift Box">
+        <img class="img-3" :src="backgrounds?.giftRight" alt="Gift Box">
 
         <div class="branch-8">
           <div class="branch-9" id="HotSale_hotSale__011o1">
