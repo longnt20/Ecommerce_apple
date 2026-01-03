@@ -82,7 +82,7 @@ const formattedName = computed(() => {
 
   if (!variant) return baseName;
 
-  return `${baseName} - ${variant.storage}`;
+  return `${baseName} ${variant.storage} | Chính hãng VN/A`;
 });
 </script>
 <style scoped>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
 use App\Models\InventoryTransaction;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Warehouse;
 use App\Services\InventoryService;
@@ -91,8 +92,8 @@ class InventoryController extends Controller
     {
         $warehouses = Warehouse::active()->get();
         $variants = ProductVariant::with('product')->get();
-
-        return view('admin.inventory.import', compact('warehouses', 'variants'));
+        $products = Product::where('status','published')->get();
+        return view('admin.inventory.import', compact('warehouses', 'variants','products'));
     }
 
     /**

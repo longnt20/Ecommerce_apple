@@ -3,6 +3,8 @@
     <HotSaleSlider />
     <ListProductPhone/>
     <AccessoryGrid />
+    <ListProductWatch />
+    <PromotionSection />
   </div>
 </template>
 
@@ -10,6 +12,8 @@
 import AccessoryGrid from './AccessoryGrid.vue';
 import HotSaleSlider from './HotSaleSlider.vue';
 import ListProductPhone from './ListProductPhone.vue';
+import ListProductWatch from './ListProductWatch.vue';
+import PromotionSection from './PromotionSection.vue';
 </script>
 
 <style scoped>
