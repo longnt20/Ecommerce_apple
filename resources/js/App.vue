@@ -3,6 +3,8 @@
   <router-view />
   <Snowfall />
   <GlobalLoading />
+  <DragonChat />
+  <AppFooter />
 </template>
 
 <script setup>
@@ -14,6 +16,8 @@ import MainContent from './components/navbar/MainContent.vue';
 import { onMounted } from "vue"
 import { useCartStore } from './effects/cart';
 import Snowfall from './components/Snowfall.vue';
+import AppFooter from './components/AppFooter.vue';
+import DragonChat from './components/DragonChat.vue';
 
 
 const cart = useCartStore()

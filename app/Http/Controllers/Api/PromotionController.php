@@ -104,52 +104,60 @@ class PromotionController extends Controller
         }
     }
     public function promotionCategories()
-    {
-        try {
-            $promotion = Promotion::with([
-                'items.item' => function (MorphTo $morph) {
-                    $morph->morphWith([
-                        ProductVariant::class => ['product.category'], // với variant -> load product + category
-                        Product::class => ['category'],                // với product -> load category
-                    ]);
-                }
-            ])
-                ->where('is_featured', true)
-                ->where('status', 1)
-                ->whereDate('start_date', '<=', now())
-                ->whereDate('end_date', '>=', now())
-                ->latest()
-                ->first();
-
-            // Lọc category từ Product hoặc ProductVariant
-            $categories = $promotion->items->map(function ($item) {
-                $model = $item->item;
-                if (!$model) return null;
-
-                if ($model instanceof \App\Models\ProductVariant) {
-                    return $model->product?->category ?? null;
-                }
-
-                if ($model instanceof \App\Models\Product) {
-                    return $model->category ?? null;
-                }
-
-                return null;
-            })
-                ->filter()
-                ->unique('id')
-                ->values()
-                ->map(fn($c) => ['id' => $c->id, 'name' => $c->name]);
-
-            return response()->json([
-                'status' => true,
-                'data' => $categories
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
+{
+    $promotion = Promotion::with([
+        'items.item' => function (MorphTo $morph) {
+            $morph->morphWith([
+                \App\Models\ProductVariant::class => ['product.category'],
+                \App\Models\Product::class => ['category'],
+            ]);
         }
+    ])
+        ->where('is_featured', true)
+        ->where('status', 1)
+        ->whereDate('start_date', '<=', now())
+        ->whereDate('end_date', '>=', now())
+        ->latest()
+        ->first();
+
+    // ✅ Không có promotion → trả data rỗng
+    if (!$promotion) {
+        return response()->json([
+            'status' => true,
+            'data' => []
+        ], 200);
     }
+
+    $categories = $promotion->items
+        ->map(function ($item) {
+            $model = $item->item;
+
+            if (!$model) {
+                return null;
+            }
+
+            if ($model instanceof \App\Models\ProductVariant) {
+                return $model->product?->category;
+            }
+
+            if ($model instanceof \App\Models\Product) {
+                return $model->category;
+            }
+
+            return null;
+        })
+        ->filter()
+        ->unique('id')
+        ->values()
+        ->map(fn ($c) => [
+            'id' => $c->id,
+            'name' => $c->name
+        ]);
+
+    return response()->json([
+        'status' => true,
+        'data' => $categories
+    ], 200);
+}
+
 }

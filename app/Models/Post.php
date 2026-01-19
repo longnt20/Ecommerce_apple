@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -49,5 +50,13 @@ class Post extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    protected $appends = ['thumbnail_url'];
+
+    public function getThumbnailUrlAttribute()
+    {
+        return $this->thumbnail
+            ? Storage::url($this->thumbnail)
+            : null;
     }
 }

@@ -60,15 +60,15 @@
             <div v-for="product in filteredProducts" :key="product.id" class="swiper-slide">
               <div class="branch-23">
                 <div class="branch-24">
-                  <RouterLink class="a1" :to="{ name: 'product-detail', params: { slug: product.slug } }">
+                  <RouterLink class="pro-card" :to="{ name: 'product-detail', params: { slug: product.slug } }">
                     <span class="sp-2">
                       <img :alt="product.name" loading="lazy" width="300" height="300" decoding="async" data-nimg="1"
                         class="img-4" :src="product.thumbnail" :style="{ color: 'transparent' }" />
                     </span>
                     <h3 class="title-ss">{{ product.name }} | Chính Hãng VN/A</h3>
                     <div class="branch-26">
-                      <p class="price">{{ product.final_price }}đ</p>
-                      <p class="cost-price">{{ product.original_price }}đ</p>
+                      <p class="price">{{ formatPrice(product.final_price) }}</p>
+                      <p class="cost-price">{{ formatPrice(product.original_price) }}</p>
                     </div>
                     <div class="badge-box">
                       <div class="">Trả góp 0% - 0đ phụ thu - 0đ trả trước - kỳ hạn đến 6 tháng</div>
@@ -117,20 +117,15 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import Swiper from 'swiper'
 import { Grid, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import "swiper/css/grid";
 import { RouterLink } from 'vue-router'
-const products = ref([])
-const swiperRef = ref(null)
-const filteredProducts = ref([])
-const tabs = ref([
-  { id: 19, name: 'Đồng Hồ' },
-  { id: 18, name: 'Âm Thanh' }
-])
+const transparent = ref(false)
+
 const categories = [
   { id: 1, name: 'Tập luyện thể thao', icon: '/logos/iphone-16-pro-max.webp' },
   { id: 2, name: 'Nghe gọi', icon: '/logos/iphone-17-pro-256-gb.webp' },
@@ -147,52 +142,80 @@ const backgrounds = {
   discountBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png',
   zeroInsBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png'
 }
-const row = ref(null)
-
-const scrollRight = () => {
-  row.value.scrollLeft += 220
-}
-
-const scrollLeft = () => {
-  row.value.scrollLeft -= 220
-}
-
-const activeTabId = ref(19)
-const activeTabIndex = ref(0)
-onMounted(async () => {
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/home/')
-    const data = await res.json()
-
-    products.value = data?.data || []
-    filteredProducts.value = products.value.filter(p => p.category_id === activeTabId.value)
-    // Đợi DOM render xong rồi khởi tạo Swiper
-    await nextTick()
-    const product_swiper = new Swiper('.product-watch-swiper', {
-      modules: [Navigation],
-      slidesPerView: 4,
-      spaceBetween: 16,
-      loop: false,
-      navigation: {
-        nextEl: '.product-next',
-        prevEl: '.product-prev'
-      },
-    })
-  } catch (e) {
-    console.error('Lỗi dữ liệu:', e)
+const props = defineProps({
+  products: {
+    type: Array,
+    default: () => []
   }
 })
+const activeTabId = ref(19)
+const activeTabIndex = ref(0)
+/* =====================
+   STATE
+===================== */
+const swiperInstance = ref(null)
+const filteredProducts = ref([])
 
-const changeTab = (id, index) => {
-  activeTabId.value = id
-  activeTabIndex.value = index
-
-  filteredProducts.value = products.value.filter(
-    p => p.category_id === id
+const tabs = [
+  { id: 19, name: 'Đồng Hồ' },
+  { id: 18, name: 'Âm Thanh' }
+]
+const formatPrice = (value) => {
+  if (value === null || value === undefined) return '0đ'
+  return Number(value).toLocaleString('vi-VN') + 'đ'
+}
+/* =====================
+   INIT FILTER
+===================== */
+const filterProducts = () => {
+  filteredProducts.value = props.products.filter(
+    p => p.category_id === activeTabId.value
   )
 }
-const slideNext = () => swiperRef.value?.swiper.slideNext()
-const slidePrev = () => swiperRef.value?.swiper.slidePrev()
+
+/* =====================
+   SWIPER
+===================== */
+const initSwiper = async () => {
+  await nextTick()
+
+  if (swiperInstance.value) {
+    swiperInstance.value.destroy(true, true)
+  }
+
+  swiperInstance.value = new Swiper('.product-watch-swiper', {
+    modules: [Navigation],
+    slidesPerView: 4,
+    spaceBetween: 16,
+    loop: false,
+    navigation: {
+      nextEl: '.product-next',
+      prevEl: '.product-prev'
+    }
+  })
+}
+
+/* =====================
+   WATCH
+===================== */
+watch(
+  () => props.products,
+  () => {
+    filterProducts()
+    initSwiper()
+  },
+  { immediate: true }
+)
+
+/* =====================
+   TAB CHANGE
+===================== */
+const changeTab = async (id, index) => {
+  activeTabId.value = id
+  activeTabIndex.value = index
+  filterProducts()
+  await initSwiper()
+}
 </script>
 <style scoped>
 .my-container {
@@ -200,7 +223,6 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   /* flex-direction: column; */
   gap: 1rem;
   /* center the content */
-  margin-right: 16px;
 }
 
 .left-box {
@@ -243,6 +265,23 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   line-height: 1;
   /* leading-none -> line-height = 1 */
   text-decoration: none;
+  padding: 3px;
+}
+.pro-card {
+    display: block;
+  /* block */
+  height: fit-content;
+  /* h-fit -> chiều cao vừa đủ nội dung */
+  width: 100%;
+  /* w-full -> chiếm 100% chiều ngang */
+  padding-top: 0;
+  /* py-0 -> padding trên = 0 */
+  padding-bottom: 0;
+  /* py-0 -> padding dưới = 0 */
+  line-height: 1;
+  /* leading-none -> line-height = 1 */
+  text-decoration: none;
+  padding: 10px;
 }
 .a2 {
   display: block;
@@ -524,12 +563,6 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
   to {
     opacity: 1;
   }
-}
-
-.a1 {
-  flex: 1 1 0%;
-  padding: 0.625rem;
-  padding-bottom: 0;
 }
 
 .sp-2 {
@@ -1021,7 +1054,7 @@ const slidePrev = () => swiperRef.value?.swiper.slidePrev()
 }
 
 .badge-box {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
   /* mb-1 */
   display: flex;
   /* d-flex */

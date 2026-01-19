@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes
@@ -37,7 +38,9 @@ Route::apiResource('/promotions', PromotionController::class);
 Route::get('/promotion-categories', [PromotionController::class, 'promotionCategories']);
 
 Route::get('/home', [HomeController::class, 'homeProducts']);
-
+Route::get('/home-main', [HomeController::class, 'homeMain']);
+Route::get('/banners', [BannerController::class, 'index']);
+Route::get('/blog', [HomeController::class, 'getBlogFeature']);
 Route::middleware("auth:sanctum")->group(function () {
     Route::get("/cart", [CartController::class, "getCart"]);
     Route::post("/cart/add", [CartController::class, "add"]);
@@ -48,10 +51,18 @@ Route::middleware("auth:sanctum")->group(function () {
     // Tạo đơn + Thanh toán (VNPay hoặc COD)
     Route::post('/checkout', [CheckoutController::class, 'process']);
 
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
+
+
 });
 Route::get('/{slug}', [HomeController::class, 'productDetail']);
 Route::get('/products/{product}/variants', function ($productId) {
     return \App\Models\ProductVariant::where('product_id', $productId)
         ->get(['id', 'sku', 'color', 'storage', 'cost_price']);
 });
+
+
+
 

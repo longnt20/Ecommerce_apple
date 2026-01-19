@@ -14,18 +14,35 @@ class CartController extends Controller
     // Lấy giỏ của user hiện tại
     protected function getUserCart()
     {
-        return Cart::firstOrCreate(['user_id' => auth()->id()]);
+        if (!auth()->check()) {
+            return null;
+        }
+
+        return Cart::firstOrCreate([
+            'user_id' => auth()->id()
+        ]);
     }
 
     public function getCart()
     {
+        if (!auth()->check()) {
+            return response()->json([
+                'items' => [],
+                'total_price' => 0,
+                'total_quantity' => 0,
+                'message' => 'User not authenticated'
+            ], 401);
+        }
+
         $cart = $this->getUserCart()->load(['items.product', 'items.variant']);
+
         return response()->json([
             'items' => $cart->items,
             'total_price' => $cart->totalPrice(),
             'total_quantity' => $cart->totalQuantity()
         ]);
     }
+
 
     public function add(Request $request)
     {
@@ -87,5 +104,3 @@ class CartController extends Controller
         return $this->getCart();
     }
 }
-
-

@@ -12,6 +12,7 @@
       </div>
 
       <ul class="sidebar-menu">
+        <li :class="{ active: activeTab === 'dashboard' }" @click="activeTab = 'dashboard'">Tổng quan</li>
         <li :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">Thông tin tài khoản</li>
         <li :class="{ active: activeTab === 'orders' }" @click="activeTab = 'orders'">Đơn mua</li>
         <li :class="{ active: activeTab === 'address' }" @click="activeTab = 'address'">Sổ địa chỉ</li>
@@ -21,7 +22,49 @@
 
     <!-- MAIN CONTENT -->
     <main class="content">
+      <div v-if="activeTab === 'dashboard'" class="dashboard">
+        <div class="d-flex gap-2" style="min-height: 300px;">
+          <div class="card col-sm-8">
+            <h5>Đơn hàng gần đây</h5>
+          </div>
+          <div class="card col-sm-4" style="min-height: 300px;">
+            <h5>Ưu đãi của bạn</h5>
+          </div>
+        </div>
+        <div class="card mt-2 wishlist-card">
+          <h5>Sản phẩm yêu thích</h5>
 
+          <!-- Không có sản phẩm -->
+          <div v-if="wishlist.items.length === 0" class="empty">
+            <p>Bạn chưa có sản phẩm yêu thích nào 💔</p>
+          </div>
+
+          <!-- Danh sách wishlist -->
+          <div v-else class="wishlist-list">
+            <RouterLink v-for="item in wishlist.items" :key="item.id" class="wishlist-item"
+              :to="{ name: 'product-detail', params: { slug: item.product?.slug } }">
+              <img :src="item.variant.thumbnail_url" :alt="item.product.name_product" />
+
+              <div class="info">
+                <p class="name">{{ item.product.name_product }}</p>
+                <div class="branch-26">
+                  <p class="price">{{ formatPrice(item.variant.price) }}</p>
+                  <p class="cost-price">{{ formatPrice(item.variant.cost_price) }}</p>
+                </div>
+              </div>
+              <button data-slot="button" class="cpsui-button active" @click.stop.prevent="removeWishlist(item)">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                  stroke-linejoin="round" class="favourite" height="1.8em" width="1.8em">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
+              </button>
+            </RouterLink>
+          </div>
+        </div>
+
+      </div>
       <!-- TAB: INFO -->
       <div v-if="activeTab === 'info'" class="card">
         <h2>Thông tin tài khoản</h2>
@@ -55,7 +98,7 @@
 
         <div v-for="order in orders" :key="order.id" class="order-item">
           <div>
-            <strong>Mã đơn:</strong> {{ order.code }}  
+            <strong>Mã đơn:</strong> {{ order.code }}
           </div>
           <div><strong>Ngày đặt:</strong> {{ order.date }}</div>
           <div><strong>Tổng:</strong> {{ format(order.total) }}đ</div>
@@ -104,7 +147,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useWishlistStore } from '../../effects/wishlist';
+import { useToast } from 'vue-toastification';
 
 const activeTab = ref('info');
 
@@ -129,7 +174,22 @@ const password = ref({
   new: '',
   confirm: ''
 });
+const wishlist = useWishlistStore()
+const toast = useToast()
 
+const removeWishlist = async (item) => {
+  await wishlist.removeById(item.id)
+toast.info('Đã xóa khỏi danh sách yêu thích')
+}
+onMounted(() => {
+  if (!wishlist.items.length) {
+    wishlist.fetchWishlist()
+  }
+})
+const formatPrice = (value) => {
+  if (value === null || value === undefined) return '0đ'
+  return Number(value).toLocaleString('vi-VN') + 'đ'
+}
 const saveInfo = () => alert("Lưu thông tin thành công!");
 const changePassword = () => alert("Đổi mật khẩu thành công!");
 const addAddress = () => alert("Chức năng thêm địa chỉ!");
@@ -141,19 +201,19 @@ const format = (number) =>
 <style scoped>
 .profile-container {
   display: flex;
-  gap: 25px;
+  gap: 20px;
   padding: 25px;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
 }
 
 /* SIDEBAR */
 .sidebar {
-  width: 260px;
+  width: 280px;
   background: #fff;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  padding: 15px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
 .sidebar-header {
@@ -209,7 +269,7 @@ const format = (number) =>
   background: #fff;
   padding: 25px;
   border-radius: 14px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* FORM */
@@ -303,9 +363,186 @@ const format = (number) =>
   .profile-container {
     flex-direction: column;
   }
-  
+
   .sidebar {
     width: 100%;
   }
 }
+
+.wishlist-card {
+  padding: 12px;
+  display: flex;
+}
+
+.wishlist-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wishlist-item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 5px;
+  border-radius: 6px;
+  transition: 0.2s;
+  border: 1px solid rgb(228, 228, 228);
+}
+
+.wishlist-item img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+
+.remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.branch-26 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  /* 6px */
+}
+
+.branch-26 .price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e91030;
+  /* primary-600 */
+  text-decoration: none;
+}
+
+/* Responsive màn ≥ 640px */
+@media (min-width: 640px) {
+  .price {
+    font-size: 13px;
+    /* text-medium */
+  }
+}
+
+.branch-26 .cost-price {
+  font-size: 13px;
+  color: #D1D5DB;
+  text-decoration: line-through;
+}
+
+/* Responsive màn ≥ 640px */
+@media (min-width: 640px) {
+  .cost_price {
+    font-size: 13px;
+  }
+}
+.favourite {
+  color: #3B82F6;
+  transition: 0.2s;
+}
+
+.favourite.active {
+  color: #3B82F6; /* xanh lá */
+  fill: #3B82F6;
+}
+.cpsui-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  /* lấy gap-1 cuối cùng */
+  cursor: pointer;
+  border: 1px solid #ffffff;
+  /* cpsui:border-pure-white */
+  font-size: 0.75rem;
+  /* cpsui:text-small */
+  padding: 0.5rem 0.25rem;
+  /* py-2x-small px-1x-small */
+  min-height: 24px;
+  /* cpsui:min-h-[24px] */
+  border-radius: 0.125rem;
+  /* cpsui:rounded-small */
+  color: #3B82F6;
+  /* cpsui:text-info-500 */
+  background-color: #ffffff;
+  /* cpsui:bg-pure-white */
+  margin-left: auto;
+  height: 2rem;
+  /* h-8 */
+}
+
+/* Hover button */
+.cpsui-button:hover {
+  border-color: #F9FAFB;
+  /* hover:border-neutral-50 */
+  background-color: #F9FAFB;
+  /* hover:bg-neutral-50 */
+}
+
+/* Hover SVG animation */
+.cpsui-button:hover svg {
+  animation: heartbeat 0.6s infinite;
+}
+
+/* Keyframes heartbeat */
+@keyframes heartbeat {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Disabled button */
+.cpsui-button:disabled {
+  cursor: not-allowed;
+  border-color: #ffffff;
+  color: #D1D5DB;
+  /* cpsui:disabled:text-black-300 */
+  background-color: #ffffff;
+}
+
+/* Responsive span */
+.cpsui-button span {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .cpsui-button span {
+    display: inline-block;
+  }
+}
+.cpsui-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.cpsui-button .favourite {
+  color: #999;
+  transition: all 0.2s ease;
+}
+
+.cpsui-button.active .favourite {
+  color: #3B82F6; /* xanh lá */
+}
+
 </style>

@@ -39,7 +39,7 @@ class CheckoutController extends Controller
 
         $paymentMethod = $request->payment_method;
         $items = $request->items;
-        $cart = Cart::where('user_id', Auth::id())->firstOrFail();
+        $cart = Cart::where('user_id', Auth::id())->first();
         $code = 'DH' . date('Ymd') . '-' . rand(10000, 99999);
         DB::beginTransaction();
 
@@ -73,7 +73,7 @@ class CheckoutController extends Controller
                 // Check tồn kho
                 $inventory = Inventory::where('product_variant_id', $item['variant_id'])
                     ->lockForUpdate()
-                    ->firstOrFail();
+                    ->first();
 
                 if ($inventory->available_quantity < $item['quantity']) {
                     DB::rollBack();

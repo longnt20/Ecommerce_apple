@@ -71,8 +71,8 @@
                           </span>
                           <h3 class="title-ss">{{ product.name }} | Chính Hãng VN/A</h3>
                           <div class="branch-26">
-                            <p class="price">{{ product.final_price }}đ</p>
-                            <p class="cost-price">{{ product.original_price }}đ</p>
+                            <p class="price">{{ formatPrice(product.final_price) }}</p>
+                            <p class="cost-price">{{ formatPrice(product.original_price) }}</p>
                           </div>
                           <div class="branch-27" :style="{
                             backgroundImage: `url(${backgrounds.discountBadge})`
@@ -86,28 +86,28 @@
                               Trả góp <span class="sp-5">0%</span>
                             </span>
                           </div>
-                        <div class="branch-29">
-                          <div class="branch-30">
-                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
-                              class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
-                              </path>
-                            </svg>
-                            <span>{{ product.rating }}</span>
+                          <div class="branch-29">
+                            <div class="branch-30">
+                              <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 576 512"
+                                class="color" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z">
+                                </path>
+                              </svg>
+                              <span>{{ product.rating }}</span>
+                            </div>
+                            <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
+                              <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
+                                stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1em"
+                                width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                              </svg>
+                              <span class="var">Yêu thích</span>
+                            </button>
                           </div>
-                          <button data-slot="button" class="cpsui-button" @click="toggleFavorite(product.id)">
-                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
-                              stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1em" width="1em"
-                              xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                              </path>
-                            </svg>
-                            <span class="var">Yêu thích</span>
-                          </button>
-                        </div>
-                      </RouterLink> 
+                        </RouterLink>
                       </div>
                     </div>
                   </div>
@@ -124,158 +124,146 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import Swiper from 'swiper'
 import { Autoplay, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
-import { RouterLink } from 'vue-router'
-const promotion = ref(null)
+
+/* ================= PROPS ================= */
+const props = defineProps({
+  promotion: {
+    type: Object,
+    default: null
+  },
+  promotion_categories: {
+    type: Array,
+    default: () => []
+  },
+  loading: Boolean
+})
+
+/* ================= STATE ================= */
 const products = ref([])
-const swiperRef = ref(null)
+const filteredProducts = ref([])
+const activeTab = ref(0)
+const tabs = computed(() => {
+  return [
+    { id: null, name: 'Tất cả' },
+    ...props.promotion_categories
+  ]
+})
 const countdown = ref({ days: '00', hours: '00', minutes: '00', seconds: '00' })
 const now = ref(Date.now())
-const filteredProducts = ref([])
 let startTime = 0
 let endTime = 0
-let timer
-
-const isBeforeStart = computed(() => now.value < startTime)
-const isEnded = computed(() => now.value > endTime)
-let timerInterval = null
-// Background images
+let timer = null
+const formatPrice = (value) => {
+  if (value === null || value === undefined) return '0đ'
+  return Number(value).toLocaleString('vi-VN') + 'đ'
+}
+/* ================= BACKGROUND ================= */
 const backgrounds = ref({
   flashSaleHeader: '',
   flashSaleBlock: '',
   giftLeft: '',
   giftRight: '',
   ribbon: '',
-  title: '',
   discountBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png',
   zeroInsBadge: 'https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png'
 })
 
-const tabs = ref([])
-const activeTab = ref(0)
-
-onMounted(async () => {
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/promotion-categories')
-    const data = await res.json()
-    if (data.data && data.data.length) {
-      // Nối category từ API vào tabs
-      tabs.value = [{ id: null, name: 'Tất cả' }, ...data.data]
-    }
-    const resProducts = await fetch('http://127.0.0.1:8000/api/promotions/')
-    const productData = await resProducts.json()
-
-    promotion.value = productData.data
-
-    if (promotion.value.frame) {
-      const frame = promotion.value.frame
-
-      backgrounds.value.flashSaleHeader = frame.top_background
-      backgrounds.value.flashSaleBlock = frame.bottom_background
-      backgrounds.value.ribbon = frame.ribbon_image
-      backgrounds.value.giftLeft = frame.left_decor_image
-      backgrounds.value.giftRight = frame.right_decor_image
-
-    }
-
-    products.value = promotion.value.items || []
-    filteredProducts.value = products.value
-    const toLocal = date => new Date(date.replace(' ', 'T') + '+07:00').getTime()
-
-    startTime = toLocal(promotion.value.start_date)
-    endTime = toLocal(promotion.value.end_date)
-
-    // Cập nhật đếm ngược
-    updateCountdown()
-    timer = setInterval(updateCountdown, 1000)
-
-    // Đợi DOM render xong rồi khởi tạo Swiper
-    await nextTick()
-    const hotsale_swiper = new Swiper('.hotsale-swiper', {
-      modules: [Navigation, Autoplay],
-      slidesPerView: 5,
-      spaceBetween: 8,
-      slidesPerGroup: 1,
-      loop: false,
-      speed: 600,
-      grabCursor: true,
-      navigation: {
-        nextEl: '.hotsale-next',
-        prevEl: '.hotsale-prev'
-      },
-      autoplay: {
-        delay: 2500,
-        disableOnInteraction: true
-      }
-    })
-  } catch (e) {
-    console.error('Lỗi lấy danh mục:', e)
-  }
-})
-
-const changeTab = (categoryId, index) => {
-  activeTab.value = index
-  if (categoryId === null) {
-    // Tab "Tất cả"
-    filteredProducts.value = products.value
-  } else {
-    // Lọc theo category_id
-    filteredProducts.value = products.value.filter(
-      p => p.category_id === categoryId
-    )
-  }
-}
-
-// 🕒 Format giá
-const formatPrice = (price) => Number(price).toLocaleString('vi-VN') + 'đ'
-
-/**
- * Cập nhật đếm ngược
- */
+/* ================= COMPUTED ================= */
+const isBeforeStart = computed(() => now.value < startTime)
+const isEnded = computed(() => now.value > endTime)
 const updateCountdown = () => {
-  if (!promotion.value) return
   now.value = Date.now()
-
-  let diff
-  if (isBeforeStart.value) diff = startTime - now.value
-  else if (!isEnded.value) diff = endTime - now.value
-  else diff = 0
+  let diff = isBeforeStart.value
+    ? startTime - now.value
+    : !isEnded.value
+      ? endTime - now.value
+      : 0
 
   if (diff <= 0) {
     countdown.value = { days: '00', hours: '00', minutes: '00', seconds: '00' }
     return
   }
-  const totalSeconds = Math.floor(diff / 1000)
-  const days = Math.floor(totalSeconds / (3600 * 24))
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
 
+  const s = Math.floor(diff / 1000)
   countdown.value = {
-    days: String(days).padStart(2, '0'),
-    hours: String(hours).padStart(2, '0'),
-    minutes: String(minutes).padStart(2, '0'),
-    seconds: String(seconds).padStart(2, '0')
+    days: String(Math.floor(s / 86400)).padStart(2, '0'),
+    hours: String(Math.floor((s % 86400) / 3600)).padStart(2, '0'),
+    minutes: String(Math.floor((s % 3600) / 60)).padStart(2, '0'),
+    seconds: String(s % 60).padStart(2, '0')
   }
 }
+/* ================= WATCH PROMOTION ================= */
+watch(
+  () => props.promotion,
+  async (promotion) => {
+    if (!promotion) return
 
-onUnmounted(() => {
-  clearInterval(timerInterval)
-})
+    products.value = promotion.items || []
+    filteredProducts.value = products.value
+    // background
+    if (promotion.frame) {
+      const f = promotion.frame
+      backgrounds.value.flashSaleHeader = f.top
+      backgrounds.value.flashSaleBlock = f.bottom
+      backgrounds.value.ribbon = f.ribbon
+      backgrounds.value.giftLeft = f.left
+      backgrounds.value.giftRight = f.right
+    }
 
-// ▶ Điều khiển slider
-const slideNext = () => swiperRef.value?.swiper.slideNext()
-const slidePrev = () => swiperRef.value?.swiper.slidePrev()
+    const toLocal = (d) => {
+      if (!d) return 0
+      return new Date(d.replace(' ', 'T') + '+07:00').getTime()
+    }
 
-const toggleFavorite = (productId) => {
-  console.log('Toggle favorite for product:', productId)
-  // Xử lý logic yêu thích ở đây
+    startTime = toLocal(promotion.start_date)
+    endTime = toLocal(promotion.end_date)
+
+    updateCountdown()
+    timer = setInterval(updateCountdown, 1000)
+
+    await nextTick()
+    initSwiper()
+  },
+  { immediate: true }
+)
+
+/* ================= METHODS ================= */
+const initSwiper = () => {
+  new Swiper('.hotsale-swiper', {
+    modules: [Navigation, Autoplay],
+    slidesPerView: 5,
+    spaceBetween: 8,
+    loop: false,
+    rewind: false,
+    navigation: {
+      nextEl: '.hotsale-next',
+      prevEl: '.hotsale-prev'
+    },
+    autoplay: {
+      delay: 2500,
+      stopOnLastSlide: true,
+      disableOnInteraction: false
+    }
+  })
 }
+
+const changeTab = (categoryId, index) => {
+  activeTab.value = index
+  filteredProducts.value = categoryId === null
+    ? products.value
+    : products.value.filter(p => p.category_id === categoryId)
+}
+
+
+
+onUnmounted(() => clearInterval(timer))
 </script>
+
 <style scoped>
 .main {
   margin-top: 8px;
@@ -483,6 +471,7 @@ const toggleFavorite = (productId) => {
   /* p-2 */
   animation: fade-in 0.5s ease-in-out;
   /* animate-fade-in */
+  margin-bottom: 10px;
 }
 
 @media (min-width: 768px) {

@@ -32,7 +32,7 @@
 
     <!-- CHUYỂN TRANG THƯƠNG HIỆU -->
     <div class="brand-section">
-      <h2 class="promo-title1">CHUYỂN TRANG THƯƠNG HIỆU</h2>
+      <h2 class="promo-title1">CHUYÊN TRANG THƯƠNG HIỆU</h2>
       <div class="brand-grid">
         <div
           v-for="(brand, index) in brands"
@@ -116,10 +116,6 @@ const brands = [
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.brand-section {
-  margin-top: 32px;
 }
 
 .brand-grid {

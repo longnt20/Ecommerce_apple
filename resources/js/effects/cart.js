@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { log } from "three";
+import { useAuthStore } from "./auth";
 axios.defaults.baseURL = "http://127.0.0.1:8000/api";
 axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem(
     "token"
@@ -29,19 +30,15 @@ export const useCartStore = defineStore("cart", {
 
     actions: {
         async loadCart() {
-            try {
-                const res = await axios.get("http://127.0.0.1:8000/api/cart");
-                this.items = res.data.items ?? [];
-                this.totalPrice = res.data.total_price ?? 0;
-                this.totalQuantity = res.data.total_quantity ?? 0;
-            } catch (e) {
-                if (e.response) {
-                    console.error("API Error:", e.response.data); // sẽ thấy chi tiết lỗi 422
-                    alert(JSON.stringify(e.response.data));
-                } else {
-                    console.error(e);
-                }
+            const authStore = useAuthStore();
+
+            if (!authStore.isLoggedIn) {
+                this.items = [];
+                return;
             }
+
+            const res = await axios.get("http://127.0.0.1:8000/api/cart");
+            this.items = res.data.items ?? [];
         },
 
         async addToCart(productId, variantId, qty = 1) {
