@@ -1,27 +1,64 @@
 <template>
   <div class="category-menu">
     <ul>
-      <li v-for="category in categories" :key="category.id">
-        <a :href="`/category/${category.slug}`" class="menu-item">
-           <div class="icon-wrapper">
-            <component :is="category.iconComponent" :size="18" class="icon" />
-          </div>
-          <span class="menu-text">{{ category.name }}</span>
-          <ChevronRight :size="14" class="arrow-icon" />
-        </a>
-      </li>
+
+      <!-- 🔹 Skeleton -->
+      <template v-if="loading">
+        <li v-for="n in 8" :key="n" class="menu-item skeleton-item">
+          <div class="icon-wrapper skeleton-circle"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-arrow"></div>
+        </li>
+      </template>
+
+      <!-- 🔹 Real categories -->
+      <transition-group name="fade">
+        <li
+          v-for="category in categories"
+          :key="category.id"
+          v-show="!loading"
+        >
+          <a :href="`/category/${category.slug}`" class="menu-item">
+            <div class="icon-wrapper">
+              <component
+                :is="getIconByName(category.name)"
+                :size="18"
+                class="icon"
+              />
+            </div>
+            <span>{{ category.name }}</span>
+            <ChevronRight :size="14" />
+          </a>
+        </li>
+      </transition-group>
+
     </ul>
   </div>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue';
-import {
-  Smartphone, Laptop, Headphones, Watch, Home, Puzzle, PcCase,
-  Tv, Repeat, Package, Percent, FileText, ChevronRight
-} from 'lucide-vue-next';
-import axios from 'axios';
 
+<script setup>
+import {
+  Smartphone, Laptop, Headphones, Watch,
+  Puzzle, Repeat, Package, Percent, FileText, ChevronRight
+} from 'lucide-vue-next'
+import { ref, watch } from 'vue'
+const loading = ref(true)
+const props = defineProps({
+  categories: {
+    type: Array,
+    default: () => [],
+  },
+})
+watch(
+  () => props.categories,
+  (val) => {
+    if (val && val.length) {
+      loading.value = false
+    }
+  },
+  { immediate: true }
+)
 const getIconByName = (name) => {
   const iconMap = {
     'Điện thoại, Tablet': Smartphone,
@@ -34,26 +71,8 @@ const getIconByName = (name) => {
     'Khuyến mãi': Percent,
     'Tin công nghệ': FileText,
   }
-
-  // Nếu không trùng tên nào, trả icon mặc định
   return iconMap[name] || FileText
 }
-const categories = ref([])
-onMounted(async () => {
-  try {
-    const response = await axios.get('http://127.0.0.1:8000/api/categories')
-    
-    const data = response.data.categories.data
-
-    // Gán icon tương ứng
-    categories.value = data.map(cat => ({
-      ...cat,
-      iconComponent: getIconByName(cat.name)
-    }))
-  } catch (error) {
-    console.error('Lỗi khi lấy danh mục:', error)
-  }
-})
 </script>
 
 <style scoped>
@@ -61,12 +80,12 @@ onMounted(async () => {
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #f0f0f0;
   /* Đảm bảo không có khoảng trống */
   display: inline-block;
-  height: 495px;
+  height: 517px;
 }
 
 ul {
@@ -169,6 +188,7 @@ li:last-child {
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -176,26 +196,49 @@ li:last-child {
 }
 
 /* Chỉ áp dụng animation-delay cho 8 items thực tế */
-li:nth-child(1) { animation-delay: 0.05s; }
-li:nth-child(2) { animation-delay: 0.1s; }
-li:nth-child(3) { animation-delay: 0.15s; }
-li:nth-child(4) { animation-delay: 0.2s; }
-li:nth-child(5) { animation-delay: 0.25s; }
-li:nth-child(6) { animation-delay: 0.3s; }
-li:nth-child(7) { animation-delay: 0.35s; }
-li:nth-child(8) { animation-delay: 0.4s; }
+li:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+li:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+li:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+li:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+li:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+li:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+li:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+li:nth-child(8) {
+  animation-delay: 0.4s;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
   .category-menu {
     border-radius: 12px;
   }
-  
+
   .menu-item {
     padding: 8px 10px;
     font-size: 12px;
   }
-  
+
   .icon-wrapper {
     width: 28px;
     height: 28px;
@@ -217,4 +260,58 @@ li:not(:last-child)::after {
   height: 1px;
   background: linear-gradient(90deg, #f0f0f0, transparent);
 }
+/* Fade in */
+.fade-enter-active {
+  transition: all 0.25s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateX(-6px);
+}
+
+/* Skeleton item */
+.skeleton-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* Circle icon */
+.skeleton-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+/* Text line */
+.skeleton-line {
+  flex: 1;
+  height: 14px;
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+/* Arrow */
+.skeleton-arrow {
+  width: 10px;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+/* Shimmer animation */
+.skeleton-circle,
+.skeleton-line,
+.skeleton-arrow {
+  animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5 }
+  50% { opacity: 1 }
+  100% { opacity: 0.5 }
+}
+
 </style>

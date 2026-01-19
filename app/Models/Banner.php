@@ -23,4 +23,8 @@ class Banner extends Model
         'status'=>1,
         'order'=>0,
     ];
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'banner_product');
+    }
 }

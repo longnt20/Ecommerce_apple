@@ -29,6 +29,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function banners()
+    {
+        return $this->belongsToMany(Banner::class, 'banner_product');
+    }
     public function specs()
     {
         return $this->hasMany(ProductSpec::class);

@@ -33,16 +33,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title mb-0">Thêm mới banner</h4>
-                        @if (session()->has('success') && session()->get('success'))
-                            <div class="alert alert-success" role="alert">
-                                Thao tác thành công
-                            </div>
-                        @endif
-                        @if (session()->has('success') && !session()->get('success'))
-                            <div class="alert alert-danger" role="alert">
-                                <strong>Thao tác không thành công</strong>
-                            </div>
-                        @endif
                     </div>
                     <div class="card-body">
                         <div>
@@ -61,6 +51,17 @@
                                 <div class="image-preview-container" style="display:none;">
                                     <img id="imagePreview" src="" alt="Image preview" class="img-fluid mt-2 w-25"/>
                                 </div>
+                                 <div class="mb-3">
+                                <label class="form-label">Sản phẩm</label>
+                                <select name="product_ids" class="form-select">
+                                    <option value="">Chọn sản phẩm</option>
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}">
+                                            {{ $product->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                                 <div class="mb-3">
                                     <label class="form-label">Nội dung</label>
                                     <textarea name="content" placeholder="Nhập nội dung..." class="form-control"

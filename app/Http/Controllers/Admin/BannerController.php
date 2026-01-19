@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Banner\StoreBannerRequest;
 use App\Http\Requests\Admin\Banner\UpdateBannerRequest;
 use App\Models\Banner;
+use App\Models\Product;
 use App\Traits\LoggableTrait;
 use App\Traits\UploadToLocalTrait;
 use Illuminate\Http\Request;
@@ -30,12 +31,13 @@ class BannerController extends Controller
         $banners_inactive = Banner::query()->where('status', 0)->count();
         $banners_deleted = Banner::onlyTrashed()->count();
         $items = $queryBanners->paginate(10);
-        return view('admin.banners.index', compact('items', 'banners_total','banners_active','banners_inactive','banners_deleted'));
+        return view('admin.banners.index', compact('items', 'banners_total', 'banners_active', 'banners_inactive', 'banners_deleted'));
     }
     public function create()
     {
         try {
-            return view('admin.banners.create');
+            $products = Product::where('status','published')->get();
+            return view('admin.banners.create', compact('products'));
         } catch (\Exception $e) {
 
             $this->logError($e);
@@ -57,8 +59,10 @@ class BannerController extends Controller
             $data['status'] ??= 0;
             $lastBanner = Banner::orderBy('order', 'desc')->first();
             $data['order'] = $lastBanner ? $lastBanner->order + 1 : 0;
-            Banner::query()->create($data);
-
+            $banner = Banner::query()->create($data);
+            if ($request->filled('product_ids')) {
+                $banner->products()->sync($request->product_ids);
+            }
             DB::commit();
 
             return redirect()->route('admin.banners.index')->with('success', 'Thêm mới thành công');
@@ -146,9 +150,9 @@ class BannerController extends Controller
             Banner::where('id', $id)->update(['order' => $order]);
         }
 
-        return response()->json(['status' => 'success','message' => 'Cập nhật thứ tự thành công']);
+        return response()->json(['status' => 'success', 'message' => 'Cập nhật thứ tự thành công']);
     }
-        public function destroy(Banner $banner)
+    public function destroy(Banner $banner)
     {
         try {
             $banner->delete();

@@ -12,6 +12,7 @@
         "laravel/telescope": "^5.14",
         "laravel/tinker": "^2.9",
         "milon/barcode": "^12.0",
+        "openai-php/laravel": "^0.18.0",
         "van-ons/laraberg": "^2.0"
     },
     "require-dev": {

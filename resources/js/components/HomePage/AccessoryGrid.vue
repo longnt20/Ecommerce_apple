@@ -49,7 +49,7 @@ const accessories = [
 .accessory-section {
   background: #fff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 3px 20px 3px;
 }
 
 .section-header {

@@ -723,6 +723,7 @@ const logout = () => {
   animation: fadeIn 0.18s ease-out;
   overflow: hidden;
   border: 1px solid #eee;
+  z-index: 5;
 }
 
 /* Header user info */

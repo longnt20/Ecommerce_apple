@@ -4,11 +4,12 @@
     <!-- Nếu chưa login -->
 <div class="info-card" v-if="!auth.isLoggedIn">
   <div class="welcome-header">
+    <img :src="DragonCute" alt="dragon cute" width="60px">
     <p><strong>Chào mừng bạn đến với LongTech</strong></p>
   </div>
 
-  <p class="welcome-text">
-    Đăng nhập để không bỏ lỡ những ưu đãi chưa từng có tại LongTech.
+    <p class="welcome-text">
+    Đăng nhập để không bỏ lỡ những ưu đãi tại LongTech Store.
   </p>
 
   <div class="auth-links">
@@ -29,22 +30,26 @@
   <div class="user-stats">
     <div class="stat-item">
       <div class="stat-icon pink-icon">
-        🎁
+        <Gift :size="30" />
       </div>
       <p class="main">Xem ưu đãi của bạn</p>
-      <span class="arrow">›</span>
+      <span class="arrow"><ChevronRight /></span>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon pink-icon">
+        <ShoppingBag :size="30" />
+      </div>
+      <p class="main">Đơn hàng đã mua</p>
+      <span class="arrow"><ChevronRight /></span>
     </div>
   </div>
 
-  <a href="#" @click="auth.logout()" class="manage-account">
-    Đăng xuất →
-  </a>
 </div>
 
 
 
     <!-- Card Ưu đãi -->
-    <div class="info-card">
+    <div class="info-card-bottom">
       <div class="card-title">Ưu đãi cho giáo dục</div>
       <ul>
         <li v-for="item in eduPromos" :key="item.text">
@@ -54,11 +59,7 @@
           </a>
         </li>
       </ul>
-    </div>
-
-    <!-- Card Thu cũ -->
-    <div class="info-card">
-      <div class="card-title">Thu cũ lên đời giá hời</div>
+      <div class="card-title" style="margin-top: 20px;">Thu cũ lên đời giá hời</div>
        <ul>
         <li v-for="item in tradeInPromos" :key="item.text">
           <a :href="item.href">
@@ -73,8 +74,9 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { Gift, GraduationCap, Repeat, ChevronRight } from 'lucide-vue-next';
+import { Gift, GraduationCap, Repeat, ChevronRight, ShoppingBag, ChevronLeft } from 'lucide-vue-next';
 import { useAuthStore } from '../../effects/auth';
+import DragonCute from '../../../images/logodragoncute.png';
 const auth = useAuthStore();
 
 onMounted(() => {
@@ -107,17 +109,20 @@ const tradeInPromos = ref([
   padding: 16px;
   box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
   font-family: sans-serif;
-  height: 158px;
+  height: 188px;
 }
-
+.info-card-bottom {
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+  font-family: sans-serif;
+  height: 320px;
+}
 .user-info p {
   margin: 0;
   color: #111;
-}
-
-.welcome-text {
-  font-size: 14px;
-  color: #666;
 }
 
 .user-stats {
@@ -127,8 +132,8 @@ const tradeInPromos = ref([
 .stat-item {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #eee;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .stat-item:last-child {
@@ -148,26 +153,20 @@ const tradeInPromos = ref([
 }
 
 .pink-icon {
-  background: #ffe6e6;
-  color: #d6336c;
+  color: #e63216;
+;
 }
 
-.stat-text .main {
+.main {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   margin: 0;
-  color: #222;
+  color: #504d4d;
 }
 
-.stat-text .sub {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: #777;
-}
 
 .arrow {
   margin-left: auto;
-  font-size: 18px;
   color: #999;
   font-weight: bold;
 }
@@ -187,6 +186,10 @@ const tradeInPromos = ref([
 }
 
 .welcome-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.welcome-header p {
+  font-size: 14px;
+  margin-top: 10px;
+}
 .avatar { border-radius: 50%; }
 .welcome-text { font-size: 13px; color: #555; margin: 0 0 15px; }
 .auth-links { margin-bottom: 15px; }
@@ -197,4 +200,6 @@ const tradeInPromos = ref([
 .card-title {font-size: 13px; font-weight: bold; margin-bottom: 10px; background-color: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center; }
 .info-card ul {font-size: 13px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .info-card li a {font-size: 13px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #333; }
+.info-card-bottom ul {font-size: 13px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.info-card-bottom li a {font-size: 13px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #333; }
 </style>
