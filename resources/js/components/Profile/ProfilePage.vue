@@ -3,18 +3,19 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <img class="avatar" src="https://i.pravatar.cc/100" alt="avatar">
+      <div class="sidebar-header" v-if="profile">
+        <img class="avatar" :src="profile.user.avatar" alt="avatar">
         <div>
-          <h3 class="user-name">{{ user.name }}</h3>
-          <p class="user-email">{{ user.email }}</p>
+          <h3 class="user-name">{{ profile.user.name }}</h3>
+          <p class="user-email">{{ profile.user.email }}</p>
         </div>
+
       </div>
 
       <ul class="sidebar-menu">
         <li :class="{ active: activeTab === 'dashboard' }" @click="activeTab = 'dashboard'">Tổng quan</li>
         <li :class="{ active: activeTab === 'info' }" @click="activeTab = 'info'">Thông tin tài khoản</li>
-        <li :class="{ active: activeTab === 'orders' }" @click="activeTab = 'orders'">Đơn mua</li>
+        <li :class="{ active: activeTab === 'orders' }" @click="activeTab = 'orders'">Lịch sử mua hàng</li>
         <li :class="{ active: activeTab === 'address' }" @click="activeTab = 'address'">Sổ địa chỉ</li>
         <li :class="{ active: activeTab === 'password' }" @click="activeTab = 'password'">Đổi mật khẩu</li>
       </ul>
@@ -25,18 +26,89 @@
       <div v-if="activeTab === 'dashboard'" class="dashboard">
         <div class="d-flex gap-2" style="min-height: 300px;">
           <div class="card col-sm-8">
-            <h5>Đơn hàng gần đây</h5>
+            <h5 class="card-title">Đơn hàng gần đây</h5>
+
+            <div v-if="profile?.orders?.data?.length" class="order-list">
+              <div class="order-item" v-for="order in recentOrders" :key="order.id">
+                <div class="order-header">
+                  <span class="order-code">#{{ order.code }}</span>
+                  <span class="order-status" :class="order.status">
+                    {{ order.status_label }}
+                  </span>
+                </div>
+
+                <div class="order-products">
+                  <div class="product" v-for="item in order.items" :key="item.id">
+                    <div class="product-info">
+                      <div class="d-flex">
+                        <img :src="item.variant.thumbnail_url" alt="" srcset="" width="50px">
+                        <div class="">
+                          <strong>{{ item.product_name }}</strong><br>
+                          <span class="variant">{{ item.variant_name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-price">
+                      x{{ item.quantity }} · {{ formatPrice(item.total) }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="order-footer">
+                  <span class="order-date">
+                    {{ new Date(order.created_at).toLocaleDateString('vi-VN') }}
+                  </span>
+                  <span class="order-total">
+                    Tổng: {{ formatPrice(order.final_amount) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="empty">
+              <p>Bạn chưa có đơn hàng nào</p>
+            </div>
           </div>
-          <div class="card col-sm-4" style="min-height: 300px;">
-            <h5>Ưu đãi của bạn</h5>
+
+          <div class="card col-sm-4">
+            <h5 class="card-title">Ưu đãi của bạn</h5>
+
+            <div v-if="profile?.vouchers?.length" class="voucher-list">
+              <div class="voucher-item" v-for="voucher in profile.vouchers" :key="voucher.id">
+                <div class="voucher-value">
+                  <strong v-if="voucher.discount_type === 'percentage'">
+                    -{{ voucher.discount_value }}%
+                  </strong>
+                  <strong v-else>
+                    -{{ formatPrice(voucher.discount_value) }}
+                  </strong>
+                </div>
+
+                <div class="voucher-info">
+                  <div class="voucher-name">{{ voucher.name }}</div>
+                  <div class="voucher-code">Mã: {{ voucher.code }}</div>
+                  <div class="voucher-expire">
+                    HSD: {{ new Date(voucher.expire_date).toLocaleDateString('vi-VN') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="empty">
+              <p>Bạn chưa có ưu đãi nào</p>
+            </div>
           </div>
+
         </div>
         <div class="card mt-2 wishlist-card">
           <h5>Sản phẩm yêu thích</h5>
 
           <!-- Không có sản phẩm -->
           <div v-if="wishlist.items.length === 0" class="empty">
-            <p>Bạn chưa có sản phẩm yêu thích nào 💔</p>
+            <img :src="Nofavouriteimage" alt="" srcset="" width="200px" style="display: block;
+  margin: 0 auto;backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.4);border-radius: 50%;">
+            <p style="text-align: center;">Bạn chưa có sản phẩm yêu thích nào 💔</p>
           </div>
 
           <!-- Danh sách wishlist -->
@@ -53,8 +125,8 @@
                 </div>
               </div>
               <button data-slot="button" class="cpsui-button active" @click.stop.prevent="removeWishlist(item)">
-                <svg stroke="currentColor" fill="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                  stroke-linejoin="round" class="favourite" height="1.8em" width="1.8em">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                  stroke-linecap="round" stroke-linejoin="round" class="favourite" height="1.8em" width="1.8em">
                   <path
                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                   </path>
@@ -89,21 +161,108 @@
 
       <!-- TAB: ORDERS -->
       <div v-if="activeTab === 'orders'" class="card">
-        <h2>Lịch sử đơn hàng</h2>
-
-        <div v-if="orders.length === 0" class="empty-state">
-          <img src="https://cdn-icons-png.flaticon.com/512/4076/4076505.png">
-          <p>Bạn chưa có đơn hàng nào.</p>
+        <div class="tabs">
+          <span v-for="tab in tabs" :key="tab.value" class="tab" :class="{ active: tab.value === activeTabOrder }"
+            @click="activeTabOrder = tab.value">
+            {{ tab.label }}
+          </span>
         </div>
 
-        <div v-for="order in orders" :key="order.id" class="order-item">
-          <div>
-            <strong>Mã đơn:</strong> {{ order.code }}
+        <!-- Filter -->
+        <div class="filter">
+          <span class="title">Lịch sử mua hàng</span>
+          <div class="date-range">
+            <input type="date" v-model="fromDate" />
+            <span>→</span>
+            <input type="date" v-model="toDate" />
           </div>
-          <div><strong>Ngày đặt:</strong> {{ order.date }}</div>
-          <div><strong>Tổng:</strong> {{ format(order.total) }}đ</div>
-          <span class="status" :class="order.status">{{ order.statusText }}</span>
+
         </div>
+
+        <!-- Empty state -->
+        <div v-if="orderList.length === 0" class="empty">
+          <img :src="Nofavouriteimage" alt="" srcset="" width="200px" style="display: block;
+  margin: 0 auto;backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.4);border-radius: 50%;">
+          <p>
+            Bạn chưa có đơn hàng nào
+            <a href="#">Trang chủ</a>
+          </p>
+        </div>
+        <div v-else class="order-list">
+
+          <div v-for="order in orderList" :key="order.id" class="order-card">
+            <div class="order-header">
+              <div>
+                <strong>Mã đơn:</strong> {{ order.code }}
+                <span class="date">• {{ order.created_at }}</span>
+              </div>
+
+              <span class="status" :class="order.status">
+                {{ order.status_label }}
+              </span>
+            </div>
+
+            <div class="order-body">
+              <div class="order-products">
+                <div class="order-info" v-for="item in order.items" :key="item.id">
+                <div class="d-flex justify-content-beetween">
+                  <img :src="item.variant?.thumbnail_url" alt="" srcset="" width="50px">
+                  <div class="">
+                    <strong>{{ item.product_name }}</strong><br>
+                    <span class="variant">{{ item.variant_name }}</span>
+                  </div>
+                  <div class="product-price">
+                      x{{ item.quantity }} · {{ formatPrice(item.total) }}
+                    </div>
+                </div>
+                
+              </div>
+              
+              </div>
+              
+
+              <div class="summary">
+                <div>Tổng tiền: <strong>{{ formatPrice(order.total_price) }}</strong></div>
+                <button class="btn-detail" @click="openOrderModal(order)">
+                  Xem chi tiết
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+                  <div v-if="showOrderModal" class="modal-overlay" @click.self="closeOrderModal">
+            <div class="modal">
+
+              <div class="modal-header">
+                <h3>Chi tiết đơn hàng</h3>
+                <button class="close" @click="closeOrderModal">×</button>
+              </div>
+
+              <div class="modal-body">
+                <p><strong>Mã đơn:</strong> {{ selectedOrder.code }}</p>
+                <p><strong>Trạng thái:</strong> {{ selectedOrder.status_label }}</p>
+
+                <div class="modal-items">
+                  <div v-for="(item, i) in selectedOrder.items" :key="i" class="modal-item">
+                    <img :src="item.thumbnail_url" />
+                    <div>
+                      <div>Số lượng: {{ item.quantity }}</div>
+                      <div>Giá: {{ formatPrice(item.price) }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="total">
+                  Tổng tiền: <strong>{{ formatPrice(selectedOrder.total_price) }}</strong>
+                </div>
+              </div>
+
+            </div>
+          </div>
       </div>
 
       <!-- TAB: ADDRESS -->
@@ -147,28 +306,54 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useWishlistStore } from '../../effects/wishlist';
 import { useToast } from 'vue-toastification';
+import Nofavouriteimage from '../../../images/noimage.png';
+import axios from 'axios';
+const activeTab = ref('dashboard');
+const activeTabOrder = ref(null);
+const fromDate = ref('')
+const toDate = ref('')
+const tabs = [
+  { label: "Tất cả", value: null },
+  { label: "Chờ xác nhận", value: "pending" },
+  { label: "Đã xác nhận", value: "confirmed" },
+  { label: "Đang vận chuyển", value: "shipping" },
+  { label: "Đã giao hàng", value: "delivered" },
+  { label: "Đã huỷ", value: "cancelled" },
+];
+const showOrderModal = ref(false)
+const selectedOrder = ref(null)
 
-const activeTab = ref('info');
+const openOrderModal = (order) => {
+  selectedOrder.value = order
+  showOrderModal.value = true
+};
+const closeOrderModal = () => {
+  showOrderModal.value = false
+  selectedOrder.value = null
+}
 
-const user = ref({
-  name: 'Thành Long Nguyễn',
-  email: 'longnt2k4@gmail.com',
-  phone: '0987654321'
+const profile = ref(null);
+
+const fetchProfile = async () => {
+  const res = await axios.get("http://127.0.0.1:8000/api/user", {
+    params: {
+      status: activeTabOrder.value,
+      from_date: fromDate.value,
+      to_date: toDate.value,
+    }
+  });
+
+  profile.value = res.data;
+};
+const recentOrders = computed(() => {
+  return profile.value?.orders?.data?.slice(0, 3) || []
 });
-
-const orders = ref([
-  { id: 1, code: 'DH001', date: '12/10/2025', total: 24690000, status: 'success', statusText: 'Hoàn thành' },
-  { id: 2, code: 'DH002', date: '20/10/2025', total: 16900000, status: 'shipping', statusText: 'Đang giao' }
-]);
-
-const addresses = ref([
-  { id: 1, name: 'Nguyễn Thành Long', phone: '0987...', full: '123 Nguyễn Huệ, Q1, TP.HCM', default: true },
-  { id: 2, name: 'Long', phone: '0903...', full: 'Phường 5, Gò Vấp, TPHCM', default: false },
-]);
-
+const orderList = computed(() => {
+  return profile.value?.orders?.data || []
+});
 const password = ref({
   old: '',
   new: '',
@@ -179,12 +364,16 @@ const toast = useToast()
 
 const removeWishlist = async (item) => {
   await wishlist.removeById(item.id)
-toast.info('Đã xóa khỏi danh sách yêu thích')
+  toast.info('Đã xóa khỏi danh sách yêu thích')
 }
 onMounted(() => {
+  fetchProfile()
   if (!wishlist.items.length) {
     wishlist.fetchWishlist()
   }
+})
+watch([activeTabOrder, fromDate, toDate], () => {
+  fetchProfile()
 })
 const formatPrice = (value) => {
   if (value === null || value === undefined) return '0đ'
@@ -267,7 +456,7 @@ const format = (number) =>
 
 .card {
   background: #fff;
-  padding: 25px;
+  padding: 20px;
   border-radius: 14px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
@@ -450,15 +639,18 @@ const format = (number) =>
     font-size: 13px;
   }
 }
+
 .favourite {
   color: #3B82F6;
   transition: 0.2s;
 }
 
 .favourite.active {
-  color: #3B82F6; /* xanh lá */
+  color: #3B82F6;
+  /* xanh lá */
   fill: #3B82F6;
 }
+
 .cpsui-button {
   display: flex;
   align-items: center;
@@ -530,6 +722,7 @@ const format = (number) =>
     display: inline-block;
   }
 }
+
 .cpsui-button {
   background: transparent;
   border: none;
@@ -542,7 +735,256 @@ const format = (number) =>
 }
 
 .cpsui-button.active .favourite {
-  color: #3B82F6; /* xanh lá */
+  color: #3B82F6;
+  /* xanh lá */
 }
 
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid #eee;
+}
+
+.tab {
+  padding-bottom: 12px;
+  cursor: pointer;
+  color: #777;
+}
+
+.tab.active {
+  color: #d70018;
+  border-bottom: 2px solid #d70018;
+  font-weight: 600;
+}
+
+/* Filter */
+.filter {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.date-range input {
+  border: none;
+  outline: none;
+}
+
+/* Empty state */
+.empty {
+  margin-top: 80px;
+  text-align: center;
+  color: #888;
+}
+
+.empty img {
+  width: 140px;
+  margin-bottom: 16px;
+}
+
+.empty a {
+  color: #d70018;
+  text-decoration: none;
+  margin-left: 6px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ===== ORDERS ===== */
+.order-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.order-code {
+  font-weight: 600;
+}
+
+.order-status {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.order-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-status.confirmed {
+  background: #e7f1ff;
+  color: #004085;
+}
+
+.order-status.shipping {
+  background: #e6fffa;
+  color: #0c5460;
+}
+
+.order-status.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.order-status.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-products {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.variant {
+  color: #777;
+  font-size: 13px;
+}
+
+.order-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+}
+
+/* ===== VOUCHERS ===== */
+.voucher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.voucher-item {
+  display: flex;
+  gap: 12px;
+  border: 1px dashed #d70018;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.voucher-value {
+  min-width: 70px;
+  background: #d70018;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.voucher-name {
+  font-weight: 600;
+}
+
+.voucher-code,
+.voucher-expire {
+  font-size: 13px;
+  color: #555;
+}
+
+/* ===== EMPTY ===== */
+.empty {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+}
+
+.order-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.order-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.images img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 6px;
+}
+
+.btn-detail {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #5381dd;
+  cursor: pointer;
+  color: white;
+  background-color: #3B82F6;
+  margin-left: 60px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 520px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
 </style>

@@ -56,4 +56,8 @@ class Product extends Model
             'id'                // product_variants.id
         );
     }
+    public function wishlists()
+{
+    return $this->hasMany(Wishlist::class);
+}
 }

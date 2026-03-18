@@ -33,7 +33,7 @@ class GoogleAuthController extends Controller
             // Tạo Sanctum token
             $token = $user->createToken('api_token')->plainTextToken;
 
-            return redirect("/login-success?token=$token");
+            return redirect("http://localhost:3000/login-success?token=$token");
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

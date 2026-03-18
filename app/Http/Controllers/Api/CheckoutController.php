@@ -205,6 +205,6 @@ class CheckoutController extends Controller
             ]);
         }
 
-        return redirect("/payment-success?order_id={$orderId}&amount={$orderAmount}");
+        return redirect("http://localhost:3000/payment-success?order_id={$orderId}&amount={$orderAmount}");
     }
 }
