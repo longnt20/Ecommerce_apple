@@ -367,19 +367,20 @@
                     <div class="collapse menu-dropdown" id="sidebarTables">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="tables-basic.html" class="nav-link" data-key="t-basic-tables">Basic
-                                    Tables</a>
+                                <a href="{{ route('admin.coupons.index') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách mã giảm giá
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a href="tables-gridjs.html" class="nav-link" data-key="t-grid-js">Grid Js</a>
+                                <a href="{{ route('admin.coupons.create') }}" class="nav-link" data-key="t-analytics">
+                                    Thêm mới mã giảm giá
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="tables-listjs.html" class="nav-link" data-key="t-list-js">List Js</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="tables-datatables.html" class="nav-link"
-                                    data-key="t-datatables">Datatables</a>
-                            </li>
+                            {{-- <li class="nav-item">
+                                <a href="{{ route('admin.coupons.trash') }}" class="nav-link" data-key="t-analytics">
+                                    Danh sách sản phẩm đã xóa
+                                </a>
+                            </li> --}}
                         </ul>
                     </div>
                 </li>

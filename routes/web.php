@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FrameController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\OrderController;
@@ -196,11 +197,48 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
     });
+    #============================== ROUTE COUPON =============================
+    Route::prefix('coupons')->as('coupons.')->group(function () {
+        Route::get('/', [CouponController::class, 'index'])->name('index');
+        Route::get('/exportCoupon', [CouponController::class, 'exportCoupon'])->name('exportCoupon');
+        Route::get('/user-search', [CouponController::class, 'couponUserSearch'])->name('search');
+        Route::get('/create', [CouponController::class, 'create'])->name('create');
+        Route::get('suggest-coupon-code', [CouponController::class, 'suggestionCounpoun'])->name('suggestCode');
+        Route::post('/', [CouponController::class, 'store'])->name('store');
+        Route::post('/import', [CouponController::class, 'importFile'])->name('import');
+        Route::get('/deleted', [CouponController::class, 'listDeleted'])->name('deleted');
+        Route::get('/{id}', [CouponController::class, 'show'])->name('show');
+        Route::get('/edit/{coupon}', [CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+        Route::put('/{coupon}/restore-delete', [CouponController::class, 'restoreDelete'])
+            ->name('restoreDelete');
+        Route::delete('/{coupon}/force-delete', [CouponController::class, 'forceDelete'])
+            ->name('forceDelete');
+    });
 });
-Route::get('/', function () {
-    return view('clients.client');
-});
+// API-only routes - all frontend routes are handled by the separate Vue app
 Route::get('/vnpay/return', [CheckoutController::class, 'vnpReturn']);
+
+// Catch-all route returns a simple API info page for direct browser access
+Route::get('/', function () {
+    return response()->json([
+        'message' => 'Apple E-commerce API',
+        'version' => '1.0.0',
+        'frontend' => 'Running on separate Vue application',
+        'endpoints' => [
+            'auth' => '/api/login, /api/register, /api/user',
+            'products' => '/api/products',
+            'cart' => '/api/cart',
+            'orders' => '/api/orders'
+        ]
+    ]);
+});
+
+// Catch-all route for SPA fallback (if needed for future integration)
 Route::get('/{any}', function () {
-    return view('clients.client'); // app.blade.php chứa <div id="app"></div>
+    return response()->json([
+        'error' => 'Endpoint not found',
+        'message' => 'Please use the API endpoints or access the Vue frontend application'
+    ], 404);
 })->where('any', '.*');

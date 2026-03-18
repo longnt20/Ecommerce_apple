@@ -39,4 +39,17 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+    protected $appends = ['status_label'];
+
+    public function getStatusLabelAttribute()
+    {
+        return match ($this->status) {
+            'pending'   => 'Chờ xử lý',
+            'confirmed' => 'Đã xác nhận',
+            'shipping'  => 'Đang giao hàng',
+            'completed' => 'Hoàn thành',
+            'cancelled' => 'Đã hủy',
+            default     => 'Không xác định',
+        };
+    }
 }
