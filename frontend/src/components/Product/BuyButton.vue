@@ -30,8 +30,8 @@ import { useCartStore } from '@/stores/cart';
 import { useBuyNowStore } from '@/stores/buynow';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+// import { toast } from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 import AuthModal from '@/components/common/AuthModal.vue';
 
 const props = defineProps({

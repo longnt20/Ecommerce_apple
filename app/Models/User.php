@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -39,6 +41,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (blank($user->code)) {
+                $user->code = str_replace('-', '', (string) Str::uuid());
+            }
+        });
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -51,6 +62,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

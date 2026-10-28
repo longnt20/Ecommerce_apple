@@ -8,6 +8,8 @@
 .env
 .env.backup
 .env.production
+.env.testing
+/tests/.runtime/
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -17,3 +19,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/laravel.sql
+/laravel.zip
+*.sql.gz

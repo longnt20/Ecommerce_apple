@@ -186,8 +186,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
+// import { toast } from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 import { 
   X, Mail, Lock, Eye, EyeOff, User, Loader2 
 } from 'lucide-vue-next'

@@ -1,0 +1,19 @@
+{
+    "backup": "storage/app/private/schema-backups/before-p1-20261028-39dce28d1009.sql",
+    "backup_bytes": 757680934,
+    "backup_sha256": "8c265a718783c265d9ef1de7155c407b174e5976a5aa96f25c4a1f3c9138e6c2",
+    "restore_verified": true,
+    "upgrade_verified": true,
+    "business_hashes_preserved": true,
+    "row_counts": {
+        "users": 8,
+        "orders": 52,
+        "order_items": 56,
+        "inventory": 184,
+        "inventory_transactions": 259
+    },
+    "empty_user_codes_mapped": 4,
+    "application_database_migrated": true,
+    "application_business_fingerprints_preserved": true,
+    "application_users_match_approved_mapping": true
+}

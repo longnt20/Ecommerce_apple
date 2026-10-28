@@ -14,8 +14,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
+import 'vue-toastification/dist/index.css'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 
