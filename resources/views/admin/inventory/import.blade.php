@@ -22,6 +22,7 @@
 
     <form id="importForm" action="{{ route('admin.inventory.import.store') }}" method="POST">
         @csrf
+    <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) \Illuminate\Support\Str::uuid()) }}">
         <div class="row">
             <!-- Left Column -->
             <div class="col-lg-8">

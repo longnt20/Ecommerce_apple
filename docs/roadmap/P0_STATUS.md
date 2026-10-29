@@ -1,5 +1,7 @@
 # P0 — Baseline và môi trường kiểm chứng
 
+**Review P0–P4, 2026-10-29:** harness vẫn cách ly MySQL bằng credentials DML riêng; tests ghi chỉ trên synthetic/disposable schemas. Known-risk C3 đã chuyển thành assertion bảo vệ allocation kho B trong P4; Q3/TTL/quarantine đã được chủ dự án chốt. Không sửa lại baseline lịch sử. Xem [P4_STATUS](P4_STATUS.md) và [runtime mới](../architecture/p4-runtime-baseline.json).
+
 Ngày ghi nhận: 2026-10-28. **P0 đã hoàn thành kiểm chứng và được chủ dự án cho phép chuyển sang P1.** Dùng kết nối quản trị trong `.env` để tạo sandbox schema-only và tài khoản test DML riêng; không chạy regression ghi dữ liệu trên DB ứng dụng. Các đoạn nêu blocker ban đầu bên dưới là lịch sử triển khai và được cập nhật bởi phần đóng P0 này.
 
 ## Cập nhật đóng P0

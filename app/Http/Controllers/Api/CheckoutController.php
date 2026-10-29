@@ -4,74 +4,23 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
-use App\Models\Cart;
-use App\Models\Inventory;
-use App\Models\InventoryTransaction;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\PaymentAttempt;
 use App\Services\Payments\PaymentGateway;
 use App\Services\Payments\PaymentService;
-use App\Services\Pricing\QuoteService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    public function process(CheckoutRequest $request, QuoteService $pricing, PaymentService $payments, PaymentGateway $gateway)
+    public function process(CheckoutRequest $request, \App\Services\Ordering\PlaceOrder $placeOrder, PaymentService $payments)
     {
-        if ($request->payment_method === 'vnpay') {
-            $gateway->assertConfigured();
+        $order = $placeOrder->place($request->validated(), $request->user()->id);
+        if (strtolower($order->payment_method) === 'cod') {
+            return response()->json(['message' => 'Đặt hàng thành công (COD)', 'order_id' => $order->id, 'final_amount' => (int) $order->final_amount]);
         }
-        $order = DB::transaction(function () use ($request, $pricing, $payments) {
-            $quote = $pricing->quote($request->validated('items'));
-            $order = Order::create(array_merge($request->safe()->only([
-                'fullname', 'phone', 'email', 'address', 'ward', 'district', 'province', 'note', 'payment_method',
-            ]), [
-                'code' => 'DH'.date('Ymd').'-'.Str::ulid(), 'user_id' => $request->user()->id,
-                'status' => 'pending', 'payment_status' => 'unpaid',
-                'total_price' => $quote['total'], 'final_amount' => $quote['total'],
-            ]));
-            $cart = $request->input('mode', 'cart') === 'cart'
-                ? Cart::where('user_id', $request->user()->id)->first() : null;
-            foreach ($quote['lines'] as $line) {
-                $variant = $line['variant'];
-                // Allocation protocol remains in P4; existing selection retained here.
-                $inventory = Inventory::where('product_variant_id', $variant->id)->lockForUpdate()->first();
-                abort_if(! $inventory || $inventory->available_quantity < $line['quantity'], 400, 'Không đủ hàng cho biến thể.');
-                $inventory->reserve($line['quantity']);
-                InventoryTransaction::create([
-                    'warehouse_id' => $inventory->warehouse_id, 'product_variant_id' => $variant->id,
-                    'type' => 'reserve', 'quantity' => $line['quantity'],
-                    'before_quantity' => $inventory->quantity, 'after_quantity' => $inventory->quantity,
-                    'reference_type' => 'order', 'reference_id' => $order->id, 'reason' => 'Reserve stock for order',
-                ]);
-                OrderItem::create([
-                    'order_id' => $order->id, 'product_id' => $line['product']->id, 'variant_id' => $variant->id,
-                    'product_name' => $line['product']->name, 'variant_name' => $variant->storage.'-'.$variant->color_label,
-                    'quantity' => $line['quantity'], 'price' => $line['price'], 'total' => $line['total'],
-                ]);
-                if ($cart) {
-                    $item = $cart->items()->where('product_id', $line['product']->id)
-                        ->where('product_variant_id', $variant->id)->lockForUpdate()->first();
-                    if ($item) {
-                        $item->quantity <= $line['quantity'] ? $item->delete()
-                            : $item->update(['quantity' => $item->quantity - $line['quantity']]);
-                    }
-                }
-            }
-            if ($request->payment_method === 'vnpay') {
-                $payments->start($order);
-            }
-
-            return $order;
-        });
-        if ($request->payment_method === 'cod') {
-            return response()->json([
-                'message' => 'Đặt hàng thành công (COD)', 'order_id' => $order->id, 'final_amount' => $order->final_amount,
-            ]);
+        if ($order->payment_status === 'paid' || $order->status === 'cancelled') {
+            return response()->json(['order_id' => $order->id, 'payment_url' => null, 'payment_status' => $order->payment_status]);
         }
 
         return response()->json(['payment_url' => $payments->url($order, $request->ip()), 'order_id' => $order->id]);

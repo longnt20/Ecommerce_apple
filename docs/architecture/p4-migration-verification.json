@@ -1,0 +1,33 @@
+{
+    "recorded_at":  "2026-10-29T07:49:02.4225945Z",
+    "rollouts":  [
+                     {
+                         "phase":  "p2-p3",
+                         "backup_bytes":  758239246,
+                         "backup_sha256":  "a98e886cf73022b3df5ace73cee3d7aaa57347a55816978ab04634b76859a00e",
+                         "restore_verified":  true,
+                         "clone_upgrade_verified":  true,
+                         "application_applied":  true,
+                         "business_fingerprints_preserved":  true,
+                         "migration_count":  53,
+                         "migration_sha256":  {
+                                                  "2026_10_29_000001_create_verified_payments.php":  "64bf464cf13df50559b2387ceb4b298698eacb994732c52895d30da218a81a99",
+                                                  "2026_10_29_000002_create_order_transitions.php":  "c348f4baea094a35936293a87990220ceb2ff1f14cce725e2b8789a5d58d4693"
+                                              }
+                     },
+                     {
+                         "phase":  "p4",
+                         "backup_bytes":  758243517,
+                         "backup_sha256":  "e60e55d59081cc80fde14bfcbe546ee8a9e33a9a447d71932aa28a9ec9f0d37c",
+                         "restore_verified":  true,
+                         "clone_upgrade_verified":  true,
+                         "application_applied":  true,
+                         "business_fingerprints_preserved":  true,
+                         "migration_count":  55,
+                         "migration_sha256":  {
+                                                  "2026_10_29_000003_create_inventory_protocol.php":  "f646b9c7265595095a37276b60fbb912c28680eeef52d5754b505dbfdd146561",
+                                                  "2026_10_29_000004_create_inventory_legacy_holds.php":  "c148d0da985f648427d572a184fa6f95a8fc6d2b10c30cd196aea3841d607909"
+                                              }
+                     }
+                 ]
+}

@@ -68,6 +68,7 @@ class CheckoutSecurityTest extends MySqlTestCase
         $this->postJson('/api/checkout', $payload)->assertOk();
         $this->assertDatabaseHas('cart_items', ['id' => 910001, 'quantity' => 4]);
         $payload['mode'] = 'cart';
+        $payload['idempotency_key'] = (string) \Illuminate\Support\Str::uuid();
         $this->postJson('/api/checkout', $payload)->assertOk();
         $this->assertDatabaseHas('cart_items', ['id' => 910001, 'quantity' => 3]);
     }

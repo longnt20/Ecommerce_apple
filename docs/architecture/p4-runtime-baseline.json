@@ -1,0 +1,474 @@
+{
+    "source": ".env-based native PDO read-only probe; cached Laravel config is not loaded",
+    "runtime": {
+        "version": "8.0.30",
+        "isolation_level": "REPEATABLE-READ",
+        "sql_mode": "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION",
+        "session_default_transaction_read_only": 0,
+        "requested_transaction_access_mode": "READ ONLY"
+    },
+    "tables": [
+        {
+            "TABLE_NAME": "attributes",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "banner_product",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "banners",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "cache",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "cache_locks",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "cart_items",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "carts",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "categories",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "coupon_uses",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "coupons",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "failed_jobs",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "frames",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_discrepancies",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_legacy_holds",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_operations",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_reservation_items",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_reservations",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "inventory_transactions",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "job_batches",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "jobs",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "migrations",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "order_items",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "order_transitions",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "orders",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "password_reset_tokens",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "payment_attempts",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "payment_events",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "personal_access_tokens",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "posts",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "product_attributes",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "product_specs",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "product_variants",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "products",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "promotion_items",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "promotions",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "review_experiences",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "review_media",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "reviews",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "sessions",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "taggables",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "tags",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "telescope_entries",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "telescope_entries_tags",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "telescope_monitoring",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "users",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "warehouses",
+            "ENGINE": "InnoDB"
+        },
+        {
+            "TABLE_NAME": "wishlists",
+            "ENGINE": "InnoDB"
+        }
+    ],
+    "migrations": [
+        {
+            "migration": "0001_01_01_000000_create_users_table",
+            "batch": 1
+        },
+        {
+            "migration": "0001_01_01_000001_create_cache_table",
+            "batch": 1
+        },
+        {
+            "migration": "0001_01_01_000002_create_jobs_table",
+            "batch": 1
+        },
+        {
+            "migration": "2025_08_09_053512_create_categories_table",
+            "batch": 2
+        },
+        {
+            "migration": "2025_08_11_153758_add_deleted_at_to_categories_table",
+            "batch": 3
+        },
+        {
+            "migration": "2025_08_14_065731_create_products_table",
+            "batch": 4
+        },
+        {
+            "migration": "2025_08_22_103459_create_product_specs_table",
+            "batch": 5
+        },
+        {
+            "migration": "2025_09_05_082511_add_deleted_at_to_products_table",
+            "batch": 6
+        },
+        {
+            "migration": "2025_09_08_091556_create_product_variants_table",
+            "batch": 7
+        },
+        {
+            "migration": "2025_09_08_091609_create_warehouses_table",
+            "batch": 7
+        },
+        {
+            "migration": "2025_09_08_091628_create_inventory_table",
+            "batch": 7
+        },
+        {
+            "migration": "2025_09_08_091648_create_inventory_transactions_table",
+            "batch": 7
+        },
+        {
+            "migration": "2025_09_11_142127_add_deleted_at_to_product_variants_table",
+            "batch": 8
+        },
+        {
+            "migration": "2025_09_14_020934_create_warehouses_table",
+            "batch": 9
+        },
+        {
+            "migration": "2025_09_14_020949_create_inventory_table",
+            "batch": 9
+        },
+        {
+            "migration": "2025_09_14_021000_create_inventory_transactions_table",
+            "batch": 9
+        },
+        {
+            "migration": "2025_09_19_023726_create_attributes_table",
+            "batch": 10
+        },
+        {
+            "migration": "2025_09_20_141645_create_product_attributes_table",
+            "batch": 11
+        },
+        {
+            "migration": "2025_09_21_133422_add_hex_code_to_product_attributes_table",
+            "batch": 12
+        },
+        {
+            "migration": "2025_10_06_091231_create_personal_access_tokens_table",
+            "batch": 13
+        },
+        {
+            "migration": "2025_10_06_133920_add_status_to_users_table",
+            "batch": 14
+        },
+        {
+            "migration": "2025_10_14_062753_create_telescope_entries_table",
+            "batch": 14
+        },
+        {
+            "migration": "2025_10_14_130003_create_promotions_table",
+            "batch": 15
+        },
+        {
+            "migration": "2025_10_14_130004_create_promotions_table",
+            "batch": 16
+        },
+        {
+            "migration": "2025_10_14_130155_create_promotion_items_table",
+            "batch": 17
+        },
+        {
+            "migration": "2025_10_14_130224_create_promotions_table",
+            "batch": 18
+        },
+        {
+            "migration": "2025_10_14_130355_create_promotion_items_table",
+            "batch": 18
+        },
+        {
+            "migration": "2025_10_14_130455_create_promotion_items_table",
+            "batch": 19
+        },
+        {
+            "migration": "2025_10_16_121521_add_is_featured_to_promotions_table",
+            "batch": 20
+        },
+        {
+            "migration": "2025_10_22_131904_create_banners_table",
+            "batch": 21
+        },
+        {
+            "migration": "2025_10_29_134432_create_posts_table",
+            "batch": 22
+        },
+        {
+            "migration": "2025_10_29_135130_create_tags_table",
+            "batch": 22
+        },
+        {
+            "migration": "2025_10_29_135150_create_taggables_table",
+            "batch": 22
+        },
+        {
+            "migration": "2019_02_08_105647_create_blocks_contents_tables",
+            "batch": 23
+        },
+        {
+            "migration": "2021_11_12_153947_remove_blocks_contents_tables",
+            "batch": 23
+        },
+        {
+            "migration": "2025_11_26_152747_create_reviews_table",
+            "batch": 24
+        },
+        {
+            "migration": "2025_11_26_152829_create_review_media_table",
+            "batch": 24
+        },
+        {
+            "migration": "2025_11_26_152846_create_review_experiences_table",
+            "batch": 24
+        },
+        {
+            "migration": "2025_11_28_054851_create_carts_table",
+            "batch": 25
+        },
+        {
+            "migration": "2025_11_28_055044_create_cart_items_table",
+            "batch": 25
+        },
+        {
+            "migration": "2025_11_28_060333_create_orders_table",
+            "batch": 26
+        },
+        {
+            "migration": "2025_11_28_060458_create_order_items_table",
+            "batch": 26
+        },
+        {
+            "migration": "2025_12_16_080451_add_warehouse_id_to_orders_table",
+            "batch": 27
+        },
+        {
+            "migration": "2025_12_18_103447_create_frames_table",
+            "batch": 28
+        },
+        {
+            "migration": "2025_12_18_111854_add_frame_id_to_promotions_table",
+            "batch": 29
+        },
+        {
+            "migration": "2026_01_05_111942_create_banner_product_table",
+            "batch": 30
+        },
+        {
+            "migration": "2026_01_19_143907_create_wishlists_table",
+            "batch": 31
+        },
+        {
+            "migration": "2026_01_20_124628_create_coupons_table",
+            "batch": 32
+        },
+        {
+            "migration": "2026_01_20_124638_create_coupon_uses_table",
+            "batch": 32
+        },
+        {
+            "migration": "2026_01_20_134957_add_max_usage_to_coupons_table",
+            "batch": 33
+        },
+        {
+            "migration": "2026_10_28_000001_reconcile_application_schema",
+            "batch": 34
+        },
+        {
+            "migration": "2026_10_29_000001_create_verified_payments",
+            "batch": 35
+        },
+        {
+            "migration": "2026_10_29_000002_create_order_transitions",
+            "batch": 36
+        },
+        {
+            "migration": "2026_10_29_000003_create_inventory_protocol",
+            "batch": 37
+        },
+        {
+            "migration": "2026_10_29_000004_create_inventory_legacy_holds",
+            "batch": 38
+        }
+    ],
+    "selected_schema_columns": [
+        {
+            "TABLE_NAME": "inventory_transactions",
+            "COLUMN_NAME": "type",
+            "COLUMN_TYPE": "enum('import','export','transfer','adjust','return','damage','reserve','commit','release','inventory')",
+            "IS_NULLABLE": "NO",
+            "COLUMN_DEFAULT": null
+        },
+        {
+            "TABLE_NAME": "product_variants",
+            "COLUMN_NAME": "thumbnail",
+            "COLUMN_TYPE": "varchar(255)",
+            "IS_NULLABLE": "YES",
+            "COLUMN_DEFAULT": null
+        },
+        {
+            "TABLE_NAME": "users",
+            "COLUMN_NAME": "role",
+            "COLUMN_TYPE": "enum('admin','user')",
+            "IS_NULLABLE": "NO",
+            "COLUMN_DEFAULT": "user"
+        },
+        {
+            "TABLE_NAME": "users",
+            "COLUMN_NAME": "code",
+            "COLUMN_TYPE": "varchar(255)",
+            "IS_NULLABLE": "NO",
+            "COLUMN_DEFAULT": null
+        },
+        {
+            "TABLE_NAME": "users",
+            "COLUMN_NAME": "status",
+            "COLUMN_TYPE": "enum('active','inactive','blocked')",
+            "IS_NULLABLE": "NO",
+            "COLUMN_DEFAULT": "active"
+        }
+    ],
+    "row_counts": {
+        "inventory": 184,
+        "inventory_transactions": 259,
+        "orders": 52,
+        "order_items": 56
+    },
+    "identity_health": {
+        "empty_user_codes": 0,
+        "duplicate_nonempty_code_groups": 0,
+        "unique_code_indexes": 1
+    }
+}

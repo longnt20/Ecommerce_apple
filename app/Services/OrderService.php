@@ -6,7 +6,6 @@ use App\Exceptions\OrderTransitionConflict;
 use App\Models\Order;
 use App\Models\OrderTransition;
 use App\Models\User;
-use App\Services\Ordering\OrderAllocationGuard;
 use App\Services\Ordering\OrderTransitionPolicy;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -14,9 +13,8 @@ use Illuminate\Support\Facades\Schema;
 class OrderService
 {
     public function __construct(
-        private InventoryService $inventoryService,
         private OrderTransitionPolicy $policy,
-        private OrderAllocationGuard $allocation,
+        private \App\Services\Inventory\ReservationManager $reservations,
     ) {}
 
     public function changeStatus(Order $order, string $newStatus, int $actorId, ?string $operationKey = null, ?string $reason = null, ?string $requestId = null): OrderTransition
@@ -55,13 +53,10 @@ class OrderService
                 'from_status' => $locked->status, 'to_status' => $newStatus,
                 'reason' => $reason, 'request_id' => $requestId, 'created_at' => now(),
             ]);
-            $allocation = $this->allocation->lock($locked);
-            foreach ($allocation as $variant => $quantity) {
-                if ($newStatus === 'shipping') {
-                    $this->inventoryService->commitOrder($locked->warehouse_id, $variant, $quantity, $locked->id, $transition);
-                } elseif ($newStatus === 'cancelled') {
-                    $this->inventoryService->releaseOrder($locked->warehouse_id, $variant, $quantity, $locked->id, $transition);
-                }
+            try {
+                $this->reservations->transition($locked, $transition, $newStatus);
+            } catch (\App\Exceptions\InventoryConflict $exception) {
+                throw new OrderTransitionConflict($exception->reasonCode, $exception->getMessage());
             }
             $changes = ['status' => $newStatus];
             if ($newStatus === 'cancelled') {

@@ -1,5 +1,7 @@
 # P2 — Bảo vệ giá, thanh toán và quyền
 
+**Review/rollout mới nhất 2026-10-29:** chủ dự án đã yêu cầu áp dụng migration và triển khai P4. Payment attempts/events đã migrate DB ứng dụng sau full backup/restore/rehearsal; regression giá/quyền/verified callback vẫn chạy trên sandbox. Đã bỏ config key khai báo trùng trong vnpay/services. Checkout thêm idempotency contract theo P4, xem [contract](../architecture/p4-inventory-contract.md), [P4_STATUS](P4_STATUS.md). **VNPay merchant-specific IPN công khai và Google thật vẫn chưa xác minh; VNPAY_ENABLED=false.** Vì vậy không đóng phần nghiệm thu provider end-to-end. Các trạng thái “chưa rollout/chờ phê duyệt” dưới đây là lịch sử.
+
 Ngày: 2026-10-29. **Code P2 và kiểm chứng tự động đã xong; chờ review contract và phê duyệt rollout. Chưa đóng P2 ở môi trường ứng dụng. Dừng trước P3/P4.**
 
 ## Phân tích và thay đổi

@@ -57,6 +57,7 @@ final class TestApplication
                 'queue.default' => 'sync',
                 'logging.default' => 'null',
                 'telescope.enabled' => false,
+                'inventory.enabled' => true,
             ]);
         });
 

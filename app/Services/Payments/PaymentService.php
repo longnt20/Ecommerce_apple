@@ -2,11 +2,13 @@
 
 namespace App\Services\Payments;
 
+use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\PaymentAttempt;
 use App\Services\Pricing\Vnd;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class PaymentService
@@ -17,11 +19,13 @@ class PaymentService
     {
         $this->gateway->assertConfigured();
 
+        $deadline = Schema::hasTable('inventory_reservations') ? InventoryReservation::where('order_id', $order->id)->first()?->expires_at : null;
+
         return PaymentAttempt::create([
             'order_id' => $order->id, 'reference' => (string) Str::ulid(),
             'merchant' => config('vnpay.vnp_tmn_code'),
             'amount_vnd' => Vnd::amount((string) $order->final_amount),
-            'currency' => 'VND', 'expires_at' => now()->addMinutes(15),
+            'currency' => 'VND', 'expires_at' => $deadline ?? now()->addMinutes(15),
         ]);
     }
 
@@ -82,8 +86,11 @@ class PaymentService
                 }
                 $success = $query['vnp_ResponseCode'] === '00' && $query['vnp_TransactionStatus'] === '00';
                 $outcome = $success ? 'paid' : 'failed';
+                $reservation = Schema::hasTable('inventory_reservations')
+                    ? InventoryReservation::where('order_id', $order->id)->lockForUpdate()->first() : null;
                 // No stock effects or automatic acceptance of late/cancelled payments.
-                if ($success && ($order->status === 'cancelled' || $attempt->expires_at->isPast())) {
+                if ($success && ($order->status === 'cancelled' || $attempt->expires_at->isPast()
+                    || ($reservation && (! in_array($reservation->status, ['active', 'committed'], true) || $reservation->expires_at?->isPast())))) {
                     $outcome = 'reconciliation_required';
                 }
                 $attempt->update(['status' => $outcome, 'provider_transaction' => $success ? $query['vnp_TransactionNo'] : null]);
@@ -94,6 +101,7 @@ class PaymentService
                 ]);
                 if ($outcome === 'paid') {
                     $order->update(['payment_status' => 'paid', 'transaction_id' => $query['vnp_TransactionNo'], 'paid_at' => now()]);
+                    $reservation?->update(['expires_at' => null]);
                 }
 
                 return $this->ack('00');

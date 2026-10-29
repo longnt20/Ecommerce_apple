@@ -22,6 +22,7 @@
 
     <form id="transferForm" action="{{ route('admin.inventory.transfer.store') }}" method="POST">
         @csrf
+    <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) \Illuminate\Support\Str::uuid()) }}">
         <div class="row">
             <!-- Transfer Info -->
             <div class="col-lg-12">

@@ -14,6 +14,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'idempotency_key' => 'required|uuid',
             'payment_method' => 'required|in:cod,vnpay',
             'mode' => 'sometimes|in:cart,buy-now',
             'items' => 'required|array|min:1|max:100',
@@ -30,5 +31,15 @@ class CheckoutRequest extends FormRequest
             'province' => 'required|string|max:255',
             'note' => 'nullable|string|max:500',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->header('Idempotency-Key') !== null) {
+            if ($this->has('idempotency_key') && $this->input('idempotency_key') !== $this->header('Idempotency-Key')) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['idempotency_key' => 'Header và body operation key không khớp.']);
+            }
+            $this->merge(['idempotency_key' => $this->header('Idempotency-Key')]);
+        }
     }
 }

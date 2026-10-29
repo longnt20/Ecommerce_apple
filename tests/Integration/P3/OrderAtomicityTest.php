@@ -33,10 +33,11 @@ class OrderAtomicityTest extends TestCase
             'vnpay.enabled' => true, 'vnpay.vnp_tmn_code' => 'P3MERCHANT', 'vnpay.vnp_hash_secret' => 'synthetic-p3-secret',
             'vnpay.vnp_url' => 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html', 'vnpay.vnp_return_url' => 'http://localhost/api/vnpay/return']);
         DB::setDefaultConnection('p3_atomic');
-        foreach (['2026_10_28_000001_reconcile_application_schema.php', '2026_10_29_000001_create_verified_payments.php', '2026_10_29_000002_create_order_transitions.php'] as $migration) {
+        foreach (['2026_10_28_000001_reconcile_application_schema.php', '2026_10_29_000001_create_verified_payments.php', '2026_10_29_000002_create_order_transitions.php', '2026_10_29_000003_create_inventory_protocol.php', '2026_10_29_000004_create_inventory_legacy_holds.php'] as $migration) {
             (require database_path('migrations/'.$migration))->up();
         }
         $this->order = P3Fixture::seed();
+        app(\App\Services\Inventory\LegacyReservationBackfill::class)->run(true);
     }
 
     protected function tearDown(): void
@@ -212,6 +213,7 @@ class OrderAtomicityTest extends TestCase
         DB::table('inventory_transactions')->insert(['transaction_code' => 'P3-OTHER-RESERVE', 'warehouse_id' => 1, 'product_variant_id' => 910001,
             'type' => 'reserve', 'quantity' => 1, 'before_quantity' => 5, 'after_quantity' => 5, 'reference_type' => 'order', 'reference_id' => $other->id]);
         DB::table('inventory')->where('id', 910001)->update(['reserved_quantity' => 2, 'available_quantity' => 3]);
+        app(\App\Services\Inventory\LegacyReservationBackfill::class)->run(true);
         app(OrderService::class)->changeStatus($this->order, 'confirmed', 910002, 'confirm-order-one');
         app(OrderService::class)->changeStatus($other, 'confirmed', 910002, 'confirm-order-two');
         $results = $this->runWorkers([['action' => 'shipping', 'operation' => 'ship-order-one'], ['action' => 'shipping', 'operation' => 'ship-order-two', 'order_id' => $other->id]]);

@@ -13,7 +13,7 @@ class InventoryTransaction extends Model
         'quantity', 'before_quantity', 'after_quantity',
         'reference_type', 'reference_id', 'reference_code',
         'unit_cost', 'total_cost', 'reason', 'notes', 'meta_data',
-        'created_by', 'approved_by', 'approved_at', 'status',
+        'created_by', 'approved_by', 'approved_at', 'status', 'operation_id', 'operation_line',
     ];
 
     protected $casts = [
@@ -32,7 +32,7 @@ class InventoryTransaction extends Model
             if (blank($transaction->transaction_code)) {
                 $transaction->transaction_code = self::generateTransactionCode();
             }
-            if ($transaction->created_by === null) {
+            if (! array_key_exists('created_by', $transaction->getAttributes())) {
                 $transaction->created_by = auth()->id();
             }
         });
@@ -44,7 +44,8 @@ class InventoryTransaction extends Model
         $prefix = 'INV';
         $date = now()->format('Ymd');
         // P3 uses opaque unique codes; they must not reset the legacy numeric sequence.
-        $lastTransaction = self::whereDate('created_at', now())->where('transaction_code', 'not like', 'INV-P3-%')->latest()->first();
+        $lastTransaction = self::whereDate('created_at', now())->where('transaction_code', 'not like', 'INV-P3-%')
+            ->where('transaction_code', 'not like', 'INV-OP-%')->latest()->first();
 
         if ($lastTransaction) {
             $lastNumber = intval(substr($lastTransaction->transaction_code, -4));

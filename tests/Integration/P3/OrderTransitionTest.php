@@ -27,6 +27,8 @@ class OrderTransitionTest extends MySqlTestCase
 
     private function change(string $to, ?string $key = null, ?string $reason = null): OrderTransition
     {
+        app(\App\Services\Inventory\LegacyReservationBackfill::class)->run(true);
+
         return app(OrderService::class)->changeStatus($this->order, $to, 910002, $key, $reason);
     }
 
@@ -40,7 +42,7 @@ class OrderTransitionTest extends MySqlTestCase
         $this->assertDatabaseHas('inventory_transactions', ['reference_id' => $this->order->id, 'type' => 'commit', 'quantity' => -1, 'created_by' => 910002]);
         $movement = DB::table('inventory_transactions')->where('type', 'commit')->first();
         $this->assertSame($shipped->id, json_decode($movement->meta_data, true)['order_transition_id']);
-        $this->assertStringStartsWith('INV-P3-', $movement->transaction_code);
+        $this->assertStringStartsWith('INV-OP-', $movement->transaction_code);
         $this->change('completed', 'complete-one');
         $this->assertSame('completed', $this->order->status);
         $this->assertNotNull($this->order->delivered_at);
@@ -158,6 +160,7 @@ class OrderTransitionTest extends MySqlTestCase
 
     public function test_http_uses_same_policy_preserves_success_redirect_and_returns_json_conflict(): void
     {
+        app(\App\Services\Inventory\LegacyReservationBackfill::class)->run(true);
         $this->actingAs(User::findOrFail(910002));
         $path = '/admin/orders/'.$this->order->id;
         $this->patch($path, ['status' => 'confirmed', 'operation_key' => 'http-confirm'])->assertRedirect();

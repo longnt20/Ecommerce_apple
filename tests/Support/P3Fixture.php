@@ -40,5 +40,10 @@ class P3Fixture
         DB::table('inventory_transactions')->insert(['id' => 910002, 'transaction_code' => 'P3-SECOND-RESERVE', 'warehouse_id' => 1, 'product_variant_id' => 910002,
             'type' => 'reserve', 'quantity' => 1, 'before_quantity' => 5, 'after_quantity' => 5, 'reference_type' => 'order', 'reference_id' => 910001]);
         DB::table('orders')->where('id', 910001)->update(['total_price' => 50000000, 'final_amount' => 50000000]);
+        $reservation = \App\Models\InventoryReservation::where('order_id', 910001)->first();
+        if ($reservation) {
+            $reservation->items()->create(['order_item_id' => 910002, 'warehouse_id' => 1, 'product_variant_id' => 910002,
+                'quantity' => 1, 'status' => 'active']);
+        }
     }
 }

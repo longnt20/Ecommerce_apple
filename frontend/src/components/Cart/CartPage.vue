@@ -63,7 +63,7 @@
           <span>{{ formatPrice(cart.totalPrice) }}</span>
         </div>
 
-        <router-link to="/checkout?mode=cart">
+        <router-link to="/checkout?mode=cart" @click="beginCheckoutIntent()">
           <button class="checkout-btn">Tiến hành thanh toán</button>
         </router-link>
       </div>
@@ -73,6 +73,7 @@
 </template>
 
 <script setup>
+import { beginCheckoutIntent } from "@/services/checkoutCommand";
 import { onMounted } from "vue"
 import { useCartStore } from "@/stores/cart"
 import { Trash2 } from "lucide-vue-next"

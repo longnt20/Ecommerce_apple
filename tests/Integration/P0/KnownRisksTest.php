@@ -25,15 +25,15 @@ class KnownRisksTest extends MySqlTestCase
         $this->assertDatabaseHas('orders', ['id' => 910001, 'payment_status' => 'unpaid']);
     }
 
-    public function test_c3_checkout_reservation_can_differ_from_the_order_warehouse(): void
+    public function test_c3_checkout_reservation_matches_the_selected_warehouse(): void
     {
         $this->seedCommerce();
         DB::table('inventory')->where('id', 910001)->delete();
         $this->actingAs(User::findOrFail(910001), 'sanctum');
         $response = $this->postJson('/api/checkout', $this->checkoutPayload())->assertOk();
-        $this->assertDatabaseHas('orders', ['id' => $response->json('order_id'), 'warehouse_id' => 1]);
+        $this->assertDatabaseHas('orders', ['id' => $response->json('order_id'), 'warehouse_id' => 2]);
         $this->assertDatabaseHas('inventory_transactions', ['reference_id' => $response->json('order_id'), 'type' => 'reserve', 'warehouse_id' => 2]);
-        $this->markTestIncomplete('C3 reproduced; owner P4: order warehouse differs from reserved warehouse. This is not a consistency pass.');
+        $this->assertDatabaseHas('inventory_reservations', ['order_id' => $response->json('order_id'), 'status' => 'active']);
     }
 
     public function test_h2_another_users_cart_item_cannot_be_updated(): void

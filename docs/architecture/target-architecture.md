@@ -1,5 +1,7 @@
 # Kiến trúc mục tiêu: Modular Monolith trên Laravel
 
+**Tiến độ P4 — 2026-10-29:** đã triển khai PlaceOrder, ReservationManager, StockStore/StockWriter, IdempotentOperation, LegacyReservationBackfill, ExpireReservations và ReconcileInventory trong cấu trúc Laravel hiện tại. MySQL là Unit of Work chung; warehouse locks bảo vệ stock/missing-row creation, operation unique chống lặp. Chốt một kho active/toàn đơn, online 15 phút, COD không hết hạn và cách ly legacy mơ hồ. Schema/metadata đã rollout DB ứng dụng; [P4 contract](p4-inventory-contract.md), [P4_STATUS](../roadmap/P4_STATUS.md). Dependency/module organization bên dưới vẫn là mục tiêu P5, chưa được tự động triển khai. Các trạng thái triển khai cũ phía dưới là lịch sử.
+
 **Tiến độ P3 — 2026-10-29:** OrderTransitionPolicy/OrderService và history/operation đã có trong cấu trúc Laravel hiện tại, khóa order trước operation và inventory; không dùng snapshot stale. Guard proof không thay thế allocation/reservation P4. [P3_STATUS](../roadmap/P3_STATUS.md), [contract](p3-order-transitions.md); DB ứng dụng/legacy remediation chưa rollout. Dependency rules/module namespace dưới đây vẫn là mục tiêu P5.
 
 **Tiến độ 2026-10-29:** đã triển khai lát cắt hardening P2 trong cấu trúc Laravel hiện có; xem [P2 status](../roadmap/P2_STATUS.md). Chưa chuyển namespace modules hoặc áp dụng toàn bộ dependency rules bên dưới. PaymentService còn phụ thuộc Order model là ngoại lệ tạm tới P5; rollout payment schema/merchant chưa được thực hiện trên DB ứng dụng.

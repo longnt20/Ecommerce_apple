@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Inventory extends Model
 {
     protected $table = 'inventory';
-    
+
     protected $fillable = [
         'warehouse_id', 'product_variant_id',
         'quantity', 'available_quantity', 'reserved_quantity', 'incoming_quantity',
         'min_stock_level', 'max_stock_level', 'reorder_point', 'reorder_quantity',
         'location', 'bin_code',
-        'last_counted_at', 'last_received_at', 'last_shipped_at'
+        'last_counted_at', 'last_received_at', 'last_shipped_at',
     ];
 
     protected $casts = [
@@ -37,30 +37,17 @@ class Inventory extends Model
     // Methods
     public function updateQuantity($quantity, $type = 'adjust')
     {
-        $this->quantity += $quantity;
-        $this->available_quantity = $this->quantity - $this->reserved_quantity;
-        $this->save();
-        
-        return $this;
+        throw new \LogicException('Use InventoryService: stock changes require locks, an actor and an operation identity.');
     }
 
     public function reserve($quantity)
     {
-        if ($this->available_quantity >= $quantity) {
-            $this->reserved_quantity += $quantity;
-            $this->available_quantity -= $quantity;
-            $this->save();
-            return true;
-        }
-        return false;
+        throw new \LogicException('Use PlaceOrder and reservation identity.');
     }
 
     public function release($quantity)
     {
-        $this->reserved_quantity -= $quantity;
-        $this->available_quantity += $quantity;
-        $this->save();
-        return $this;
+        throw new \LogicException('Use OrderService or reservation expiry.');
     }
 
     // Checks

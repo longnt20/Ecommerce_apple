@@ -25,6 +25,7 @@
     </div>
 </template>
 <script setup>
+import { beginCheckoutIntent } from "@/services/checkoutCommand";
 import { ref } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { useBuyNowStore } from '@/stores/buynow';
@@ -88,6 +89,7 @@ const buyNowAction = () => {
     quantity: quantity.value,
   });
 
+  beginCheckoutIntent();
   router.push("/checkout?mode=buy-now");
 };
 
