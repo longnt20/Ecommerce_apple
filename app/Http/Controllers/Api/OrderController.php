@@ -35,7 +35,7 @@ class OrderController extends Controller
         }
 
         return response()->json([
-            'data' => $query->paginate(10)
+            'data' => $query->paginate(10),
         ]);
     }
 
@@ -46,13 +46,17 @@ class OrderController extends Controller
     {
         $order = Order::with([
             'items.product',
-            'items.variant'
+            'items.variant',
         ])
             ->where('user_id', $request->user()->id)
             ->findOrFail($id);
 
+        foreach ($order->items as $item) {
+            $item->variant?->makeHidden('cost_price');
+        }
+
         return response()->json([
-            'data' => $order
+            'data' => $order,
         ]);
     }
 }

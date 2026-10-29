@@ -1,5 +1,13 @@
 # Architecture Decision Records
 
+## ADR-014 — Implementation P2 (2026-10-29)
+
+- Đã triển khai giá bán từ SKU, VND nguyên/giới hạn theo orders schema, FormRequest, CartItemPolicy, active gate và login throttle. Không sửa tiền/giá vốn lịch sử hoặc thêm pricing rules chưa có.
+- VNPay qua PaymentGateway/VnPayGateway và PaymentService; attempts/events additive, browser return không ghi tiền, IPN transaction + locks + unique dedup. Online tắt mặc định tới khi review schema/merchant. Chi tiết: [P2 contracts](p2-http-contracts.md), [P2 status](../roadmap/P2_STATUS.md).
+- OAuth state/handoff một lần gắn browser proof; giữ password, không auto-link local account chưa verified. Provider-subject identities/authenticated linking chưa triển khai.
+- Ngoại lệ tạm thời: PaymentService import Order model để giữ một local transaction. Module boundaries/ports đầy đủ sẽ xử lý khi P5 được duyệt, không kéo refactor đó vào P2.
+- Hardening trên đã có code/test. Rollout DB ứng dụng, contract review và merchant end-to-end còn chờ xác nhận; không supersede phạm vi P3/P4 hoặc đánh dấu inventory an toàn.
+
 Ngày lập: 2026-10-28. ADR-001–012 là đề xuất trừ phần quyết định nghiệp vụ hoặc triển khai được ghi rõ. ADR-013 ghi nhận lựa chọn đã áp dụng trong P1 theo chỉ đạo tiếp theo của chủ dự án. Việc tạo tài liệu đơn thuần không cho phép refactor, migration hoặc thay đổi API.
 
 Mỗi quyết định được chốt bằng ngày, người phê duyệt, phạm vi và liên kết PR khi triển khai. Nếu thay đổi quyết định đã chốt, thêm ADR superseding thay vì xóa lịch sử.

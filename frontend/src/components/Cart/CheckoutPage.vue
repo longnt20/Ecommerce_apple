@@ -117,6 +117,7 @@
           <strong>{{ format(subtotal) }}đ</strong>
         </div>
 
+        <p class="text-muted">Giá giỏ hàng là tạm tính. Đơn hàng áp dụng giá bán hiện tại của cửa hàng khi đặt.</p>
         <button class="btn-checkout" @click="submitCheckout" :disabled="loading">
           {{ loading ? 'Đang xử lý...' : 'Đặt hàng' }}
         </button>
@@ -301,6 +302,7 @@ const submitCheckout = async () => {
     shipping.value.district_name = districts.value.find(d => d.code == shipping.value.district_id)?.name;
     shipping.value.province_name = provinces.value.find(p => p.code == shipping.value.province_id)?.name;
     const payload = {
+      mode: new URLSearchParams(window.location.search).get('mode') === 'buy-now' ? 'buy-now' : 'cart',
       payment_method: paymentMethod.value,
       items: cart.value.items.map(item => ({
         product_id: item.product.id,
@@ -323,7 +325,7 @@ const submitCheckout = async () => {
     if (paymentMethod.value === "vnpay") {
       window.location.href = res.data.payment_url;
     } else {
-      window.location.href = `/payment-success?order_id=${res.data.order_id}&amount=${res.data.final_amount}&method=COD`;
+      window.location.href = `/payment-success?order_id=${res.data.order_id}`;
     }
 
   } catch (err) {

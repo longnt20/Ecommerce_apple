@@ -15,7 +15,7 @@ class WishlistController extends Controller
             ->wishlists()
             ->with([
                 'product:id,name,slug',
-                'variant:id,price,cost_price,thumbnail,storage,product_id'
+                'variant:id,price,thumbnail,storage,product_id',
             ])
             ->get()
             ->map(function ($item) {
@@ -23,20 +23,18 @@ class WishlistController extends Controller
                     'id' => $item->id,
 
                     'product' => [
-                        'name_product' =>
-                        $item->product->name . ' ' . $item->variant->storage,
+                        'name_product' => $item->product->name.' '.$item->variant->storage,
                         'slug' => $item->product->slug,
                     ],
 
                     'variant' => [
                         'price' => $item->variant->price,
-                        'cost_price' => $item->variant->cost_price,
+                        'final_price' => $item->variant->price,
                         'thumbnail_url' => $item->variant->thumbnail_url,
                     ],
                 ];
             });
     }
-
 
     // Thêm / Bỏ yêu thích (toggle)
     public function toggle(Request $request)
@@ -52,6 +50,7 @@ class WishlistController extends Controller
 
         if ($wishlist) {
             $wishlist->delete();
+
             return response()->json(['status' => 'removed']);
         }
 
@@ -63,6 +62,7 @@ class WishlistController extends Controller
 
         return response()->json(['status' => 'added']);
     }
+
     public function destroy($id)
     {
         $wishlist = auth()->user()
@@ -73,7 +73,7 @@ class WishlistController extends Controller
         $wishlist->delete();
 
         return response()->json([
-            'message' => 'Deleted'
+            'message' => 'Deleted',
         ]);
     }
 }

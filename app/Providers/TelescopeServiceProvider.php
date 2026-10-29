@@ -21,6 +21,11 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         $isLocal = $this->app->environment('local');
 
         Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
+            // Sensitive flows include token-bearing responses and SQL/model events.
+            if (request()->is('login', 'api/login', 'api/register', 'api/auth/*', 'api/vnpay/*', 'vnpay/*', 'api/checkout')) {
+                return false;
+            }
+
             return $isLocal ||
                    $entry->isReportableException() ||
                    $entry->isFailedRequest() ||
@@ -35,14 +40,11 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     protected function hideSensitiveRequestDetails(): void
     {
-        if ($this->app->environment('local')) {
-            return;
-        }
-
-        Telescope::hideRequestParameters(['_token']);
+        Telescope::hideRequestParameters(['_token', 'password', 'password_confirmation', 'token', 'code', 'code_verifier', 'state']);
 
         Telescope::hideRequestHeaders([
             'cookie',
+            'authorization',
             'x-csrf-token',
             'x-xsrf-token',
         ]);

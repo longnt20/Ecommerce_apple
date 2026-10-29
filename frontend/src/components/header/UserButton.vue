@@ -113,7 +113,7 @@
               </div>
 
               <div class="social-login">
-                <a class="social-btn google" href="http://127.0.0.1:8000/api/auth/google/redirect">
+                <a class="social-btn google" href="#" @click.prevent="startGoogleLogin">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" />
                   <span>Đăng nhập với Google</span>
                 </a>
@@ -214,6 +214,7 @@
 </template>
 
 <script setup>
+import { startGoogleLogin } from '@/services/googleAuth'
 import { 
   UserCircle2, X, Mail, Lock, Eye, EyeOff, User, Loader2 
 } from 'lucide-vue-next'

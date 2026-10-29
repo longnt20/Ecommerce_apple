@@ -1,5 +1,7 @@
 # Kiến trúc mục tiêu: Modular Monolith trên Laravel
 
+**Tiến độ 2026-10-29:** đã triển khai lát cắt hardening P2 trong cấu trúc Laravel hiện có; xem [P2 status](../roadmap/P2_STATUS.md). Chưa chuyển namespace modules hoặc áp dụng toàn bộ dependency rules bên dưới. PaymentService còn phụ thuộc Order model là ngoại lệ tạm tới P5; rollout payment schema/merchant chưa được thực hiện trên DB ứng dụng.
+
 Ngày lập: 2026-10-28. **Đề xuất, chưa được phê duyệt triển khai.** Tên class/bảng mới dưới đây là dự kiến; không phải chức năng đã tồn tại.
 
 Đầu vào bổ sung: [phân tích laravel.sql](database-export-analysis.md). Schema export có MySQL 8.0.30/InnoDB, role/blocked/thumbnail/commit; P1 cần khôi phục khả năng tái tạo schema này thay vì thêm mù các cột đã tồn tại. P4 phải xử lý rõ 20 đơn không pending còn net reserve; snapshot không quan sát lệch kho vì toàn bộ orders đang dùng kho 1.

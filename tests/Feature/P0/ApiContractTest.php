@@ -30,6 +30,8 @@ class ApiContractTest extends TestCase
 
     public function test_authenticated_empty_checkout_returns_validation_errors_without_database_access(): void
     {
+        // This contract isolates FormRequest; account state is covered against MySQL in P2.
+        $this->withoutMiddleware(\App\Http\Middleware\ActiveAccount::class);
         $user = new User;
         $user->forceFill(['id' => 910001, 'name' => 'P0 synthetic user', 'role' => 'user', 'status' => 'active']);
         $this->actingAs($user, 'sanctum')->postJson('/api/checkout', [])

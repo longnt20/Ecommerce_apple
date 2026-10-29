@@ -22,6 +22,7 @@ class OrderController extends Controller
             'orders_cancelled' => Order::where('status', 'cancelled')->count(),
         ]);
     }
+
     public function show(Order $order)
     {
         $normalFlow = ['pending', 'confirmed', 'shipping', 'completed'];
@@ -36,32 +37,32 @@ class OrderController extends Controller
             $activeSteps = array_slice($normalFlow, 0, $currentIndex + 1);
         }
         $allowedTransitions = [
-            'pending'   => ['confirmed', 'cancelled'],
+            'pending' => ['confirmed', 'cancelled'],
             'confirmed' => ['shipping'],
-            'shipping'  => ['completed'],
+            'shipping' => ['completed'],
         ];
 
         $nextStatuses = $allowedTransitions[$order->status] ?? [];
 
         return view('admin.orders.show', compact('order', 'activeSteps', 'nextStatuses'));
     }
+
     public function updateStatus(Request $request, Order $order, OrderService $orderService)
     {
         try {
-            // dd('HIT', $order->id, $request->all());
             $request->validate([
                 'status' => 'required|in:confirmed,shipping,completed,cancelled',
             ]);
 
             $allowedTransitions = [
-                'pending'   => ['confirmed', 'cancelled'],
+                'pending' => ['confirmed', 'cancelled'],
                 'confirmed' => ['shipping'],
-                'shipping'  => ['completed'],
+                'shipping' => ['completed'],
             ];
 
             abort_if(
-                !isset($allowedTransitions[$order->status]) ||
-                    !in_array($request->status, $allowedTransitions[$order->status]),
+                ! isset($allowedTransitions[$order->status]) ||
+                    ! in_array($request->status, $allowedTransitions[$order->status]),
                 403
             );
 
@@ -72,7 +73,12 @@ class OrderController extends Controller
                 ->to(url()->previous() ?: route('admin.orders.index'))
                 ->with('success', 'Cập nhật trạng thái thành công');
         } catch (\Throwable $e) {
-            dd($e->getMessage(), $e->getTraceAsString());
+            if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                throw $e;
+            }
+            report($e);
+
+            return back()->with('error', 'Không thể cập nhật đơn. Mã tra cứu: '.$request->attributes->get('request_id'));
         }
     }
 }
