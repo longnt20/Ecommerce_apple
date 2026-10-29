@@ -5,35 +5,35 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
 use App\Models\Order;
-use App\Models\PaymentAttempt;
-use App\Services\Payments\PaymentGateway;
-use App\Services\Payments\PaymentService;
+use App\Modules\Ordering\Contracts\Checkout;
+use App\Modules\Ordering\Contracts\PaymentWorkflow;
+use App\Modules\Payments\Contracts\PaymentLedger;
+use App\SharedKernel\ActorContext;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 
 class CheckoutController extends Controller
 {
-    public function process(CheckoutRequest $request, \App\Services\Ordering\PlaceOrder $placeOrder, PaymentService $payments)
+    public function process(CheckoutRequest $request, Checkout $placeOrder, PaymentLedger $payments)
     {
-        $order = $placeOrder->place($request->validated(), $request->user()->id);
-        if (strtolower($order->payment_method) === 'cod') {
-            return response()->json(['message' => 'Đặt hàng thành công (COD)', 'order_id' => $order->id, 'final_amount' => (int) $order->final_amount]);
+        $order = $placeOrder->place($request->validated(), new ActorContext($request->user()->id));
+        if (strtolower($order->paymentMethod) === 'cod') {
+            return response()->json(['message' => 'Đặt hàng thành công (COD)', 'order_id' => $order->id, 'final_amount' => (int) $order->amount]);
         }
-        if ($order->payment_status === 'paid' || $order->status === 'cancelled') {
-            return response()->json(['order_id' => $order->id, 'payment_url' => null, 'payment_status' => $order->payment_status]);
+        if ($order->paymentStatus === 'paid' || $order->status === 'cancelled') {
+            return response()->json(['order_id' => $order->id, 'payment_url' => null, 'payment_status' => $order->paymentStatus]);
         }
 
-        return response()->json(['payment_url' => $payments->url($order, $request->ip()), 'order_id' => $order->id]);
+        return response()->json(['payment_url' => $payments->url($order->payment(), $request->ip()), 'order_id' => $order->id]);
     }
 
-    public function retry(Request $request, int $order, PaymentService $payments)
+    public function retry(Request $request, int $order, PaymentWorkflow $payments)
     {
         $owned = Order::where('user_id', $request->user()->id)->findOrFail($order);
 
-        return response()->json(['payment_url' => $payments->url($owned, $request->ip()), 'order_id' => $owned->id]);
+        return response()->json(['payment_url' => $payments->url($owned->id, $request->ip()), 'order_id' => $owned->id]);
     }
 
-    public function ipn(Request $request, PaymentService $payments)
+    public function ipn(Request $request, PaymentWorkflow $payments)
     {
         if ($this->ambiguousQuery($request)) {
             return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature']);
@@ -47,15 +47,11 @@ class CheckoutController extends Controller
         }
     }
 
-    public function vnpReturn(Request $request, PaymentGateway $gateway)
+    public function vnpReturn(Request $request, PaymentLedger $payments)
     {
         // Even a signed browser return never writes payment state.
-        $attempt = null;
-        if (! $this->ambiguousQuery($request) && $gateway->verified($request->query()) && Schema::hasTable('payment_attempts')) {
-            $attempt = PaymentAttempt::where('reference', $request->query('vnp_TxnRef'))
-                ->where('merchant', $request->query('vnp_TmnCode'))->first();
-        }
-        $query = $attempt ? ['order_id' => $attempt->order_id] : ['payment' => 'unverified'];
+        $orderId = $this->ambiguousQuery($request) ? null : $payments->browserOrder($request->query());
+        $query = $orderId ? ['order_id' => $orderId] : ['payment' => 'unverified'];
 
         return redirect(config('vnpay.vnp_frontend_return_url').'?'.http_build_query($query))
             ->withHeaders(['Cache-Control' => 'no-store', 'Referrer-Policy' => 'no-referrer']);

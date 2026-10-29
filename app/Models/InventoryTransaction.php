@@ -32,9 +32,6 @@ class InventoryTransaction extends Model
             if (blank($transaction->transaction_code)) {
                 $transaction->transaction_code = self::generateTransactionCode();
             }
-            if (! array_key_exists('created_by', $transaction->getAttributes())) {
-                $transaction->created_by = auth()->id();
-            }
         });
     }
 

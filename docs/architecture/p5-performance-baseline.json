@@ -1,0 +1,58 @@
+{
+    "recorded_at":  "2026-10-29T15:33:54.6207827+07:00",
+    "baseline_commit":  "73d57293969160fc01668a48d91704c639f259b7",
+    "implementation":  "P5 working tree; isolated MySQL synthetic fixture",
+    "method":  "Single process diagnostic per version; excludes test application boot, includes use-case class autoload. Query counts are enforced; elapsed_ms is not a load benchmark or SLO.",
+    "before":  {
+                   "checkout_cod":  {
+                                        "queries":  34,
+                                        "elapsed_ms":  115.168
+                                    },
+                   "checkout_replay":  {
+                                           "queries":  4,
+                                           "elapsed_ms":  3.805
+                                       },
+                   "confirm":  {
+                                   "queries":  18,
+                                   "elapsed_ms":  22.822
+                               },
+                   "shipping":  {
+                                    "queries":  34,
+                                    "elapsed_ms":  28.921
+                                },
+                   "import":  {
+                                  "queries":  15,
+                                  "elapsed_ms":  18.214
+                              },
+                   "payment_ipn":  {
+                                       "queries":  10,
+                                       "elapsed_ms":  12.966
+                                   }
+               },
+    "after":  {
+                  "checkout_cod":  {
+                                       "queries":  35,
+                                       "elapsed_ms":  50.748
+                                   },
+                  "checkout_replay":  {
+                                          "queries":  5,
+                                          "elapsed_ms":  2.055
+                                      },
+                  "confirm":  {
+                                  "queries":  19,
+                                  "elapsed_ms":  12.666
+                              },
+                  "shipping":  {
+                                   "queries":  35,
+                                   "elapsed_ms":  14.155
+                               },
+                  "import":  {
+                                 "queries":  15,
+                                 "elapsed_ms":  6.287
+                             },
+                  "payment_ipn":  {
+                                      "queries":  10,
+                                      "elapsed_ms":  7.096
+                                  }
+              }
+}

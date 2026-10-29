@@ -1,5 +1,7 @@
 # P4 — Inventory protocol, reservation và cutover
 
+**Sau P5 — 2026-10-29:** core implementation đã chuyển vào app/Modules, các tên Services cũ giữ làm adapter; protocol/schema/HTTP contract P4 không đổi. Xem [P5_STATUS](P5_STATUS.md) và [module boundaries](../architecture/p5-module-boundaries.md) để tìm vị trí code hiện tại. Các bằng chứng cutover và số liệu P4 dưới đây giữ nguyên lịch sử.
+
 Ngày: 2026-10-29. **Đã kiểm chứng acceptance kỹ thuật P4 và cutover local; dừng để chủ dự án review, không triển khai P5.** P0/P1 đã regression; schema và gate P2/P3 đã rollout. Phần nghiệm thu merchant VNPay/Google thật của P2 vẫn **chưa xác minh**, không coi toàn bộ dự án production-ready. Không commit/push.
 
 ## 1. Phạm vi và quyết định đã duyệt
