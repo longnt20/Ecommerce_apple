@@ -35,6 +35,9 @@ return Application::configure(basePath: dirname(__DIR__))
             return false;
         });
         $exceptions->render(function (\Throwable $exception, \Illuminate\Http\Request $request) {
+            if ($exception instanceof \App\Modules\Pricing\Domain\InvalidQuote) {
+                return response()->json(['message' => $exception->getMessage(), 'errors' => ['items' => [$exception->getMessage()]]], 422);
+            }
             if ($exception instanceof \App\Exceptions\InventoryConflict) {
                 $status = match ($exception->reasonCode) {
                     'forbidden_actor' => 403, 'inventory_unavailable' => 503, 'insufficient_stock' => 400, default => 409,

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
-use App\Services\Pricing\QuoteService;
+use App\Modules\Pricing\Contracts\Pricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -54,7 +54,7 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $quote = app(QuoteService::class)->sku((int) $request->product_id, $request->variant_id ? (int) $request->variant_id : null);
+        $quote = app(Pricing::class)->sku((int) $request->product_id, $request->variant_id ? (int) $request->variant_id : null);
         $cart = $this->getUserCart();
 
         // kiểm tra trùng sản phẩm + variant → tăng số lượng
@@ -63,7 +63,7 @@ class CartController extends Controller
             ->where('product_variant_id', $request->variant_id)
             ->first();
 
-        $price = $quote['price'];
+        $price = $quote->price;
 
         if ($item) {
             $item->quantity += $request->quantity;

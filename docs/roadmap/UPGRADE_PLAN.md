@@ -2,6 +2,8 @@
 
 Ngày lập: 2026-10-28. **Kế hoạch gốc và theo dõi triển khai; trạng thái phê duyệt ghi bên dưới.**
 
+**Cập nhật P5 — 2026-10-29:** chủ dự án đã yêu cầu triển khai tiếp P5. Đã modular hóa các use case P2–P4 bằng Contracts/DTO/ports/providers, giữ transaction và HTTP contracts P4; không schema/dependency change. Architecture/owner guards, pure domain tests, CLI/compatibility/query-budget và full regression đã được kiểm chứng. [P5_STATUS](P5_STATUS.md), [boundaries/adapter registry](../architecture/p5-module-boundaries.md). Dừng sau P5 để review, chưa triển khai P6–P8. Các trạng thái cũ bên dưới là lịch sử.
+
 **Cập nhật mới nhất 2026-10-29:** theo yêu cầu review P0–P3, chạy migration và triển khai P4, đã rehearsal/rollout P2–P4 tới DB ứng dụng (55 migrations), backfill metadata có bằng chứng và cách ly legacy. Q3: một kho active đủ toàn đơn; Q5: online 15 phút, COD/confirmed không tự hết hạn; phần thiếu bằng chứng giữ nguyên dữ liệu. Xem [P4_STATUS](P4_STATUS.md) cho acceptance/test, scheduler, giới hạn merchant/Google và rollback. Các mốc “chưa phê duyệt/chưa rollout” bên dưới là lịch sử; P5–P8 chưa triển khai, không tự chuyển tiếp.
 
 **Cập nhật trạng thái 2026-10-28:** chủ dự án đã cho phép dùng cấu hình `.env` để hoàn tất P0 và triển khai P1. [P0_STATUS](P0_STATUS.md): đã đóng baseline/isolation, bốn lỗ hổng đã tái hiện và để lại đúng owner. [P1_STATUS](P1_STATUS.md): đã kiểm chứng fresh/upgrade/restore và áp dụng riêng migration repair vào DB ứng dụng sau backup đầy đủ. P2–P8 chưa được phê duyệt. Chủ dự án xác nhận cost_price là giá vốn, trừ tồn vật lý khi bàn giao vận chuyển; P1 không thay đổi nghiệp vụ giá/tồn đó.

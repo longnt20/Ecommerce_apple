@@ -1,5 +1,16 @@
 # Architecture Decision Records
 
+## ADR-017 — Module boundaries P5, giữ transaction P4 (2026-10-29)
+
+- Chủ dự án yêu cầu triển khai tiếp P5. Phạm vi là các use case P2–P4 đã có tests: checkout/quote, stock protocol, payment, order transition/expiry; không rewrite CRUD, không triển khai P6 hoặc đổi database/API/dependencies.
+- Sáu module có public Contracts và readonly DTO. Models giữ app/Models để tương thích; chỉ Infrastructure của owner import model. Domain/Application dùng ports, ActorContext và Clock. ModuleServiceProvider là composition root; SharedKernel không chứa service nghiệp vụ.
+- Dependency DAG: Ordering → Identity/Pricing/Inventory/Payments; Pricing → Catalog; Inventory → Identity; các module dùng SharedKernel. Không Payments/Inventory → Ordering import. Inventory → Identity là thay đổi có lý do so với proposal ban đầu vì stock admin writer phải kiểm tra account tường minh.
+- PaymentLedger sở hữu attempt facts/locks, kiểm lại signature/reference/merchant tại write boundary, trả PaymentResult. Ordering khóa order rồi xử lý result để ghi order/retain hold trong cùng transaction. Snapshot supplier đồng bộ giữ order → attempt → reservation mà không import module ngược. Không thêm event bus/outbox/network trong khóa.
+- Expiry đổi Order/History nên orchestration thuộc Ordering; Inventory chỉ ghi reservation/stock. Legacy backfill coordinator đọc LegacyOrders DTO rồi gọi InventoryMaintenance, không query Order từ Inventory. Không chạy migration/backfill ứng dụng trong P5.
+- Giữ Eloquent compatibility adapters cho tests/tools/admin verbs, một implementation duy nhất. Owner, caller và cổng gỡ P6 được ghi tại [adapter registry](p5-module-boundaries.md); Reporting read-only và legacy CRUD có ngoại lệ rõ, không cho module mới gọi ngược adapter.
+- Pattern dùng có mục đích: Ports and Adapters, Application Services, immutable DTO, transaction Unit of Work và compatibility adapter; không generic repository, class state cho từng status hoặc domain aggregate song song với Eloquent cho mọi CRUD.
+- [P5_STATUS](../roadmap/P5_STATUS.md) ghi tests/query budgets/rollback. Query overhead các entry tương thích tối đa một read; import/IPN không tăng. Thời gian synthetic local không phải production benchmark; load/SLO thuộc P7. Các số dư/hash P4 được giữ nguyên theo [read-only evidence](p5-runtime-verification.json).
+
 ## ADR-016 — Inventory protocol và cutover P4 (2026-10-29)
 
 - Chủ dự án yêu cầu review P0–P3, chạy migration còn thiếu và tiến hành P4; xác nhận một kho active đủ toàn đơn, online TTL 15 phút/COD không tự hết hạn, cách ly legacy thiếu bằng chứng. Quyết định này cập nhật các blocker allocation/TTL/quarantine của ADR trước, không phê duyệt P5/P6.

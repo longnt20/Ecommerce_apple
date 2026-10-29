@@ -8,7 +8,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Artisan::command('inventory:expire-reservations {--limit=100}', function (\App\Services\Inventory\ExpireReservations $expiry) {
+Artisan::command('inventory:expire-reservations {--limit=100}', function (\App\Modules\Ordering\Contracts\ReservationExpiry $expiry) {
     if (! config('inventory.enabled')) {
         $this->info('Inventory protocol disabled; no expiry executed.');
 
@@ -35,8 +35,8 @@ Artisan::command('inventory:backfill-legacy {--apply}', function (\App\Services\
     $this->line(json_encode($backfill->run((bool) $this->option('apply')), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 })->purpose('Dry-run legacy reservation classification; metadata-only apply requires maintenance');
 
-Artisan::command('inventory:reconcile', function (\App\Services\Inventory\ReconcileInventory $reconciliation) {
-    $result = $reconciliation->report();
+Artisan::command('inventory:reconcile', function (\App\Modules\Inventory\Contracts\InventoryMaintenance $reconciliation) {
+    $result = $reconciliation->reconcile();
     $this->line(json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $result['unexplained'] === [] ? 0 : 1;

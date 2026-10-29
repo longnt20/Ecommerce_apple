@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Exceptions\OrderTransitionConflict;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Services\Ordering\OrderTransitionPolicy;
-use App\Services\OrderService;
+use App\Modules\Ordering\Contracts\OrderTransitions;
+use App\Modules\Ordering\Domain\OrderTransitionPolicy;
+use App\SharedKernel\ActorContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -46,7 +47,7 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order', 'activeSteps', 'nextStatuses', 'history', 'transitionsEnabled'));
     }
 
-    public function updateStatus(Request $request, Order $order, OrderService $orderService)
+    public function updateStatus(Request $request, Order $order, OrderTransitions $orderService)
     {
         try {
             $request->validate([
@@ -56,7 +57,7 @@ class OrderController extends Controller
             ]);
 
             // Ủy quyền cho service
-            $orderService->changeStatus($order, $request->status, $request->user()->id,
+            $orderService->change($order->id, $request->status, new ActorContext($request->user()->id),
                 $request->input('operation_key'), $request->input('reason'), $request->attributes->get('request_id'));
 
             return redirect()

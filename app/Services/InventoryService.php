@@ -6,23 +6,21 @@ use App\Exceptions\InventoryConflict;
 use App\Exceptions\OrderTransitionConflict;
 use App\Models\Inventory;
 use App\Models\OrderTransition;
-use App\Services\Inventory\IdempotentOperation;
-use App\Services\Inventory\StockWriter;
+use App\Modules\Inventory\Contracts\InventoryOperations;
+use App\SharedKernel\ActorContext;
 
 class InventoryService
 {
-    public function __construct(private StockWriter $writer, private IdempotentOperation $operations) {}
+    public function __construct(private InventoryOperations $operations) {}
 
     public function batch(string $kind, int $actorId, string $key, array $payload, callable $work): array
     {
-        $this->writer->assertEnabled();
-
-        return $this->operations->run('admin-batch-'.$kind, $actorId, $key, $payload, fn () => ['lines' => $work($key)]);
+        return $this->operations->execute('admin-batch-'.$kind, new ActorContext($actorId), $key, $payload, fn () => ['lines' => $work($key)]);
     }
 
     public function lockWarehouses(array $ids): void
     {
-        $this->writer->store->lockWarehouses($ids);
+        $this->operations->lockWarehouses($ids);
     }
 
     public function import($warehouseId, $productVariantId, $quantity, $unitCost = null, $notes = null, ?int $actorId = null, ?string $operationKey = null)
@@ -53,7 +51,7 @@ class InventoryService
             throw new InventoryConflict('operation_context_required', 'Thao tác kho cần actor và mã operation tường minh.');
         }
 
-        return $this->writer->admin($kind, $actorId, $key,
+        return $this->operations->admin($kind, new ActorContext($actorId), $key,
             array_merge(['warehouse_id' => (int) $warehouse, 'variant_id' => (int) $variant, 'quantity' => $quantity], $extra));
     }
 
