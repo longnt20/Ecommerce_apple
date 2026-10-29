@@ -175,6 +175,7 @@
 <!-- Stocktake Form -->
 <form id="stocktakeForm" action="{{ route('admin.inventory.stocktake.process') }}" method="POST">
     @csrf
+    <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) \Illuminate\Support\Str::uuid()) }}">
     <div class="row">
         <div class="col-12">
             <div class="card">

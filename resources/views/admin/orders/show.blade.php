@@ -204,7 +204,7 @@
                         <h5>Lịch sử chuyển trạng thái</h5>
                         @foreach ($history as $transition)
                             <p class="mb-1">{{ $transition->created_at }} · {{ $transition->from_status }} → {{ $transition->to_status }}
-                                · Người thực hiện #{{ $transition->actor_id }} @if ($transition->reason) · {{ $transition->reason }} @endif</p>
+                                · {{ $transition->actor_id ? 'Người thực hiện #'.$transition->actor_id : 'Hệ thống hết hạn giữ hàng' }} @if ($transition->reason) · {{ $transition->reason }} @endif</p>
                         @endforeach
                     </div>
                 @endif

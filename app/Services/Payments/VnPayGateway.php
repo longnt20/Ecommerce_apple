@@ -12,9 +12,6 @@ class VnPayGateway implements PaymentGateway
         if (! config('vnpay.enabled')) {
             throw new HttpException(503, 'Thanh toán trực tuyến chưa sẵn sàng.');
         }
-        if (! config('vnpay.enabled')) {
-            throw new HttpException(503, 'Thanh toán trực tuyến chưa sẵn sàng.');
-        }
         foreach (['vnp_tmn_code', 'vnp_hash_secret', 'vnp_url', 'vnp_return_url'] as $key) {
             if (! is_string(config('vnpay.'.$key)) || config('vnpay.'.$key) === '') {
                 throw new HttpException(503, 'Thanh toán trực tuyến chưa sẵn sàng.');

@@ -57,6 +57,7 @@ abstract class MySqlTestCase extends TestCase
     protected function checkoutPayload(string $price = '25000000.00'): array
     {
         return [
+            'idempotency_key' => (string) \Illuminate\Support\Str::uuid(),
             'payment_method' => 'cod',
             'items' => [['product_id' => 910001, 'variant_id' => 910001, 'quantity' => 1, 'price' => $price]],
             'fullname' => 'P0 synthetic customer', 'phone' => '0000000000',

@@ -1,0 +1,120 @@
+{
+    "recorded_at": "2026-10-29T07:46:48+00:00",
+    "source_identity_sha256": "1fc0947ef0f2cfe9bc4cc0c89cb39afe0bcf366b99e7c6323881ef1002fa2764",
+    "migration_count": 55,
+    "historical_business_rows_preserved": true,
+    "business_fingerprints": {
+        "users": {
+            "count": 8,
+            "sha256": "b3db41a3d54461843a4cb634c440ca6c0923cb996382e1c342e4429faff174b9"
+        },
+        "orders": {
+            "count": 52,
+            "sha256": "e4f9924f31744c8a26b23337b21a16441547894194ec9925cf94a9fc7587cf3e"
+        },
+        "order_items": {
+            "count": 56,
+            "sha256": "38071149b44ec4bb9434abff690f42ed474b7d42be97fb31600ca521c34a4927"
+        },
+        "inventory": {
+            "count": 184,
+            "sha256": "062af9017779994ff2846e45ea85e378c2fb2888be1f65693e217c438980241a"
+        },
+        "inventory_transactions": {
+            "count": 259,
+            "sha256": "93924283e869b5232582bac2c89e3592e78aadb3597f1739930e9db9c943e330"
+        },
+        "carts": {
+            "count": 3,
+            "sha256": "ba48c0a7a74dd4dc07ccd25c56f4ad24e7f781602e0e65a79a9ef7d1e12f508e"
+        },
+        "cart_items": {
+            "count": 1,
+            "sha256": "1f3d7df2249b7bccb030a56088fb59c1b20a96efbb898908c745b124e225110b"
+        },
+        "product_variants": {
+            "count": 194,
+            "sha256": "0ae89b902c79c76768b36fd0a3fc7ac224b232be0fe62a09aa6f2537b1cbc2a8"
+        },
+        "payment_attempts": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "payment_events": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "order_transitions": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+    },
+    "classification": {
+        "mode": "apply_metadata_only",
+        "backfilled_orders": [
+            35,
+            40,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62
+        ],
+        "quarantined_orders": {
+            "4": "invalid_items",
+            "5": "invalid_items",
+            "8": "invalid_items",
+            "9": "invalid_items",
+            "10": "invalid_items",
+            "11": "invalid_items",
+            "12": "invalid_items",
+            "13": "invalid_items",
+            "14": "invalid_items",
+            "15": "invalid_items",
+            "16": "invalid_items",
+            "17": "invalid_items",
+            "18": "invalid_items",
+            "19": "invalid_items",
+            "20": "invalid_items",
+            "21": "invalid_items",
+            "22": "invalid_items",
+            "23": "invalid_items",
+            "24": "missing_allocation",
+            "29": "invalid_items",
+            "32": "invalid_items",
+            "33": "invalid_items",
+            "34": "invalid_items",
+            "37": "legacy_stock_state",
+            "41": "legacy_stock_state",
+            "43": "legacy_stock_state",
+            "63": "legacy_stock_state"
+        },
+        "legacy_hold_quantity": 40,
+        "discrepancies": []
+    },
+    "reconciliation": {
+        "inventory_rows": 184,
+        "protocol_movements": 0,
+        "unexplained": [],
+        "quarantined": [],
+        "legacy_hold_quantity": 40,
+        "open_discrepancies": 0
+    },
+    "enabled": {
+        "inventory_protocol": true,
+        "order_transitions": true,
+        "new_vnpay_payments": false
+    },
+    "maintenance_was_already_active": false
+}

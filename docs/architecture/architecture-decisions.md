@@ -1,5 +1,16 @@
 # Architecture Decision Records
 
+## ADR-016 — Inventory protocol và cutover P4 (2026-10-29)
+
+- Chủ dự án yêu cầu review P0–P3, chạy migration còn thiếu và tiến hành P4; xác nhận một kho active đủ toàn đơn, online TTL 15 phút/COD không tự hết hạn, cách ly legacy thiếu bằng chứng. Quyết định này cập nhật các blocker allocation/TTL/quarantine của ADR trước, không phê duyệt P5/P6.
+- Giữ transaction MySQL chung. PlaceOrder điều phối server quote/order/reservation/payment attempt/cart; IdempotentOperation lưu hash payload và kết quả, trả lại effect cũ khi retry. Không gọi network trong khóa.
+- Chọn mutex cấp warehouse theo ID tăng dần, sau đó inventory; khóa thô để bảo vệ cả tạo row mới và tất cả stock writer. Current locking read trên reservation child rows tránh snapshot SUM cũ và tránh join khóa parent của đơn khác. Chỉ thu hẹp lock sau benchmark/test chứng minh tương đương.
+- StockWriter là writer balance/movement duy nhất; InventoryService giữ vai trò adapter. Confirm giữ tồn; shipping consume identity, cancel/expiry release đúng lines. Transfer là cặp movement cùng operation. Stocktake thấp hơn reserved giữ balance và tạo discrepancy. Chặn API model ghi tồn trực tiếp.
+- Legacy backfill chỉ metadata, maintenance và flags dừng ghi. Bằng chứng không đủ hoặc aggregate overallocated cách ly toàn bộ phần mơ hồ; reserved chưa phân bổ vào legacy hold. Không sửa lịch sử/đoán kho. Kết quả thật: 18 backfilled, 27 quarantined, 40 held; fingerprint nghiệp vụ được bảo toàn.
+- P2/P3 và hai migration P4 đã chạy sau full backup/restore/rehearsal, tổng 55 migrations. Hai gate inventory/order bật trong `.env` local; VNPay mới giữ tắt vì merchant IPN công khai chưa xác minh. Scheduler Windows mỗi phút chạy trong phiên đăng nhập, chưa phải service độc lập với login.
+- Chỉ thêm abstraction phục vụ lỗi cụ thể: application service, allocation/lifecycle policy, narrow stock store, idempotent command và compatibility adapter. Không thêm generic repository, event bus, saga hay microservice.
+- [Contract](p4-inventory-contract.md), [rollout evidence](p4-migration-verification.json), [cutover](p4-cutover-report.json), [status/tests/rollback](../roadmap/P4_STATUS.md). Các ADR-014/015 giữ làm lịch sử; các câu chưa rollout trong đó không còn là trạng thái mới nhất.
+
 ## ADR-015 — Transition atomic trong P3 (2026-10-29)
 
 - Theo yêu cầu triển khai P3, dùng một OrderTransitionPolicy cho UI/service, giữ graph hiện có; confirm giữ reservation, shipping là admin xác nhận bàn giao và mới trừ tồn vật lý theo Q4 đã chốt.

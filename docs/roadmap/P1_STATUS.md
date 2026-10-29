@@ -1,5 +1,7 @@
 # P1 — Schema tái lập và upgrade giữ dữ liệu
 
+**Review tới P4, 2026-10-29:** fresh/upgrade/restore tiếp tục được kiểm thử với tổng 55 migrations. Fingerprint test giữ toàn bộ cột gốc để so dữ liệu khi P4 bổ sung operation_id/operation_line nullable. P1 repair/schema snapshot lịch sử giữ nguyên. P2–P4 đã rehearsal/rollout riêng, xem [bằng chứng](../architecture/p4-migration-verification.json), [P4_STATUS](P4_STATUS.md). Các số 51 bên dưới thuộc mốc P1.
+
 Ngày: 2026-10-28. **Đã triển khai và kiểm chứng kỹ thuật P1; dừng để chủ dự án review trước P2.** Đã áp dụng đúng một migration repair vào database từ `.env`, sau backup đầy đủ và restore/upgrade rehearsal thành công. Không triển khai P2 hoặc sửa nghiệp vụ giá, thanh toán, tồn kho, quyền giỏ hàng.
 
 ## 1. Phạm vi đã thực hiện

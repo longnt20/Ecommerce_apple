@@ -302,6 +302,7 @@
         <div class="modal-content">
             <form action="{{ route('admin.inventory.adjust') }}" method="POST">
                 @csrf
+    <input type="hidden" name="operation_key" value="{{ old('operation_key', (string) \Illuminate\Support\Str::uuid()) }}">
                 <div class="modal-header">
                     <h5 class="modal-title">Điều chỉnh tồn kho</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

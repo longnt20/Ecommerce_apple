@@ -1,5 +1,7 @@
 # P3 — Transition đơn atomic và có thể retry
 
+**Review/rollout mới nhất 2026-10-29:** order_transitions đã migrate DB ứng dụng sau rehearsal. Chủ dự án duyệt cách ly legacy; P4 đã backfill allocation identity cho 18 đơn và cách ly 27 đơn, giữ toàn bộ balances/lịch sử. ORDER_TRANSITIONS_ENABLED=true, chuyển trạng thái dùng ReservationManager và StockWriter thay guard suy luận mỗi lần. Các graph/operation replay P3 vẫn được regression/concurrency test; xem [P4_STATUS](P4_STATUS.md), [cutover](../architecture/p4-cutover-report.json). Những câu chưa rollout/chưa triển khai P4 bên dưới ghi lại mốc P3 trước yêu cầu mới.
+
 Ngày: 2026-10-29. **Đã triển khai code và tests; rollout ứng dụng/duyệt legacy còn chờ review. Chưa đóng toàn bộ P3 trên môi trường thật. Không triển khai P4.**
 
 ## Phân tích và kế hoạch thực hiện

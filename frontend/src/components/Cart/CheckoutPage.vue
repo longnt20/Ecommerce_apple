@@ -118,7 +118,7 @@
         </div>
 
         <p class="text-muted">Giá giỏ hàng là tạm tính. Đơn hàng áp dụng giá bán hiện tại của cửa hàng khi đặt.</p>
-        <button class="btn-checkout" @click="submitCheckout" :disabled="loading">
+        <button class="btn-checkout" @click="submitCheckout" :disabled="loading || submitted">
           {{ loading ? 'Đang xử lý...' : 'Đặt hàng' }}
         </button>
       </section>
@@ -134,6 +134,9 @@ import { useBuyNowStore } from "@/stores/buynow";
 import { cartService } from "@/services/cartService";
 import { orderService } from "@/services/orderService";
 import { locationService } from "@/services/locationService";
+import { checkoutOperationKey } from "@/services/checkoutCommand";
+
+const submitted = ref(false);
 
 
 // Cart
@@ -290,6 +293,7 @@ const format = (n) => n.toLocaleString();
 
 // Xử lý checkout
 const submitCheckout = async () => {
+  if (loading.value || submitted.value) return;
   if (!shipping.value.name || !shipping.value.phone || !shipping.value.address) {
     alert("Vui lòng nhập đầy đủ thông tin giao hàng!");
     return;
@@ -320,9 +324,11 @@ const submitCheckout = async () => {
       note: shipping.value.note ?? null,
     };
 
+    payload.idempotency_key = await checkoutOperationKey(payload);
     const res = await orderService.createOrder(payload);
+    submitted.value = true;
 
-    if (paymentMethod.value === "vnpay") {
+    if (paymentMethod.value === "vnpay" && res.data.payment_url) {
       window.location.href = res.data.payment_url;
     } else {
       window.location.href = `/payment-success?order_id=${res.data.order_id}`;

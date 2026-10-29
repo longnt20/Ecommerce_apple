@@ -18,6 +18,8 @@ class SchemaUpgradeTest extends TestCase
 
     private PDO $target;
 
+    private array $fingerprintColumns = [];
+
     protected function setUp(): void
     {
         if (getenv('P1_SCHEMA_TESTS') !== '1') {
@@ -46,7 +48,7 @@ class SchemaUpgradeTest extends TestCase
     public function test_native_migrate_bootstraps_an_empty_database_and_new_writers_work(): void
     {
         $this->migrate();
-        $this->assertSame(53, DB::table('migrations')->count());
+        $this->assertSame(55, DB::table('migrations')->count());
         $this->assertSame(0, DB::table('users')->count());
         $this->assertTargetSchema();
         $this->postJson('/api/register', ['name' => 'P1 synthetic user', 'email' => 'p1-register@example.test', 'password' => 'Synthetic-password-123'])
@@ -63,7 +65,7 @@ class SchemaUpgradeTest extends TestCase
         $variant = ProductVariant::create(['product_id' => 101, 'sku' => 'P1-NO-IMAGE', 'price' => 100, 'cost_price' => 60]);
         $this->assertNull($variant->fresh()->thumbnail);
         $this->migrate();
-        $this->assertSame(53, DB::table('migrations')->count());
+        $this->assertSame(55, DB::table('migrations')->count());
     }
 
     public function test_current_snapshot_upgrade_preserves_ids_money_snapshots_and_existing_codes(): void
@@ -157,7 +159,7 @@ class SchemaUpgradeTest extends TestCase
         foreach ($rows as $table => $expected) {
             $this->assertSame($expected, $restore->query('SELECT * FROM `'.$table.'`')->fetchAll(PDO::FETCH_ASSOC), $table);
         }
-        $this->assertSame(53, (int) $restore->query('SELECT COUNT(*) FROM migrations')->fetchColumn());
+        $this->assertSame(55, (int) $restore->query('SELECT COUNT(*) FROM migrations')->fetchColumn());
     }
 
     private function loadBaseline(): void
@@ -219,7 +221,9 @@ class SchemaUpgradeTest extends TestCase
     {
         $result = [];
         foreach (['orders', 'order_items', 'inventory', 'inventory_transactions'] as $table) {
-            $result[$table] = DB::table($table)->orderBy('id')->get()->toJson();
+            // Preserve every original column; P4 adds nullable operation metadata.
+            $this->fingerprintColumns[$table] ??= Schema::getColumnListing($table);
+            $result[$table] = DB::table($table)->select($this->fingerprintColumns[$table])->orderBy('id')->get()->toJson();
         }
 
         return $result;
