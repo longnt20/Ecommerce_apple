@@ -1,5 +1,10 @@
 <?php
+
 return [
+    // Enable only after the additive P2 migration and merchant IPN setup are reviewed.
+    'enabled' => env('VNPAY_ENABLED', false),
+    // Enable only after the additive P2 migration and merchant IPN setup are reviewed.
+    'enabled' => env('VNPAY_ENABLED', false),
     'vnp_tmn_code' => env('VNPAY_TMNCODE', ''),
     'vnp_hash_secret' => env('VNPAY_HASHSECRET', ''),
     'vnp_url' => env('VNPAY_URL', ''),

@@ -34,6 +34,8 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
+        'frontend_return' => env('GOOGLE_FRONTEND_RETURN_URL', 'http://localhost:3000/login-success'),
+        'frontend_return' => env('GOOGLE_FRONTEND_RETURN_URL', 'http://localhost:3000/login-success'),
     ],
     'huggingface' => [
         'key' => env('HF_API_KEY'),

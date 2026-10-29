@@ -3,222 +3,128 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CheckoutRequest;
 use App\Models\Cart;
-use App\Models\CartItem;
 use App\Models\Inventory;
 use App\Models\InventoryTransaction;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
-use App\Models\ProductVariant;
+use App\Models\PaymentAttempt;
+use App\Services\Payments\PaymentGateway;
+use App\Services\Payments\PaymentService;
+use App\Services\Pricing\QuoteService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    public function process(Request $request)
+    public function process(CheckoutRequest $request, QuoteService $pricing, PaymentService $payments, PaymentGateway $gateway)
     {
-        $request->validate([
-            'payment_method' => 'required|in:cod,vnpay',
-            'items' => 'required|array|min:1',
-
-            'items.*.product_id'   => 'required|integer',
-            'items.*.variant_id'   => 'required|integer',
-            'items.*.quantity'     => 'required|integer|min:1',
-            'items.*.price'        => 'required|numeric|min:0',
-            'fullname' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email',
-            'address' => 'required|string|max:255',
-            'ward' => 'required|string',
-            'district' => 'required|string',
-            'province' => 'required|string',
-            'note' => 'nullable|string|max:500',
-        ]);
-
-        $paymentMethod = $request->payment_method;
-        $items = $request->items;
-        $cart = Cart::where('user_id', Auth::id())->first();
-        $code = 'DH' . date('Ymd') . '-' . rand(10000, 99999);
-        DB::beginTransaction();
-
-        try {
-            // ================= 1. TẠO ORDER ====================
-            $order = Order::create([
-                'code'            => $code,
-                'user_id'         => Auth::id(),
-                'status'          => 'pending',
-                'total_price'     => 0,
-                'final_amount'    => 0,
-                'payment_method'  => $paymentMethod,
-                'payment_status'  => $paymentMethod === 'cod' ? 'unpaid' : 'unpaid',
-                'transaction_id'  => null,  // Sẽ cập nhật khi thanh toán online (VNPAY)
-
-                // Customer Info
-                'fullname'        => $request->fullname,
-                'phone'           => $request->phone,
-                'email'           => $request->email,
-                'address'         => $request->address,
-                'ward'            => $request->ward,
-                'district'        => $request->district,
-                'province'        => $request->province,
-                'note'            => $request->note,
-            ]);
-
-            $subtotal = 0;
-
-            foreach ($items as $item) {
-
-                // Check tồn kho
-                $inventory = Inventory::where('product_variant_id', $item['variant_id'])
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($inventory->available_quantity < $item['quantity']) {
-                    DB::rollBack();
-                    return response()->json([
-                        'error' => 'Không đủ hàng cho biến thể '
-                    ], 400);
-                }
-
-                // Reserve tồn kho
-                $inventory->reserve($item['quantity']);
-
+        if ($request->payment_method === 'vnpay') {
+            $gateway->assertConfigured();
+        }
+        $order = DB::transaction(function () use ($request, $pricing, $payments) {
+            $quote = $pricing->quote($request->validated('items'));
+            $order = Order::create(array_merge($request->safe()->only([
+                'fullname', 'phone', 'email', 'address', 'ward', 'district', 'province', 'note', 'payment_method',
+            ]), [
+                'code' => 'DH'.date('Ymd').'-'.Str::ulid(), 'user_id' => $request->user()->id,
+                'status' => 'pending', 'payment_status' => 'unpaid',
+                'total_price' => $quote['total'], 'final_amount' => $quote['total'],
+            ]));
+            $cart = $request->input('mode', 'cart') === 'cart'
+                ? Cart::where('user_id', $request->user()->id)->first() : null;
+            foreach ($quote['lines'] as $line) {
+                $variant = $line['variant'];
+                // Allocation protocol remains in P4; existing selection retained here.
+                $inventory = Inventory::where('product_variant_id', $variant->id)->lockForUpdate()->first();
+                abort_if(! $inventory || $inventory->available_quantity < $line['quantity'], 400, 'Không đủ hàng cho biến thể.');
+                $inventory->reserve($line['quantity']);
                 InventoryTransaction::create([
-                    'warehouse_id'      => $inventory->warehouse_id,
-                    'product_variant_id' => $item['variant_id'],
-                    'type'              => 'reserve',
-                    'quantity'          => $item['quantity'],
-                    'before_quantity'   => $inventory->quantity,
-                    'after_quantity'    => $inventory->quantity,
-                    'reference_type'    => 'order',
-                    'reference_id'      => $order->id,
-                    'reason'            => 'Reserve stock for order'
+                    'warehouse_id' => $inventory->warehouse_id, 'product_variant_id' => $variant->id,
+                    'type' => 'reserve', 'quantity' => $line['quantity'],
+                    'before_quantity' => $inventory->quantity, 'after_quantity' => $inventory->quantity,
+                    'reference_type' => 'order', 'reference_id' => $order->id, 'reason' => 'Reserve stock for order',
                 ]);
-                $product = Product::find($item['product_id']);
-                $variant = ProductVariant::find($item['variant_id']);
-                // Lưu order_item
                 OrderItem::create([
-                    'order_id'          => $order->id,
-                    'product_id'        => $item['product_id'],
-                    'variant_id'        => $item['variant_id'],
-                    'product_name'      => $product ? $product->name : '',
-                    'variant_name'      => $variant
-                        ? ($variant->storage . '-' . $variant->color_label)
-                        : '',
-                    'quantity'          => $item['quantity'],
-                    'price'             => $item['price'],
-                    'total'             => $item['quantity'] * $item['price']
+                    'order_id' => $order->id, 'product_id' => $line['product']->id, 'variant_id' => $variant->id,
+                    'product_name' => $line['product']->name, 'variant_name' => $variant->storage.'-'.$variant->color_label,
+                    'quantity' => $line['quantity'], 'price' => $line['price'], 'total' => $line['total'],
                 ]);
-
-                $subtotal += $item['quantity'] * $item['price'];
+                if ($cart) {
+                    $item = $cart->items()->where('product_id', $line['product']->id)
+                        ->where('product_variant_id', $variant->id)->lockForUpdate()->first();
+                    if ($item) {
+                        $item->quantity <= $line['quantity'] ? $item->delete()
+                            : $item->update(['quantity' => $item->quantity - $line['quantity']]);
+                    }
+                }
+            }
+            if ($request->payment_method === 'vnpay') {
+                $payments->start($order);
             }
 
-            // Update tổng đơn hàng
-            $order->update([
-                'total_price' => $subtotal,
-                'final_amount'    => $subtotal
-            ]);
-
-            // Xóa giỏ hàng
-            CartItem::where('cart_id', $cart->id)->delete();
-
-            DB::commit();
-
-            // ================= 2. Nếu COD ====================
-            if ($paymentMethod === 'cod') {
-                $order->update([
-                    'payment_status' => 'unpaid',
-                    'status' => 'pending'
-                ]);
-
-                return response()->json([
-                    'message' => 'Đặt hàng thành công (COD)',
-                    'order_id' => $order->id,
-                    'final_amount' => $order->final_amount
-                ]);
-            }
-
-            // ================= 3. Nếu VNPAY ====================
-            return $this->createVnPayUrl($order, $request);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-
-
-    // ====================== Tạo URL thanh toán VNPay ==========================
-    private function createVnPayUrl($order, Request $request)
-    {
-        $vnpUrl       = config("vnpay.vnp_url");
-        $returnUrl    = config("vnpay.vnp_return_url");
-        $tmnCode      = config("vnpay.vnp_tmn_code");
-        $hashSecret   = config("vnpay.vnp_hash_secret");
-
-        $txnRef       = $order->id;
-        $orderInfo    = "Thanh toán đơn hàng #{$order->id}";
-        $amount       = $order->final_amount * 100;
-        $locale       = 'vn';
-
-        $inputData = [
-            "vnp_Version"   => "2.1.0",
-            "vnp_TmnCode"   => $tmnCode,
-            "vnp_Amount"    => $amount,
-            "vnp_Command"   => "pay",
-            "vnp_CreateDate" => date('YmdHis'),
-            "vnp_CurrCode"  => "VND",
-            "vnp_IpAddr"    => $request->ip(),
-            "vnp_Locale"    => $locale,
-            "vnp_OrderInfo" => mb_convert_encoding($orderInfo, 'UTF-8'),
-            "vnp_OrderType" => "billpayment",
-            "vnp_ReturnUrl" => $returnUrl,
-            "vnp_TxnRef"    => $txnRef
-        ];
-
-        // Debug: Check data before hash
-        \Log::info('VNPay Input Data:', $inputData);
-        
-        // Debug: Check individual config values
-        \Log::info('VNPay Config Check:', [
-            'tmn_code' => $tmnCode,
-            'tmn_code_empty' => empty($tmnCode),
-            'hash_secret_empty' => empty($hashSecret),
-            'hash_secret_length' => strlen($hashSecret),
-            'vnp_url' => $vnpUrl,
-            'return_url' => $returnUrl
-        ]);
-
-        ksort($inputData);
-
-        $hashData = http_build_query($inputData);
-        $secureHash = hash_hmac('sha512', $hashData, $hashSecret);
-
-        $paymentUrl = $vnpUrl . "?" . http_build_query($inputData) . "&vnp_SecureHash=" . $secureHash;
-
-        return response()->json([
-            "payment_url" => $paymentUrl,
-            "order_id" => $order->id,
-        ]);
-    }
-
-
-
-    // ====================== VNPay Return ==========================
-    public function vnpReturn(Request $request)
-    {
-        $orderId = $request->vnp_TxnRef;
-        $orderAmount = $request->vnp_Amount / 100;
-        if ($request->vnp_ResponseCode == "00") {
-            Order::where('id', $orderId)->update([
-                'payment_status' => 'paid',
-                'transaction_id' => $request->vnp_TransactionNo,
+            return $order;
+        });
+        if ($request->payment_method === 'cod') {
+            return response()->json([
+                'message' => 'Đặt hàng thành công (COD)', 'order_id' => $order->id, 'final_amount' => $order->final_amount,
             ]);
         }
 
-        $returnUrl = config('vnpay.vnp_frontend_return_url', 'http://localhost:3000/payment-success');
-        return redirect("{$returnUrl}?order_id={$orderId}&amount={$orderAmount}");
+        return response()->json(['payment_url' => $payments->url($order, $request->ip()), 'order_id' => $order->id]);
+    }
+
+    public function retry(Request $request, int $order, PaymentService $payments)
+    {
+        $owned = Order::where('user_id', $request->user()->id)->findOrFail($order);
+
+        return response()->json(['payment_url' => $payments->url($owned, $request->ip()), 'order_id' => $owned->id]);
+    }
+
+    public function ipn(Request $request, PaymentService $payments)
+    {
+        if ($this->ambiguousQuery($request)) {
+            return response()->json(['RspCode' => '97', 'Message' => 'Invalid signature']);
+        }
+        try {
+            return response()->json($payments->notify($request->query()));
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['RspCode' => '99', 'Message' => 'Unable to confirm']);
+        }
+    }
+
+    public function vnpReturn(Request $request, PaymentGateway $gateway)
+    {
+        // Even a signed browser return never writes payment state.
+        $attempt = null;
+        if (! $this->ambiguousQuery($request) && $gateway->verified($request->query()) && Schema::hasTable('payment_attempts')) {
+            $attempt = PaymentAttempt::where('reference', $request->query('vnp_TxnRef'))
+                ->where('merchant', $request->query('vnp_TmnCode'))->first();
+        }
+        $query = $attempt ? ['order_id' => $attempt->order_id] : ['payment' => 'unverified'];
+
+        return redirect(config('vnpay.vnp_frontend_return_url').'?'.http_build_query($query))
+            ->withHeaders(['Cache-Control' => 'no-store', 'Referrer-Policy' => 'no-referrer']);
+    }
+
+    private function ambiguousQuery(Request $request): bool
+    {
+        $seen = [];
+        foreach (explode('&', $request->server('QUERY_STRING', '')) as $pair) {
+            $key = urldecode(explode('=', $pair, 2)[0]);
+            if (str_starts_with($key, 'vnp_')) {
+                if (isset($seen[$key]) || ! preg_match('/^vnp_[a-zA-Z0-9]+$/D', $key)) {
+                    return true;
+                }
+                $seen[$key] = true;
+            }
+        }
+
+        return false;
     }
 }

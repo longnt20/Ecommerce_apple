@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
@@ -10,20 +9,19 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Api\CheckoutController;
-use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 // Auth
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Route admin, có middleware kiểm tra role
@@ -197,7 +195,7 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
     });
-    #============================== ROUTE COUPON =============================
+    // ============================== ROUTE COUPON =============================
     Route::prefix('coupons')->as('coupons.')->group(function () {
         Route::get('/', [CouponController::class, 'index'])->name('index');
         Route::get('/exportCoupon', [CouponController::class, 'exportCoupon'])->name('exportCoupon');
@@ -230,8 +228,8 @@ Route::get('/', function () {
             'auth' => '/api/login, /api/register, /api/user',
             'products' => '/api/products',
             'cart' => '/api/cart',
-            'orders' => '/api/orders'
-        ]
+            'orders' => '/api/orders',
+        ],
     ]);
 });
 
@@ -239,6 +237,6 @@ Route::get('/', function () {
 Route::get('/{any}', function () {
     return response()->json([
         'error' => 'Endpoint not found',
-        'message' => 'Please use the API endpoints or access the Vue frontend application'
+        'message' => 'Please use the API endpoints or access the Vue frontend application',
     ], 404);
 })->where('any', '.*');

@@ -121,7 +121,7 @@
                 <p class="name">{{ item.product.name_product }}</p>
                 <div class="branch-26">
                   <p class="price">{{ formatPrice(item.variant.price) }}</p>
-                  <p class="cost-price">{{ formatPrice(item.variant.cost_price) }}</p>
+                  <p class="cost-price">{{ formatPrice(item.variant.final_price) }}</p>
                 </div>
               </div>
               <button data-slot="button" class="cpsui-button active" @click.stop.prevent="removeWishlist(item)">

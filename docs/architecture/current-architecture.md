@@ -1,5 +1,7 @@
 # Kiến trúc hiện tại
 
+**Cập nhật P2 — 2026-10-29:** mô tả audit bên dưới là baseline lịch sử. Code hiện tại đã có server quote/SKU validation, cart policy/active gate, payment attempts/events + verified IPN, read-only return, OAuth one-use handoff và error redaction. Xem [P2 status](../roadmap/P2_STATUS.md), [contracts](p2-http-contracts.md). Payment migration mới chỉ chạy trên sandbox; DB ứng dụng chưa có hai bảng mới và online mặc định tắt. Allocation/transition issues P3/P4 vẫn còn.
+
 Ngày lập: 2026-10-28. Trạng thái: mô tả source đã audit, không phải chứng nhận vận hành production.
 
 **Bổ sung cùng ngày:** đã đọc [database export analysis](database-export-analysis.md) từ `laravel.sql`. Export xác nhận MySQL 8.0.30/InnoDB và đã có role/blocked/thumbnail/commit; các khác biệt này là migration drift, không phải thiếu cột/enum trên snapshot. Phần audit source bên dưới được giữ làm lịch sử; các câu “chưa xác minh schema” cần đọc cùng phần bổ sung. Runtime DB vẫn chưa được truy cập. Export còn cho thấy bất nhất trạng thái đơn/reservation và tổng tiền cần đối soát.

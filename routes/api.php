@@ -1,46 +1,32 @@
 <?php
 
-
-
 use App\Http\Controllers\Api\AuthController;
-
 use App\Http\Controllers\Api\BannerController;
-
 use App\Http\Controllers\Api\CartController;
-
 use App\Http\Controllers\Api\CategoryController;
-
 use App\Http\Controllers\Api\CheckoutController;
-
 use App\Http\Controllers\Api\GoogleAuthController;
-
 use App\Http\Controllers\Api\HomeController;
-
 use App\Http\Controllers\Api\OrderController;
-
 use App\Http\Controllers\Api\PromotionController;
-
 use App\Http\Controllers\Api\UserController;
-
 use App\Http\Controllers\Api\WishlistController;
-
 use Illuminate\Support\Facades\Route;
-
-
 
 // Auth routes
 
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
 
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+Route::post('/auth/google/exchange', [GoogleAuthController::class, 'exchange'])->middleware('throttle:20,1');
 
 Route::get('/provinces', function () {
 
-    return file_get_contents("https://provinces.open-api.vn/api/p/");
+    return file_get_contents('https://provinces.open-api.vn/api/p/');
 
 });
 
@@ -58,9 +44,10 @@ Route::get('/wards/{id}', function ($id) {
 
 // VNPay Return URL (không cần auth) - đặt ở trên
 Route::get('/vnpay/return', [CheckoutController::class, 'vnpReturn']);
+Route::get('/vnpay/ipn', [CheckoutController::class, 'ipn']);
 
 // Những route cần token mới truy cập
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -74,8 +61,6 @@ Route::apiResource('/promotions', PromotionController::class);
 
 Route::get('/promotion-categories', [PromotionController::class, 'promotionCategories']);
 
-
-
 Route::get('/home', [HomeController::class, 'homeProducts']);
 
 Route::get('/home-main', [HomeController::class, 'homeMain']);
@@ -84,27 +69,24 @@ Route::get('/banners', [BannerController::class, 'index']);
 
 Route::get('/blog', [HomeController::class, 'getBlogFeature']);
 
-Route::middleware("auth:sanctum")->group(function () {
+Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
-    Route::get("/cart", [CartController::class, "getCart"]);
+    Route::get('/cart', [CartController::class, 'getCart']);
 
-    Route::post("/cart/add", [CartController::class, "add"]);
+    Route::post('/cart/add', [CartController::class, 'add']);
 
-    Route::put("/cart/item/{item}", [CartController::class, "update"]);
+    Route::put('/cart/item/{item}', [CartController::class, 'update']);
 
-    Route::delete("/cart/item/{item}", [CartController::class, "remove"]);
+    Route::delete('/cart/item/{item}', [CartController::class, 'remove']);
 
-    Route::delete("/cart", [CartController::class, "clear"]);
-
-
+    Route::delete('/cart', [CartController::class, 'clear']);
 
     // Tạo đơn + Thanh toán (VNPay hoặc COD)
 
     Route::post('/checkout', [CheckoutController::class, 'process']);
+    Route::post('/orders/{order}/payment', [CheckoutController::class, 'retry']);
 
-
-
-    //Sản phẩm yêu thích
+    // Sản phẩm yêu thích
 
     Route::get('/wishlist', [WishlistController::class, 'index']);
 
@@ -112,9 +94,7 @@ Route::middleware("auth:sanctum")->group(function () {
 
     Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
 
-    
-
-    //Lịch sử đơn hàng
+    // Lịch sử đơn hàng
 
     Route::get('/orders', [OrderController::class, 'index']);      // danh sách + filter
 
@@ -128,15 +108,6 @@ Route::get('/products/{product}/variants', function ($productId) {
 
     return \App\Models\ProductVariant::where('product_id', $productId)
 
-        ->get(['id', 'sku', 'color', 'storage', 'cost_price']);
+        ->get(['id', 'sku', 'color', 'storage', 'price']);
 
 });
-
-
-
-
-
-
-
-
-

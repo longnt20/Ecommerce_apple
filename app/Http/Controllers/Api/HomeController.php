@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Traits\LoggableTrait;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -36,15 +35,14 @@ class HomeController extends Controller
                     ->where('status', 1)
                     ->orderBy('order')
                     ->with([
-                        'products' => fn($q) =>
-                        $q->select('products.id', 'name', 'slug')->limit(1)
+                        'products' => fn ($q) => $q->select('products.id', 'name', 'slug')->limit(1),
                     ])
                     ->get()
-                    ->map(fn($b) => [
+                    ->map(fn ($b) => [
                         'title' => $b->title,
                         'image' => $b->image ? asset("storage/{$b->image}") : null,
                         'order' => $b->order,
-                        'product' => optional($b->products->first(), fn($p) => [
+                        'product' => optional($b->products->first(), fn ($p) => [
                             'name' => $p->name,
                             'slug' => $p->slug,
                         ]),
@@ -58,12 +56,12 @@ class HomeController extends Controller
 
             return response()->json([
                 'status' => true,
-                ...$data
+                ...$data,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Server error'
+                'message' => 'Server error',
             ], 500);
         }
     }
@@ -71,7 +69,7 @@ class HomeController extends Controller
     public function homeProducts()
     {
         try {
-            $data = Cache::remember('home_products', 60, function () {
+            $data = Cache::remember('home_products:p2-selling-price', 60, function () {
 
                 /* ================= BLOGS ================= */
                 $blogs = Post::query()
@@ -80,11 +78,11 @@ class HomeController extends Controller
                     ->latest()
                     ->limit(5)
                     ->get(['title', 'slug', 'thumbnail'])
-                    ->map(fn($b) => [
+                    ->map(fn ($b) => [
                         'title' => $b->title,
                         'slug' => $b->slug,
                         'thumbnail' => $b->thumbnail
-                            ? asset('storage/' . $b->thumbnail)
+                            ? asset('storage/'.$b->thumbnail)
                             : null,
                     ]);
 
@@ -92,7 +90,7 @@ class HomeController extends Controller
                 $products = Product::query()
                     ->with([
                         'category:id,name',
-                        'variants:id,product_id,price,cost_price,storage'
+                        'variants:id,product_id,price,storage',
                     ])
                     ->where('status', 'published')
                     ->where('visibility', 'public')
@@ -103,19 +101,20 @@ class HomeController extends Controller
                 $items = $products->map(function ($product) {
                     if ($product->variants->isNotEmpty()) {
                         $v = $product->variants->first();
+
                         return [
                             'id' => $v->id,
                             'product_id' => $product->id,
-                            'name' => $product->name . ' ' . $v->storage,
+                            'name' => $product->name.' '.$v->storage,
                             'slug' => $product->slug,
                             'category_id' => $product->category_id,
                             'thumbnail' => $product->thumbnail
-                                ? asset('storage/' . $product->thumbnail)
+                                ? asset('storage/'.$product->thumbnail)
                                 : null,
                             'original_price' => (int) $v->price,
-                            'final_price' => (int) $v->cost_price,
+                            'final_price' => (int) $v->price,
                             'discount_percent' => $v->price > 0
-                                ? round((($v->price - $v->cost_price) / $v->price) * 100)
+                                ? round((($v->price - $v->price) / $v->price) * 100)
                                 : 0,
                         ];
                     }
@@ -127,7 +126,7 @@ class HomeController extends Controller
                         'slug' => $product->slug,
                         'category_id' => $product->category_id,
                         'thumbnail' => $product->thumbnail
-                            ? asset('storage/' . $product->thumbnail)
+                            ? asset('storage/'.$product->thumbnail)
                             : null,
                         'original_price' => (int) $product->default_price,
                         'final_price' => (int) $product->default_price,
@@ -144,7 +143,7 @@ class HomeController extends Controller
                                 \App\Models\Product::class => ['category'],
                                 \App\Models\ProductVariant::class => ['product.category'],
                             ]);
-                        }
+                        },
                     ])
                     ->where('is_featured', true)
                     ->where('status', 1)
@@ -157,35 +156,37 @@ class HomeController extends Controller
                     'name' => $promotion->name,
                     'slug' => $promotion->slug,
                     'thumbnail' => $promotion->thumbnail
-                        ? asset('storage/' . $promotion->thumbnail)
+                        ? asset('storage/'.$promotion->thumbnail)
                         : null,
                     'start_date' => $promotion->start_date,
                     'end_date' => $promotion->end_date,
                     'frame_id' => $promotion->frame_id,
                     'frame' => $promotion->frame ? [
-                        'top' => asset('storage/' . $promotion->frame->top_background),
-                        'bottom' => asset('storage/' . $promotion->frame->bottom_background),
-                        'ribbon' => asset('storage/' . $promotion->frame->ribbon_image),
-                        'left' => asset('storage/' . $promotion->frame->left_decor_image),
-                        'right' => asset('storage/' . $promotion->frame->right_decor_image),
+                        'top' => asset('storage/'.$promotion->frame->top_background),
+                        'bottom' => asset('storage/'.$promotion->frame->bottom_background),
+                        'ribbon' => asset('storage/'.$promotion->frame->ribbon_image),
+                        'left' => asset('storage/'.$promotion->frame->left_decor_image),
+                        'right' => asset('storage/'.$promotion->frame->right_decor_image),
                     ] : null,
 
                     'items' => $promotion->items->map(function ($item) {
                         $model = $item->item;
 
-                        if (!$model) return null;
+                        if (! $model) {
+                            return null;
+                        }
 
                         if ($model instanceof \App\Models\ProductVariant) {
                             return [
                                 'id' => $model->id,
-                                'name' => $model->product->name . ' ' . $model->storage,
+                                'name' => $model->product->name.' '.$model->storage,
                                 'slug' => $model->product->slug,
                                 'category_id' => $model->product->category_id,
-                                'thumbnail' => asset('storage/' . $model->product->thumbnail),
-                                'final_price' => (int) $model->cost_price,
+                                'thumbnail' => asset('storage/'.$model->product->thumbnail),
+                                'final_price' => (int) $model->price,
                                 'original_price' => (int) $model->price,
                                 'discount_percent' => $model->price > 0
-                                    ? round((($model->price - $model->cost_price) / $model->price) * 100)
+                                    ? round((($model->price - $model->price) / $model->price) * 100)
                                     : 0,
                             ];
                         }
@@ -195,54 +196,57 @@ class HomeController extends Controller
                             'name' => $model->name,
                             'slug' => $model->slug,
                             'category_id' => $model->category_id,
-                            'thumbnail' => asset('storage/' . $model->thumbnail),
+                            'thumbnail' => asset('storage/'.$model->thumbnail),
                             'final_price' => (int) $model->default_price,
                         ];
                     }),
                 ] : null;
                 $promotionCategories = $promotion
                     ? $promotion->items
-                    ->map(function ($promotionItem) {
-                        $model = $promotionItem->item;
+                        ->map(function ($promotionItem) {
+                            $model = $promotionItem->item;
 
-                        if (!$model) return null;
+                            if (! $model) {
+                                return null;
+                            }
 
-                        if ($model instanceof ProductVariant) {
-                            return $model->product?->category;
-                        }
+                            if ($model instanceof ProductVariant) {
+                                return $model->product?->category;
+                            }
 
-                        if ($model instanceof Product) {
-                            return $model->category;
-                        }
+                            if ($model instanceof Product) {
+                                return $model->category;
+                            }
 
-                        return null;
-                    })
-                    ->filter()
-                    ->unique('id')
-                    ->values()
-                    ->map(fn($c) => [
-                        'id' => $c->id,
-                        'name' => $c->name,
-                    ])
+                            return null;
+                        })
+                        ->filter()
+                        ->unique('id')
+                        ->values()
+                        ->map(fn ($c) => [
+                            'id' => $c->id,
+                            'name' => $c->name,
+                        ])
                     : [];
 
                 return [
                     'products' => $items,
                     'blogs' => $blogs,
                     'promotion' => $promotionData,
-                    'promotion_categories' =>$promotionCategories
+                    'promotion_categories' => $promotionCategories,
                 ];
             });
 
             return response()->json([
                 'status' => true,
-                'data' => $data
+                'data' => $data,
             ]);
         } catch (\Throwable $e) {
             report($e);
+
             return response()->json([
                 'status' => false,
-                'message' => 'Server error'
+                'message' => 'Server error',
             ], 500);
         }
     }
@@ -257,10 +261,10 @@ class HomeController extends Controller
                 ->where('visibility', 'public')
                 ->first();
 
-            if (!$product) {
+            if (! $product) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Không tìm thấy sản phẩm'
+                    'message' => 'Không tìm thấy sản phẩm',
                 ], 404);
             }
             // Lấy variant_id từ query string
@@ -270,10 +274,10 @@ class HomeController extends Controller
             $selectedVariant = $product->variants->where('id', $variantId)->first();
 
             // Nếu không tìm thấy → lấy variant đầu tiên
-            if (!$selectedVariant) {
+            if (! $selectedVariant) {
                 $selectedVariant = $product->variants->first();
             }
-            //Lấy kho hàng còn sản phẩm 
+            // Lấy kho hàng còn sản phẩm
             $warehouses = $product->inventories()
                 ->where('available_quantity', '>', 0)
                 ->with('warehouse')
@@ -299,22 +303,24 @@ class HomeController extends Controller
                 ->take(5)
                 ->get(['id', 'title', 'thumbnail', 'created_at'])
                 ->map(function ($blog) {
-                    $blog->thumbnail = asset('storage/' . $blog->thumbnail);
+                    $blog->thumbnail = asset('storage/'.$blog->thumbnail);
+
                     return $blog;
                 });
 
             // Format biến thể
-            $variants = $product->variants->map(function ($variant) use ($product) {
+            $variants = $product->variants->map(function ($variant) {
                 $originalPrice = $variant->price ?? 0;
-                $finalPrice = $variant->cost_price ?? $originalPrice;
+                $finalPrice = $originalPrice;
                 // 🔥 LẤY TỒN KHO
                 $stockQuantity = $variant->inventory->sum('quantity');
                 $availableStock = $variant->inventory->sum('available_quantity');
+
                 return [
                     'id' => $variant->id,
                     'storage' => $variant->storage,
                     'color' => $variant->color_label,
-                    'thumbnail' => $variant->thumbnail ? asset('storage/' . $variant->thumbnail) : null,
+                    'thumbnail' => $variant->thumbnail ? asset('storage/'.$variant->thumbnail) : null,
                     'original_price' => number_format($originalPrice, 0, ',', '.'),
                     'final_price' => number_format($finalPrice, 0, ',', '.'),
                     'stock_quantity' => $stockQuantity,
@@ -331,7 +337,7 @@ class HomeController extends Controller
                         'color' => null,
                         'original_price' => number_format($product->default_price ?? 0, 0, ',', '.'),
                         'final_price' => number_format($product->default_price ?? 0, 0, ',', '.'),
-                    ]
+                    ],
                 ]);
 
                 $selectedVariant = (object) $variants->first();
@@ -341,9 +347,9 @@ class HomeController extends Controller
             $data = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'slug'  => $product->slug,
+                'slug' => $product->slug,
                 'gallery' => collect($product->gallery)->map(function ($path) {
-                    return asset('storage/' . $path);
+                    return asset('storage/'.$path);
                 }),
                 'warehouse' => $warehouses,
                 'warehouse_count' => $warehouses->count(),
@@ -359,15 +365,15 @@ class HomeController extends Controller
                     'storage' => $selectedVariant->storage,
                     'color' => $selectedVariant->color ?? null,
                     'original_price' => number_format($selectedVariant->price ?? 0, 0, ',', '.'),
-                    'final_price' => number_format($selectedVariant->cost_price ?? ($selectedVariant->price ?? 0), 0, ',', '.'),
+                    'final_price' => number_format($selectedVariant->price ?? 0, 0, ',', '.'),
                 ],
                 'category' => [
                     'id' => $product->category->id,
                     'name' => $product->category->name,
                 ],
-                'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+                'thumbnail' => $product->thumbnail ? asset('storage/'.$product->thumbnail) : null,
                 'variants' => $variants,
-                'blogs'     => $blogs,
+                'blogs' => $blogs,
                 'short_description' => $product->short_description,
                 'description' => $product->description,
 
@@ -375,13 +381,15 @@ class HomeController extends Controller
 
             return response()->json([
                 'status' => true,
-                'data' => $data
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
+            report($e);
 
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => 'Không thể tải sản phẩm.',
+                'request_id' => request()->attributes->get('request_id'),
             ], 500);
         }
     }

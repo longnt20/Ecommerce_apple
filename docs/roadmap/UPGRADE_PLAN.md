@@ -87,6 +87,8 @@ Các phần P2 chỉ sửa quyền/validation có thể chuẩn bị và test tr
 
 ## P2 — Bảo vệ giá, thanh toán và quyền
 
+**Cập nhật 2026-10-29:** code/regression P2 đã triển khai; xem [P2_STATUS](P2_STATUS.md) và [HTTP contracts/rollout](../architecture/p2-http-contracts.md). Chờ review và rollout; DB ứng dụng chưa áp dụng payment migration, online mới mặc định tắt. Không chuyển P3.
+
 **Mục tiêu:** loại bỏ C1/C2/H2/H6 mà không chờ module hóa lớn.
 
 **Phạm vi:** server pricing, validation SKU, payment verification/dedup, cart ownership, account status/OAuth, error redaction. API behavior thay đổi phải có contract.

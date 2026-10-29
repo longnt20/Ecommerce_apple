@@ -87,7 +87,7 @@
               </div>
 
               <div class="social-login">
-                <a class="social-btn google" href="http://127.0.0.1:8000/api/auth/google/redirect">
+                <a class="social-btn google" href="#" @click.prevent="startGoogleLogin">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" />
                   <span>Đăng nhập với Google</span>
                 </a>
@@ -184,6 +184,7 @@
 </template>
 
 <script setup>
+import { startGoogleLogin } from '@/services/googleAuth'
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 // import { toast } from 'vue-toastification'

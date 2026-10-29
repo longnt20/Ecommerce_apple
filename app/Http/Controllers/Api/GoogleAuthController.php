@@ -3,44 +3,45 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\Identity\GoogleHandoff;
+use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class GoogleAuthController extends Controller
 {
-    // Bước 1: Redirect user đến Google
-    public function redirect()
+    public function redirect(Request $request, GoogleHandoff $handoff)
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        $data = $request->validate(['code_challenge' => ['required', 'regex:/^[A-Za-z0-9_-]{43}$/D']]);
+        $state = $handoff->begin($data['code_challenge']);
+
+        // State is consumed explicitly and the resulting code is bound to browser proof.
+        return Socialite::driver('google')->stateless()->with(['state' => $state])->redirect();
     }
 
-    // Bước 2: Google callback về
-    public function callback()
+    public function callback(Request $request, GoogleHandoff $handoff)
     {
-        try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+        $data = $request->validate(['state' => 'required|string|size:64', 'code' => 'required|string|max:2048']);
+        $challenge = $handoff->consumeState($data['state']);
+        $google = Socialite::driver('google')->stateless()->user();
+        $raw = $google->getRaw();
+        $verified = ($raw['email_verified'] ?? $raw['verified_email'] ?? false) === true;
+        $user = $handoff->user((string) $google->getEmail(), (string) $google->getName(), $verified);
+        $code = $handoff->issue($user, $challenge);
 
-            // Tìm hoặc tạo user mới
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'name' => $googleUser->getName(),
-                    'password' => Hash::make(uniqid()), // random password
-                ]
-            );
+        // A 60-second, one-use, proof-bound code; never a Sanctum bearer in a URL.
+        return redirect(config('services.google.frontend_return').'?'.http_build_query(['code' => $code]))
+            ->withHeaders(['Cache-Control' => 'no-store', 'Referrer-Policy' => 'no-referrer']);
+    }
 
-            // Tạo Sanctum token
-            $token = $user->createToken('api_token')->plainTextToken;
+    public function exchange(Request $request, GoogleHandoff $handoff)
+    {
+        $data = $request->validate([
+            'code' => 'required|string|size:64',
+            'code_verifier' => ['required', 'string', 'min:43', 'max:128', 'regex:/^[A-Za-z0-9._~-]+$/D'],
+        ]);
+        $user = $handoff->exchange($data['code'], $data['code_verifier']);
 
-            // Redirect thẳng về trang chủ với token
-            return redirect("http://localhost:3000/?token=$token&login=success");
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Đăng nhập Google thất bại',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json(['status' => true, 'user' => $user, 'token' => $user->createToken('api_token')->plainTextToken])
+            ->withHeaders(['Cache-Control' => 'no-store']);
     }
 }
