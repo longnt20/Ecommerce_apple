@@ -13,7 +13,7 @@ class InventoryTransaction extends Model
         'quantity', 'before_quantity', 'after_quantity',
         'reference_type', 'reference_id', 'reference_code',
         'unit_cost', 'total_cost', 'reason', 'notes', 'meta_data',
-        'created_by', 'approved_by', 'approved_at', 'status'
+        'created_by', 'approved_by', 'approved_at', 'status',
     ];
 
     protected $casts = [
@@ -29,8 +29,12 @@ class InventoryTransaction extends Model
         parent::boot();
 
         static::creating(function ($transaction) {
-            $transaction->transaction_code = self::generateTransactionCode();
-            $transaction->created_by = auth()->id();
+            if (blank($transaction->transaction_code)) {
+                $transaction->transaction_code = self::generateTransactionCode();
+            }
+            if ($transaction->created_by === null) {
+                $transaction->created_by = auth()->id();
+            }
         });
     }
 
@@ -39,15 +43,16 @@ class InventoryTransaction extends Model
     {
         $prefix = 'INV';
         $date = now()->format('Ymd');
-        $lastTransaction = self::whereDate('created_at', now())->latest()->first();
-        
+        // P3 uses opaque unique codes; they must not reset the legacy numeric sequence.
+        $lastTransaction = self::whereDate('created_at', now())->where('transaction_code', 'not like', 'INV-P3-%')->latest()->first();
+
         if ($lastTransaction) {
             $lastNumber = intval(substr($lastTransaction->transaction_code, -4));
             $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '0001';
         }
-        
+
         return "{$prefix}-{$date}-{$newNumber}";
     }
 

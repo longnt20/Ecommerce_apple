@@ -1,5 +1,7 @@
 # Kiến trúc hiện tại
 
+**Cập nhật P3 — 2026-10-29:** code có transition policy tại service, row lock/read lại order, operation/history, guard allocation legacy và stock context. Confirm giữ tồn, shipping mới giảm quantity. Chỉ chạy schema/tests trên sandbox; DB ứng dụng chưa có order_transitions và transition mới mặc định tắt. [P3_STATUS](../roadmap/P3_STATUS.md) ghi giới hạn, dry-run và rollout còn chờ review. Nội dung audit cũ dưới đây giữ làm baseline lịch sử.
+
 **Cập nhật P2 — 2026-10-29:** mô tả audit bên dưới là baseline lịch sử. Code hiện tại đã có server quote/SKU validation, cart policy/active gate, payment attempts/events + verified IPN, read-only return, OAuth one-use handoff và error redaction. Xem [P2 status](../roadmap/P2_STATUS.md), [contracts](p2-http-contracts.md). Payment migration mới chỉ chạy trên sandbox; DB ứng dụng chưa có hai bảng mới và online mặc định tắt. Allocation/transition issues P3/P4 vẫn còn.
 
 Ngày lập: 2026-10-28. Trạng thái: mô tả source đã audit, không phải chứng nhận vận hành production.

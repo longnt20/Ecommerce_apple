@@ -15,11 +15,11 @@ class InventoryService
             $inventory = Inventory::firstOrCreate(
                 [
                     'warehouse_id' => $warehouseId,
-                    'product_variant_id' => $productVariantId
+                    'product_variant_id' => $productVariantId,
                 ],
                 [
                     'quantity' => 0,
-                    'available_quantity' => 0
+                    'available_quantity' => 0,
                 ]
             );
 
@@ -42,7 +42,7 @@ class InventoryService
                 'unit_cost' => $unitCost,
                 'total_cost' => $unitCost ? $unitCost * $quantity : null,
                 'notes' => $notes,
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             return $transaction;
@@ -59,7 +59,7 @@ class InventoryService
                 ->where('product_variant_id', $productVariantId)
                 ->first();
 
-            if (!$inventory || $inventory->available_quantity < $quantity) {
+            if (! $inventory || $inventory->available_quantity < $quantity) {
                 throw new \Exception('Không đủ hàng trong kho');
             }
 
@@ -82,7 +82,7 @@ class InventoryService
                 'reference_type' => $referenceType,
                 'reference_id' => $referenceId,
                 'notes' => $notes,
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             return $transaction;
@@ -100,7 +100,7 @@ class InventoryService
                 ->where('product_variant_id', $productVariantId)
                 ->first();
 
-            if (!$fromInventory || $fromInventory->available_quantity < $quantity) {
+            if (! $fromInventory || $fromInventory->available_quantity < $quantity) {
                 throw new \Exception('Không đủ hàng để chuyển');
             }
 
@@ -113,11 +113,11 @@ class InventoryService
             $toInventory = Inventory::firstOrCreate(
                 [
                     'warehouse_id' => $toWarehouseId,
-                    'product_variant_id' => $productVariantId
+                    'product_variant_id' => $productVariantId,
                 ],
                 [
                     'quantity' => 0,
-                    'available_quantity' => 0
+                    'available_quantity' => 0,
                 ]
             );
 
@@ -137,7 +137,7 @@ class InventoryService
                 'before_quantity' => $fromBefore,
                 'after_quantity' => $fromInventory->quantity,
                 'notes' => $notes,
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             return $transaction;
@@ -154,7 +154,7 @@ class InventoryService
                 ->where('product_variant_id', $productVariantId)
                 ->first();
 
-            if (!$inventory) {
+            if (! $inventory) {
                 throw new \Exception('Sản phẩm không tồn tại trong kho');
             }
 
@@ -176,7 +176,7 @@ class InventoryService
                 'before_quantity' => $beforeQuantity,
                 'after_quantity' => $actualQuantity,
                 'reason' => $reason,
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             return $transaction;
@@ -193,7 +193,7 @@ class InventoryService
                 ->where('product_variant_id', $productVariantId)
                 ->first();
 
-            if (!$inventory || $inventory->available_quantity < $quantity) {
+            if (! $inventory || $inventory->available_quantity < $quantity) {
                 throw new \Exception('Không đủ hàng để giữ');
             }
 
@@ -212,80 +212,67 @@ class InventoryService
                 'after_quantity' => $inventory->quantity,
                 'reference_type' => 'order',
                 'reference_id' => $orderId,
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             return $transaction;
         });
     }
 
-    public function commitOrder($warehouseId, $productVariantId, $quantity, $orderId)
+    public function commitOrder($warehouseId, $productVariantId, $quantity, $orderId, \App\Models\OrderTransition $operation)
     {
-        return DB::transaction(function () use ($warehouseId, $productVariantId, $quantity, $orderId) {
-
-            $inventory = Inventory::where('warehouse_id', $warehouseId)
-                ->where('product_variant_id', $productVariantId)
-                ->lockForUpdate()
-                ->first();
-
-            if (!$inventory) {
-                throw new \DomainException(
-                    "Chưa tồn tại tồn kho cho sản phẩm {$productVariantId} tại kho {$warehouseId}"
-                );
-            }
-
-            $beforeQuantity = $inventory->quantity;
-
-            // Commit stock
-            $inventory->reserved_quantity -= $quantity;
-            $inventory->quantity -= $quantity;
-            $inventory->save();
-
-            InventoryTransaction::create([
-                'warehouse_id'       => $warehouseId,
-                'product_variant_id' => $productVariantId,
-                'type'               => 'commit',
-                'quantity'           => -$quantity,
-                'before_quantity'    => $beforeQuantity,
-                'after_quantity'     => $inventory->quantity,
-                'reference_type'     => 'order',
-                'reference_id'       => $orderId,
-                'status'             => 'completed',
-                'notes'              => 'Confirm order'
-            ]);
-        });
+        return $this->moveOrderReservation((int) $warehouseId, (int) $productVariantId, (int) $quantity, (int) $orderId, $operation, 'commit');
     }
 
-    public function releaseOrder($warehouseId, $productVariantId, $quantity, $orderId)
+    public function releaseOrder($warehouseId, $productVariantId, $quantity, $orderId, \App\Models\OrderTransition $operation)
     {
-        return DB::transaction(function () use ($warehouseId, $productVariantId, $quantity, $orderId) {
+        return $this->moveOrderReservation((int) $warehouseId, (int) $productVariantId, (int) $quantity, (int) $orderId, $operation, 'release');
+    }
 
-            $inventory = Inventory::where('warehouse_id', $warehouseId)
-                ->where('product_variant_id', $productVariantId)
-                ->lockForUpdate()
-                ->first();
-
-            if (!$inventory) {
-                throw new \DomainException(
-                    "Chưa tồn tại tồn kho cho sản phẩm tại kho {$warehouseId}"
-                );
+    private function moveOrderReservation(int $warehouseId, int $variantId, int $quantity, int $orderId, \App\Models\OrderTransition $operation, string $type)
+    {
+        return DB::transaction(function () use ($warehouseId, $variantId, $quantity, $orderId, $operation, $type) {
+            $order = \App\Models\Order::whereKey($orderId)->lockForUpdate()->firstOrFail();
+            $record = \App\Models\OrderTransition::whereKey($operation->id)->where('order_id', $orderId)->lockForUpdate()->first();
+            $target = $type === 'commit' ? 'shipping' : 'cancelled';
+            app(\App\Services\Ordering\OrderTransitionPolicy::class)->assertAllowed($order->status, $target);
+            if (! $record || $record->to_status !== $target || $record->from_status !== $order->status
+                || (int) $order->warehouse_id !== $warehouseId || $quantity < 1) {
+                throw new \App\Exceptions\OrderTransitionConflict('stock_operation_conflict', 'Thao tác tồn kho không thuộc transition đang thực hiện.');
             }
-
+            // Per-SKU proof prevents a duplicate direct invocation even within one operation.
+            $items = $order->items()->where('variant_id', $variantId)->get(['variant_id', 'quantity'])->toArray();
+            $movements = InventoryTransaction::where('reference_type', 'order')->where('reference_id', $orderId)
+                ->where('product_variant_id', $variantId)->get()->toArray();
+            $evidence = app(\App\Services\Ordering\OrderReservationEvidence::class);
+            $allocation = $evidence->allocation($items, $movements, $warehouseId, $order->status);
+            if (($allocation[$variantId] ?? 0) !== $quantity) {
+                throw new \App\Exceptions\OrderTransitionConflict('stock_quantity_conflict', 'Số lượng không khớp bằng chứng giữ hàng.');
+            }
+            $inventory = Inventory::where('warehouse_id', $warehouseId)->where('product_variant_id', $variantId)->lockForUpdate()->first();
+            if (! $inventory) {
+                throw new \App\Exceptions\OrderTransitionConflict('missing_inventory', 'Không tìm thấy tồn kho đã giữ.');
+            }
+            $evidence->assertBalance($inventory->getAttributes(), $quantity, true);
+            $before = $inventory->quantity;
             $inventory->reserved_quantity -= $quantity;
-            $inventory->available_quantity += $quantity;
+            if ($type === 'commit') {
+                $inventory->quantity -= $quantity;
+                $inventory->last_shipped_at = now();
+            } else {
+                $inventory->available_quantity += $quantity;
+            }
             $inventory->save();
 
-            InventoryTransaction::create([
-                'warehouse_id'       => $warehouseId,
-                'product_variant_id' => $productVariantId,
-                'type'               => 'release',
-                'quantity'           => $quantity,
-                'before_quantity'    => $inventory->quantity,
-                'after_quantity'     => $inventory->quantity,
-                'reference_type'     => 'order',
-                'reference_id'       => $orderId,
-                'status'             => 'completed',
-                'notes'              => 'Cancel order'
+            return InventoryTransaction::create([
+                'transaction_code' => 'INV-P3-'.\Illuminate\Support\Str::ulid(),
+                'warehouse_id' => $warehouseId, 'product_variant_id' => $variantId,
+                'type' => $type, 'quantity' => $type === 'commit' ? -$quantity : $quantity,
+                'before_quantity' => $before, 'after_quantity' => $inventory->quantity,
+                'reference_type' => 'order', 'reference_id' => $orderId,
+                'status' => 'completed', 'created_by' => $record->actor_id,
+                'reason' => $type === 'commit' ? 'Order handed to carrier' : 'Cancel order',
+                'meta_data' => ['order_transition_id' => $record->id],
             ]);
         });
     }
@@ -318,7 +305,7 @@ class InventoryService
                     'quantity' => $inventory->quantity,
                     'available' => $inventory->available_quantity,
                     'reserved' => $inventory->reserved_quantity,
-                    'location' => $inventory->location
+                    'location' => $inventory->location,
                 ];
             });
     }
