@@ -196,6 +196,18 @@
 
                 @endphp
                 <!-- ORDER STATUS (tạm để nguyên layout của bạn) -->
+                @unless ($transitionsEnabled)
+                    <div class="alert alert-warning">Chuyển trạng thái đang tạm dừng để triển khai an toàn.</div>
+                @endunless
+                @if ($history->isNotEmpty())
+                    <div class="card p-3">
+                        <h5>Lịch sử chuyển trạng thái</h5>
+                        @foreach ($history as $transition)
+                            <p class="mb-1">{{ $transition->created_at }} · {{ $transition->from_status }} → {{ $transition->to_status }}
+                                · Người thực hiện #{{ $transition->actor_id }} @if ($transition->reason) · {{ $transition->reason }} @endif</p>
+                        @endforeach
+                    </div>
+                @endif
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <h5 class="mb-0">Tiến độ đơn hàng</h5>
@@ -205,6 +217,11 @@
                                 @csrf
                                 @method('PATCH')
                                 <input type="hidden" name="status" value="{{ $status }}">
+                                <input type="hidden" name="operation_key" value="{{ \Illuminate\Support\Str::uuid() }}">
+                                <input type="text" name="reason" maxlength="500" class="form-control form-control-sm mb-1" placeholder="Lý do (tùy chọn)">
+                                @if ($status === 'shipping')
+                                    <p class="text-muted small">Xác nhận đã bàn giao cho vận chuyển; thao tác này trừ tồn vật lý.</p>
+                                @endif
 
                                 <button class="btn {{ $status === 'cancelled' ? 'btn-danger' : 'btn-success' }}">
                                     {{ match ($status) {

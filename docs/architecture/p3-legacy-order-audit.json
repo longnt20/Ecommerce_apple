@@ -1,0 +1,449 @@
+{
+    "observed_at_utc": "2026-10-29T07:00:04+00:00",
+    "mode": "READ ONLY",
+    "orders": [
+        {
+            "order_id": 4,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 5,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 8,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 9,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 10,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 11,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 12,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 13,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 14,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 15,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 16,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 17,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 18,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 19,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 20,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 21,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 22,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 23,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 24,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "missing_allocation"
+        },
+        {
+            "order_id": 29,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 30,
+            "warehouse_id": 1,
+            "status": "cancelled",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 31,
+            "warehouse_id": 1,
+            "status": "cancelled",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 32,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 33,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 34,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "invalid_items"
+        },
+        {
+            "order_id": 35,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [
+                "shipping"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 36,
+            "warehouse_id": 1,
+            "status": "cancelled",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 37,
+            "warehouse_id": 1,
+            "status": "shipping",
+            "next": [],
+            "classification": "legacy_stock_state"
+        },
+        {
+            "order_id": 39,
+            "warehouse_id": 1,
+            "status": "completed",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 40,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [
+                "shipping"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 41,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "legacy_stock_state"
+        },
+        {
+            "order_id": 42,
+            "warehouse_id": 1,
+            "status": "cancelled",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 43,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "legacy_stock_state"
+        },
+        {
+            "order_id": 44,
+            "warehouse_id": 1,
+            "status": "completed",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 46,
+            "warehouse_id": 1,
+            "status": "completed",
+            "next": [],
+            "classification": "terminal_no_transition"
+        },
+        {
+            "order_id": 47,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 48,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 49,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 50,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 51,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 52,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 53,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 54,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 55,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 56,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 57,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 58,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 59,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 60,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 61,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": false
+        },
+        {
+            "order_id": 62,
+            "warehouse_id": 1,
+            "status": "pending",
+            "next": [
+                "confirmed",
+                "cancelled"
+            ],
+            "classification": "evidence_valid_at_read_time",
+            "paid_cancellation_requires_refund_review": true
+        },
+        {
+            "order_id": 63,
+            "warehouse_id": 1,
+            "status": "confirmed",
+            "next": [],
+            "classification": "legacy_stock_state"
+        }
+    ],
+    "counts": {
+        "invalid_items": 22,
+        "missing_allocation": 1,
+        "terminal_no_transition": 7,
+        "evidence_valid_at_read_time": 18,
+        "legacy_stock_state": 4
+    },
+    "application_migrations": 51,
+    "application_transition_tables": 0
+}

@@ -114,6 +114,8 @@ Các phần P2 chỉ sửa quyền/validation có thể chuẩn bị và test tr
 
 ## P3 — Chuyển trạng thái đơn atomic và có thể chạy lại
 
+**Cập nhật 2026-10-29:** chủ dự án đã yêu cầu triển khai P3. Code/tests và dry-run legacy đã có; xem [P3_STATUS](P3_STATUS.md), [contract/rollout](../architecture/p3-order-transitions.md). Migration chỉ chạy sandbox; transition mới mặc định tắt, chờ review legacy và cutover. Không triển khai P4.
+
 **Mục tiêu:** confirm/cancel không chạy lặp, transition được kiểm soát trong service.
 
 **Phạm vi:** lock/refresh order, transition policy, operation identity, error mapping, timestamps/history. Kho allocation sai vẫn là blocker P4, không che bằng default 1.

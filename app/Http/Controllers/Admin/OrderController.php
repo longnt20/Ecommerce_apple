@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\OrderTransitionConflict;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\Ordering\OrderTransitionPolicy;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class OrderController extends Controller
 {
@@ -23,7 +26,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order)
+    public function show(Order $order, OrderTransitionPolicy $policy)
     {
         $normalFlow = ['pending', 'confirmed', 'shipping', 'completed'];
         $cancelFlow = ['pending', 'confirmed', 'shipping', 'cancelled'];
@@ -36,15 +39,11 @@ class OrderController extends Controller
             $currentIndex = array_search($order->status, $normalFlow);
             $activeSteps = array_slice($normalFlow, 0, $currentIndex + 1);
         }
-        $allowedTransitions = [
-            'pending' => ['confirmed', 'cancelled'],
-            'confirmed' => ['shipping'],
-            'shipping' => ['completed'],
-        ];
+        $transitionsEnabled = config('ordering.transitions_enabled') && Schema::hasTable('order_transitions');
+        $nextStatuses = $transitionsEnabled ? $policy->next($order->status) : [];
+        $history = Schema::hasTable('order_transitions') ? $order->transitions()->get() : collect();
 
-        $nextStatuses = $allowedTransitions[$order->status] ?? [];
-
-        return view('admin.orders.show', compact('order', 'activeSteps', 'nextStatuses'));
+        return view('admin.orders.show', compact('order', 'activeSteps', 'nextStatuses', 'history', 'transitionsEnabled'));
     }
 
     public function updateStatus(Request $request, Order $order, OrderService $orderService)
@@ -52,26 +51,25 @@ class OrderController extends Controller
         try {
             $request->validate([
                 'status' => 'required|in:confirmed,shipping,completed,cancelled',
+                'operation_key' => 'nullable|string|max:128',
+                'reason' => 'nullable|string|max:500',
             ]);
 
-            $allowedTransitions = [
-                'pending' => ['confirmed', 'cancelled'],
-                'confirmed' => ['shipping'],
-                'shipping' => ['completed'],
-            ];
-
-            abort_if(
-                ! isset($allowedTransitions[$order->status]) ||
-                    ! in_array($request->status, $allowedTransitions[$order->status]),
-                403
-            );
-
             // Ủy quyền cho service
-            $orderService->changeStatus($order, $request->status);
+            $orderService->changeStatus($order, $request->status, $request->user()->id,
+                $request->input('operation_key'), $request->input('reason'), $request->attributes->get('request_id'));
 
             return redirect()
                 ->to(url()->previous() ?: route('admin.orders.index'))
                 ->with('success', 'Cập nhật trạng thái thành công');
+        } catch (OrderTransitionConflict $e) {
+            $status = $e->reasonCode === 'forbidden_actor' ? 403 : 409;
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage(), 'code' => $e->reasonCode,
+                    'request_id' => $request->attributes->get('request_id')], $status);
+            }
+
+            return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
                 throw $e;

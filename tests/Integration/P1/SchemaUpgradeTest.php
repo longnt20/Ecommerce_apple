@@ -46,7 +46,7 @@ class SchemaUpgradeTest extends TestCase
     public function test_native_migrate_bootstraps_an_empty_database_and_new_writers_work(): void
     {
         $this->migrate();
-        $this->assertSame(52, DB::table('migrations')->count());
+        $this->assertSame(53, DB::table('migrations')->count());
         $this->assertSame(0, DB::table('users')->count());
         $this->assertTargetSchema();
         $this->postJson('/api/register', ['name' => 'P1 synthetic user', 'email' => 'p1-register@example.test', 'password' => 'Synthetic-password-123'])
@@ -63,7 +63,7 @@ class SchemaUpgradeTest extends TestCase
         $variant = ProductVariant::create(['product_id' => 101, 'sku' => 'P1-NO-IMAGE', 'price' => 100, 'cost_price' => 60]);
         $this->assertNull($variant->fresh()->thumbnail);
         $this->migrate();
-        $this->assertSame(52, DB::table('migrations')->count());
+        $this->assertSame(53, DB::table('migrations')->count());
     }
 
     public function test_current_snapshot_upgrade_preserves_ids_money_snapshots_and_existing_codes(): void
@@ -157,7 +157,7 @@ class SchemaUpgradeTest extends TestCase
         foreach ($rows as $table => $expected) {
             $this->assertSame($expected, $restore->query('SELECT * FROM `'.$table.'`')->fetchAll(PDO::FETCH_ASSOC), $table);
         }
-        $this->assertSame(52, (int) $restore->query('SELECT COUNT(*) FROM migrations')->fetchColumn());
+        $this->assertSame(53, (int) $restore->query('SELECT COUNT(*) FROM migrations')->fetchColumn());
     }
 
     private function loadBaseline(): void

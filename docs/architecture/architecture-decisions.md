@@ -1,5 +1,14 @@
 # Architecture Decision Records
 
+## ADR-015 — Transition atomic trong P3 (2026-10-29)
+
+- Theo yêu cầu triển khai P3, dùng một OrderTransitionPolicy cho UI/service, giữ graph hiện có; confirm giữ reservation, shipping là admin xác nhận bàn giao và mới trừ tồn vật lý theo Q4 đã chốt.
+- OrderService bắt buộc actor active admin tường minh, khóa/đọc lại order trước policy/replay; order_transitions vừa là operation identity vừa là lịch sử. Same key/payload không lặp effect; khác payload conflict. Unique target dựa trên graph acyclic, cần review schema nếu sau này mở vòng trạng thái.
+- Thứ tự P3: order → operation/history → inventory tăng dần; phối hợp P2 order → payment attempt. P3 chưa thống nhất mọi inventory writer của P4.
+- Chỉ nhận allocation khi movement/items/balance chứng minh được; không chọn kho default hoặc sửa legacy. Dry-run 52 đơn: 18 phù hợp tại thời điểm đọc, 27 cần đối soát, 7 terminal. Reviewer phải duyệt đường đối soát trước rollout.
+- Stock methods cần transition context; movement P3 có ULID/actor tường minh, giữ generator cũ tương thích. Không thêm mail order chưa tồn tại; notification tương lai phải sau outer commit.
+- Migration history forward-only chỉ chạy trên sandbox; ORDER_TRANSITIONS_ENABLED mặc định false. [Contract](p3-order-transitions.md), [bằng chứng/tests](../roadmap/P3_STATUS.md), [legacy audit](p3-legacy-order-audit.json). Không đánh dấu inventory an toàn hoặc tự triển khai P4.
+
 ## ADR-014 — Implementation P2 (2026-10-29)
 
 - Đã triển khai giá bán từ SKU, VND nguyên/giới hạn theo orders schema, FormRequest, CartItemPolicy, active gate và login throttle. Không sửa tiền/giá vốn lịch sử hoặc thêm pricing rules chưa có.

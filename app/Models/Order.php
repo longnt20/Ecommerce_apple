@@ -27,7 +27,7 @@ class Order extends Model
         'note',
         'paid_at',
         'delivered_at',
-        'cancelled_at'
+        'cancelled_at',
     ];
 
     public function items()
@@ -39,17 +39,23 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function transitions()
+    {
+        return $this->hasMany(OrderTransition::class)->orderBy('id');
+    }
+
     protected $appends = ['status_label'];
 
     public function getStatusLabelAttribute()
     {
         return match ($this->status) {
-            'pending'   => 'Chờ xử lý',
+            'pending' => 'Chờ xử lý',
             'confirmed' => 'Đã xác nhận',
-            'shipping'  => 'Đang giao hàng',
+            'shipping' => 'Đang giao hàng',
             'completed' => 'Hoàn thành',
             'cancelled' => 'Đã hủy',
-            default     => 'Không xác định',
+            default => 'Không xác định',
         };
     }
 }
