@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->report(function (\Throwable $exception) {
             \Illuminate\Support\Facades\Log::error('Unhandled application exception', [
-                'type' => $exception::class, 'request_id' => request()->attributes->get('request_id'),
+                'type' => $exception::class, 'request_id' => app()->bound('request') ? request()->attributes->get('request_id') : null,
             ]);
 
             return false;

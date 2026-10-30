@@ -22,7 +22,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 
         Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
             // Sensitive flows include token-bearing responses and SQL/model events.
-            if (request()->is('login', 'api/login', 'api/register', 'api/auth/*', 'api/vnpay/*', 'vnpay/*', 'api/checkout')) {
+            if (request()->is('login', 'api/login', 'api/register', 'api/auth/*', 'api/vnpay/*', 'vnpay/*', 'api/checkout', 'api/user', 'api/orders*', 'admin/users*', 'admin/orders*', 'admin/coupons*')) {
                 return false;
             }
 
@@ -58,9 +58,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewTelescope', function ($user) {
-            return in_array($user->email, [
-                //
-            ]);
+            return $user->role === 'admin' && $user->status === 'active';
         });
     }
 }

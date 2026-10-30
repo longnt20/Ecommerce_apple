@@ -52,3 +52,7 @@ Artisan::command('coupons:retry-notifications {--limit=100}', function () {
 })->purpose('Recover new coupon notices interrupted before queue dispatch; no legacy assignment replay');
 
 Schedule::command('coupons:retry-notifications')->everyFiveMinutes()->withoutOverlapping();
+
+Artisan::command('operations:health', function (\App\Reporting\OperationsHealth $health) {
+    $this->line(json_encode($health->snapshot(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+})->purpose('Read-only numeric queue, reservation and reconciliation diagnostics; no payloads');

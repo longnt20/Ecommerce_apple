@@ -16,12 +16,14 @@ use Illuminate\Support\Str;
 class BannerController extends Controller
 {
     use LoggableTrait, UploadToLocalTrait;
+
     const FOLDER = 'banners';
+
     public function index(Request $request)
     {
         $queryBanners = Banner::orderBy('order', 'asc');
         if ($request->filled('title')) {
-            $queryBanners->where('title', 'like', '%' . $request->title . '%');
+            $queryBanners->where('title', 'like', '%'.$request->title.'%');
         }
         if ($request->filled('status')) {
             $queryBanners->where('status', $request->status);
@@ -31,12 +33,15 @@ class BannerController extends Controller
         $banners_inactive = Banner::query()->where('status', 0)->count();
         $banners_deleted = Banner::onlyTrashed()->count();
         $items = $queryBanners->paginate(10);
+
         return view('admin.banners.index', compact('items', 'banners_total', 'banners_active', 'banners_inactive', 'banners_deleted'));
     }
+
     public function create()
     {
         try {
-            $products = Product::where('status','published')->get();
+            $products = Product::where('status', 'published')->get();
+
             return view('admin.banners.create', compact('products'));
         } catch (\Exception $e) {
 
@@ -45,6 +50,7 @@ class BannerController extends Controller
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
         }
     }
+
     public function store(StoreBannerRequest $request)
     {
         try {
@@ -55,7 +61,7 @@ class BannerController extends Controller
             if ($request->hasFile('image')) {
                 $data['image'] = $this->uploadToLocal($request->file('image'), self::FOLDER);
             }
-            $data['redirect_url'] = !empty($data['title']) ? Str::slug($data['title']) : null;
+            $data['redirect_url'] = ! empty($data['title']) ? Str::slug($data['title']) : null;
             $data['status'] ??= 0;
             $lastBanner = Banner::orderBy('order', 'desc')->first();
             $data['order'] = $lastBanner ? $lastBanner->order + 1 : 0;
@@ -69,7 +75,7 @@ class BannerController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            if (isset($data['image']) && !empty($data['image']) && filter_var($data['image'], FILTER_VALIDATE_URL)) {
+            if (isset($data['image']) && ! empty($data['image']) && filter_var($data['image'], FILTER_VALIDATE_URL)) {
                 $this->deleteFromLocal($data['image'], self::FOLDER);
             }
 
@@ -78,7 +84,6 @@ class BannerController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -114,9 +119,9 @@ class BannerController extends Controller
                 $data['image'] = $this->uploadToLocal($request->file('image'), self::FOLDER);
 
                 if (
-                    isset($data['image']) && !empty($data['image'])
+                    isset($data['image']) && ! empty($data['image'])
                     && filter_var($data['image'], FILTER_VALIDATE_URL)
-                    && !empty($imageOld)
+                    && ! empty($imageOld)
                 ) {
                     $this->deleteFromLocal($imageOld, self::FOLDER);
                 }
@@ -133,7 +138,7 @@ class BannerController extends Controller
 
             DB::rollBack();
 
-            if (isset($data['image']) && !empty($data['image']) && filter_var($data['image'], FILTER_VALIDATE_URL)) {
+            if (isset($data['image']) && ! empty($data['image']) && filter_var($data['image'], FILTER_VALIDATE_URL)) {
                 $this->deleteFromLocal($data['image'], self::FOLDER);
             }
 
@@ -142,16 +147,21 @@ class BannerController extends Controller
             return back()->with('success', false)->with('error', $e->getMessage());
         }
     }
+
     public function updateOrder(Request $request)
     {
         $data = $request->input('orderData'); // Nhận dữ liệu sắp xếp từ phía client
 
-        foreach ($data as $order => $id) {
-            Banner::where('id', $id)->update(['order' => $order]);
-        }
+        DB::transaction(function () use ($data) {
+            foreach ($data as $order => $id) {
+                Banner::where('id', $id)->update(['order' => $order]);
+            }
+            app(\App\Services\CatalogReadCache::class)->invalidate();
+        });
 
         return response()->json(['status' => 'success', 'message' => 'Cập nhật thứ tự thành công']);
     }
+
     public function destroy(Banner $banner)
     {
         try {
@@ -173,6 +183,7 @@ class BannerController extends Controller
     {
         try {
             $bannersDeleted = Banner::onlyTrashed()->latest('id')->paginate(10);
+
             return view('admin.banners.trash', compact('bannersDeleted'));
         } catch (\Exception $e) {
             $this->logError($e);
@@ -180,11 +191,13 @@ class BannerController extends Controller
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
         }
     }
+
     public function restore($id)
     {
         try {
             $banner = Banner::withTrashed()->findOrFail($id);
             $banner->restore();
+
             return redirect()->route('admin.banners.trash')->with('success', 'Khôi phục người dùng thành công');
         } catch (\Exception $e) {
             $this->logError($e);
@@ -192,11 +205,13 @@ class BannerController extends Controller
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại sau');
         }
     }
+
     public function forceDelete($id)
     {
         try {
             $banner = Banner::withTrashed()->findOrFail($id);
             $banner->forceDelete();
+
             return redirect()->route('admin.banners.trash')->with('success', 'Xóa cứng người dùng thành công');
         } catch (\Exception $e) {
             $this->logError($e);

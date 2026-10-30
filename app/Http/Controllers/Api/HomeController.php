@@ -11,7 +11,6 @@ use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Traits\LoggableTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -20,7 +19,7 @@ class HomeController extends Controller
     public function homeMain()
     {
         try {
-            $data = Cache::remember('home_main', 300, function () {
+            $data = app(\App\Services\CatalogReadCache::class)->remember('home_main', 300, function () {
 
                 $categories = Category::query()
                     ->select('id', 'name', 'slug', 'parent_id')
@@ -69,7 +68,7 @@ class HomeController extends Controller
     public function homeProducts()
     {
         try {
-            $data = Cache::remember('home_products:p2-selling-price', 60, function () {
+            $data = app(\App\Services\CatalogReadCache::class)->remember('home_products:p2-selling-price', 60, function () {
 
                 /* ================= BLOGS ================= */
                 $blogs = Post::query()
@@ -278,10 +277,9 @@ class HomeController extends Controller
                 $selectedVariant = $product->variants->first();
             }
             // Lấy kho hàng còn sản phẩm
-            $warehouses = $product->inventories()
-                ->where('available_quantity', '>', 0)
-                ->with('warehouse')
-                ->get()
+            $stock = $product->inventories()->with('warehouse')->get();
+            $stockByVariant = $stock->groupBy('product_variant_id');
+            $warehouses = $stock->where('available_quantity', '>', 0)
                 ->groupBy('warehouse_id') // 🔥 Nhóm theo kho, tránh bị lặp
                 ->map(function ($items) {
                     $w = $items->first()->warehouse;
@@ -309,12 +307,12 @@ class HomeController extends Controller
                 });
 
             // Format biến thể
-            $variants = $product->variants->map(function ($variant) {
+            $variants = $product->variants->map(function ($variant) use ($stockByVariant) {
                 $originalPrice = $variant->price ?? 0;
                 $finalPrice = $originalPrice;
                 // 🔥 LẤY TỒN KHO
-                $stockQuantity = $variant->inventory->sum('quantity');
-                $availableStock = $variant->inventory->sum('available_quantity');
+                $stockQuantity = $stockByVariant->get($variant->id, collect())->sum('quantity');
+                $availableStock = $stockByVariant->get($variant->id, collect())->sum('available_quantity');
 
                 return [
                     'id' => $variant->id,

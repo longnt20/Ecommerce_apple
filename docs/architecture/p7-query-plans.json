@@ -1,0 +1,108 @@
+{
+    "rejected_correlated_variant_totals": [
+        {
+            "id": 1,
+            "select_type": "PRIMARY",
+            "table": "product_variants",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "product_variants_product_id_foreign",
+            "key": "product_variants_product_id_foreign",
+            "key_len": "8",
+            "ref": "const",
+            "rows": 3,
+            "filtered": 10,
+            "Extra": "Using where"
+        },
+        {
+            "id": 3,
+            "select_type": "DEPENDENT SUBQUERY",
+            "table": "inventory",
+            "partitions": null,
+            "type": "ALL",
+            "possible_keys": "inventory_product_variant_id_foreign",
+            "key": null,
+            "key_len": null,
+            "ref": null,
+            "rows": 15000,
+            "filtered": 10,
+            "Extra": "Using where"
+        },
+        {
+            "id": 2,
+            "select_type": "DEPENDENT SUBQUERY",
+            "table": "inventory",
+            "partitions": null,
+            "type": "ALL",
+            "possible_keys": "inventory_product_variant_id_foreign",
+            "key": null,
+            "key_len": null,
+            "ref": null,
+            "rows": 15000,
+            "filtered": 10,
+            "Extra": "Using where"
+        }
+    ],
+    "detail_stock": [
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "product_variants",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "PRIMARY,product_variants_product_id_foreign",
+            "key": "product_variants_product_id_foreign",
+            "key_len": "8",
+            "ref": "const",
+            "rows": 3,
+            "filtered": 10,
+            "Extra": "Using where"
+        },
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "inventory",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "inventory_product_variant_id_foreign",
+            "key": "inventory_product_variant_id_foreign",
+            "key_len": "8",
+            "ref": "apple_project_p1_fresh_fbfea767b170.product_variants.id",
+            "rows": 15000,
+            "filtered": 100,
+            "Extra": null
+        }
+    ],
+    "warehouse_page": [
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "inventory",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "inventory_warehouse_id_product_variant_id_unique,inventory_warehouse_id_product_variant_id_index",
+            "key": "inventory_warehouse_id_product_variant_id_unique",
+            "key_len": "8",
+            "ref": "const",
+            "rows": 3000,
+            "filtered": 100,
+            "Extra": null
+        }
+    ],
+    "export_chunk": [
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "inventory",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "PRIMARY",
+            "key": "PRIMARY",
+            "key_len": "8",
+            "ref": null,
+            "rows": 7500,
+            "filtered": 100,
+            "Extra": "Using where"
+        }
+    ]
+}

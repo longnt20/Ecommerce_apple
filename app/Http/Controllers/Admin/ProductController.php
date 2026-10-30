@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Modules\Catalog\Infrastructure\SaveProduct;
 use App\Traits\GeneratesBarcode;
 use App\Traits\LoggableTrait;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
@@ -71,7 +70,7 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = Cache::remember('categories_list', 3600, function () {
+        $categories = app(\App\Services\CatalogReadCache::class)->remember('categories_list', 3600, function () {
             return Category::select('id', 'name')->get();
         });
 

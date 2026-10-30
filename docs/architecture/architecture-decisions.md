@@ -1,5 +1,17 @@
 # Architecture Decision Records
 
+## ADR-019 — Hiệu năng có số liệu và recovery sandbox P7 (2026-10-30)
+
+- Trạng thái: áp dụng trong phạm vi P7 local/sandbox được duyệt; chưa kết luận CI remote hoặc production đã vận hành.
+- Workload/ngưỡng được duyệt: 1.000 products × 3 SKU × 5 kho; CSV 100.000 dòng, detail ≤8 query, home ≤5, CSV ≤64 MiB/subprocess và chunk 1.000. p95 chẩn đoán, chưa là production SLO.
+- Query Object/read adapter bên ngoài Modules gom OR search trong warehouse/status; scalar joins + keyset/high-water mark CSV thay load toàn bộ. CSV không hứa snapshot tài chính khi có concurrent writes; header/route giữ nguyên, text công thức được neutralize.
+- Product detail tái sử dụng tập stock chung cho totals/warehouses. Correlated SUM bị loại sau EXPLAIN cho thấy quét inventory trong subquery; dùng index FK/PK hiện có, không thêm index khi chưa có bằng chứng.
+- Display cache dùng scoped memoization, generation key và observer sau outer commit; tx bypass shared cache. Bulk reorder banner gọi invalidation rõ ràng. Không cache giá/tồn quyết định checkout hoặc đưa cache vào Domain/Application. Request/job kế tiếp nạp generation mới; build cũ chỉ ghi generation cũ, TTL giới hạn orphan keys.
+- Database queue after_commit, retry/timeout/backoff hữu hạn; worker crash/retry và scheduler expiry lặp đã kiểm chứng bằng subprocess thật trên DB allowlisted. Task Windows thật giữ Disabled. Không hứa email exactly-once hoặc timeout pcntl trên Windows; outbox/inbox chỉ xét P8 riêng.
+- Structured logs bỏ payload/SQL bindings, tóm tắt Throwable; Telescope opt-in/watchers off mặc định và active-admin middleware cả local. Không purge dữ liệu cũ hoặc tự áp retention chưa duyệt.
+- CI service cùng MySQL engine trên runner, install lockfiles; không Docker local/dependencies mới. Workflow SHA pin, quyền read-only, schema/race/recovery/budget checks bật, không continue-on-error. Actions remote/branch protection chưa xác minh khi chưa push/chạy workflow.
+- Rehearsal backup/restore 56 bảng tổng hợp + FK anti-join/balance; config/routes cache và rollback cache trên runtime riêng. Không migration P7 hoặc ghi DB nghiệp vụ. [Số liệu](p7-performance-after.json), [trạng thái](../roadmap/P7_STATUS.md), [runbook](../runbooks/P7_OPERATIONS.md).
+
 ## ADR-018 — Lifecycle P6 và archive an toàn (2026-10-30)
 
 - Chủ dự án duyệt thu đủ COD có mã đối soát; refund request/kết quả thủ công, không gọi provider; hàng trả chỉ bán lại sau kiểm tra đạt. Coupon một mã/đơn, reserve ở checkout, redeem online paid/COD confirmed, release pending cancel/expiry. Cho phép migration additive sau sandbox + backup/restore/rehearsal, giữ legacy mơ hồ.
