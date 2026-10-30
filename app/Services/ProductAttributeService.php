@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use App\Models\ProductAttribute;
-use Illuminate\Support\Facades\Cache;
 
 class ProductAttributeService
 {
     public function getAttributesByType($type)
     {
-        return Cache::remember("product_attributes_{$type}", 3600, function () use ($type) {
+        return app(\App\Services\CatalogReadCache::class)->remember("product_attributes_{$type}", 3600, function () use ($type) {
             return ProductAttribute::active()
                 ->byType($type)
                 ->ordered()
@@ -30,7 +29,6 @@ class ProductAttributeService
 
     public function clearCache()
     {
-        Cache::forget('product_attributes_color');
-        Cache::forget('product_attributes_storage');
+        app(CatalogReadCache::class)->invalidate();
     }
 }

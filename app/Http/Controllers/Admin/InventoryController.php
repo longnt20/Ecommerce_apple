@@ -57,26 +57,8 @@ class InventoryController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Inventory::with(['warehouse', 'productVariant.product']);
-
-        // Filters
-        if ($request->warehouse_id) {
-            $query->where('warehouse_id', $request->warehouse_id);
-        }
-
-        if ($request->status == 'low_stock') {
-            $query->lowStock();
-        } elseif ($request->status == 'out_of_stock') {
-            $query->outOfStock();
-        }
-
-        if ($request->search) {
-            $query->whereHas('productVariant', function ($q) use ($request) {
-                $q->where('sku', 'like', "%{$request->search}%");
-            })->orWhereHas('productVariant.product', function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%");
-            });
-        }
+        $query = app(\App\Reporting\InventoryReadQuery::class)->filtered($request)
+            ->with(['warehouse', 'productVariant.product']);
 
         $inventory = $query->paginate(10);
         $warehouses = Warehouse::active()->get();
@@ -361,19 +343,8 @@ class InventoryController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $inventory = Inventory::with(['productVariant.product', 'warehouse'])
-            ->when($request->warehouse_id, function ($q) use ($request) {
-                $q->where('warehouse_id', $request->warehouse_id);
-            })
-            ->when($request->status == 'low_stock', function ($q) {
-                $q->lowStock();
-            })
-            ->when($request->status == 'out_of_stock', function ($q) {
-                $q->outOfStock();
-            })
-            ->get();
+        $inventory = app(\App\Reporting\InventoryReadQuery::class)->rows($request);
 
-        // You can use Laravel Excel package or simple CSV export
         $filename = 'inventory_'.date('Y-m-d').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -388,13 +359,13 @@ class InventoryController extends Controller
 
             foreach ($inventory as $item) {
                 fputcsv($file, [
-                    $item->productVariant->sku,
-                    $item->productVariant->product->name,
-                    $item->warehouse->name,
+                    \App\Reporting\InventoryReadQuery::csvText($item->sku),
+                    \App\Reporting\InventoryReadQuery::csvText($item->product_name),
+                    \App\Reporting\InventoryReadQuery::csvText($item->warehouse_name),
                     $item->quantity,
                     $item->available_quantity,
                     $item->reserved_quantity,
-                    $item->location,
+                    \App\Reporting\InventoryReadQuery::csvText($item->location),
                 ]);
             }
             fclose($file);
@@ -443,9 +414,9 @@ class InventoryController extends Controller
             ->mapWithKeys(function ($item) {
                 return [
                     $item->product_variant_id => [
-                        'name' => $item->productVariant->product->name,
+                        'name' => \App\Reporting\InventoryReadQuery::csvText($item->product_name),
                         'variant' => $item->productVariant->color.' - '.$item->productVariant->storage,
-                        'sku' => $item->productVariant->sku,
+                        'sku' => \App\Reporting\InventoryReadQuery::csvText($item->sku),
                         'image' => asset('storage/'.$item->productVariant->thumbnail),
                         'quantity' => $item->quantity,
                         'available_quantity' => $item->available_quantity,

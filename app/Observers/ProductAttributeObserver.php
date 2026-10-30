@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\ProductAttribute;
 use App\Services\ProductAttributeService;
 
-class ProductAttributeObserver
+class ProductAttributeObserver implements \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit
 {
     protected $attributeService;
 

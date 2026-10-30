@@ -1,5 +1,7 @@
 # Kế hoạch nâng cấp Backend
 
+**Cập nhật P7 — 2026-10-30:** đã duyệt workload tổng hợp, detail ≤8 query, home ≤5, CSV ≤64 MiB/chunk 1.000 và chỉ rehearsal worker/scheduler sandbox, giữ task Windows Disabled. Đã triển khai query/CSV/cache, logs/Telescope, queue profiles, diagnostics, CI config và recovery/restore/release-cache tests. [P7_STATUS](P7_STATUS.md), [verification](../architecture/p7-verification.json), [runbook](../runbooks/P7_OPERATIONS.md). Kết luận trong phạm vi local/sandbox; CI remote, production worker/scheduler và SLO tải thật chưa xác minh. Không migration/dependencies mới, deploy hoặc chuyển P8. Các trạng thái P0–P6 dưới đây là lịch sử.
+
 Ngày lập: 2026-10-28. **Kế hoạch gốc và theo dõi triển khai; trạng thái phê duyệt ghi bên dưới.**
 
 **Cập nhật P6 — 2026-10-30:** chủ dự án yêu cầu triển khai P6, đã duyệt quy tắc COD/refund/return/coupon và cho phép migration additive sau kiểm chứng/backup/rehearsal. Đã hoàn thành MVP P6a–d, áp dụng migration thứ 56, giữ graph order P3/P4 và dữ liệu legacy mơ hồ; regression 196 tests/2.119 assertions với một skip đúng nhánh. Xem [P6_STATUS](P6_STATUS.md) cho acceptance, bằng chứng rollout và giới hạn scheduler/provider; [contract](../architecture/p6-lifecycle-contract.md), [runbook](../runbooks/P6_OPERATIONS.md). Dừng ở P6 để review; không triển khai P7/P8 hoặc tự commit/push. Các trạng thái “chưa triển khai P6” bên dưới là lịch sử.

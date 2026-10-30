@@ -21,6 +21,15 @@ class AssignCouponJob implements ShouldQueue
 
     protected const BATCH_SIZE = 1000;
 
+    public int $tries = 3;
+
+    public int $timeout = 60;
+
+    public function backoff(): array
+    {
+        return [10, 30, 60];
+    }
+
     public function __construct($coupon, $userIds)
     {
         $this->afterCommit();

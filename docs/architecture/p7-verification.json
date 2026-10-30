@@ -1,0 +1,113 @@
+{
+    "phase": "P7",
+    "verified_at_utc": "2026-10-30T15:33:39+00:00",
+    "junit": {
+        "tests": 209,
+        "assertions": 2284,
+        "skipped": 1,
+        "failures": 0,
+        "errors": 0
+    },
+    "sandbox_rehearsals_passed": [
+        "test_real_worker_failed_job_retry_and_crash_recovery",
+        "test_real_scheduler_expires_once_and_release_route_cache_rehearsal",
+        "test_full_backup_restores_all_tables_foreign_keys_and_inventory_balances",
+        "test_sandbox_row_lock_wait_is_measured_and_no_balance_changes",
+        "test_approved_budgets_in_fresh_subprocesses",
+        "test_database_cache_does_not_add_queries_per_attribute_accessor",
+        "test_ci_is_fail_closed_and_enables_all_critical_sandbox_suites",
+        "test_framework_channel_applies_redaction_before_writing"
+    ],
+    "benchmark_dataset_and_body_hashes_equal": true,
+    "approved_budgets_passed": true,
+    "source_migration_count": 56,
+    "source_reference": "Private P6 rollout receipt; original-column projections, not a claim about later additive ledger columns.",
+    "source_business_reference_comparisons": {
+        "users": {
+            "count": 8,
+            "p6_original_columns_preserved": true
+        },
+        "orders": {
+            "count": 52,
+            "p6_original_columns_preserved": true
+        },
+        "order_items": {
+            "count": 56,
+            "p6_original_columns_preserved": true
+        },
+        "inventory": {
+            "count": 184,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_transactions": {
+            "count": 259,
+            "p6_original_columns_preserved": true
+        },
+        "carts": {
+            "count": 3,
+            "p6_original_columns_preserved": true
+        },
+        "cart_items": {
+            "count": 1,
+            "p6_original_columns_preserved": true
+        },
+        "product_variants": {
+            "count": 194,
+            "p6_original_columns_preserved": true
+        },
+        "payment_attempts": {
+            "count": 0,
+            "p6_original_columns_preserved": true
+        },
+        "payment_events": {
+            "count": 0,
+            "p6_original_columns_preserved": true
+        },
+        "order_transitions": {
+            "count": 0,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_operations": {
+            "count": 0,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_reservations": {
+            "count": 45,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_reservation_items": {
+            "count": 18,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_discrepancies": {
+            "count": 0,
+            "p6_original_columns_preserved": true
+        },
+        "inventory_legacy_holds": {
+            "count": 184,
+            "p6_original_columns_preserved": true
+        },
+        "products": {
+            "count": 28,
+            "p6_original_columns_preserved": true
+        },
+        "product_specs": {
+            "count": 131,
+            "p6_original_columns_preserved": true
+        },
+        "coupons": {
+            "count": 2,
+            "p6_original_columns_preserved": true
+        },
+        "coupon_uses": {
+            "count": 2,
+            "p6_original_columns_preserved": true
+        }
+    },
+    "runtime_gates_from_env": {
+        "inventory_protocol_enabled": true,
+        "order_transitions_enabled": true,
+        "vnpay_enabled": false
+    },
+    "github_actions_run": "Not executed remotely; workflow syntax/policy tested locally. No push/deploy performed."
+}

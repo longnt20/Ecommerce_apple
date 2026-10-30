@@ -1,0 +1,74 @@
+name: Commerce quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.0.30
+        env:
+          MYSQL_ROOT_PASSWORD: p7-ci-disposable
+          MYSQL_ROOT_HOST: '%'
+          MYSQL_DATABASE: apple_project_ci_source
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      APP_ENV: testing
+      TELESCOPE_ENABLED: 'false'
+      MAIL_MAILER: array
+      LOG_CHANNEL: 'null'
+      P1_SCHEMA_TESTS: '1'
+      P2_SCHEMA_TESTS: '1'
+      P3_SCHEMA_TESTS: '1'
+      P4_SCHEMA_TESTS: '1'
+      P6_SCHEMA_TESTS: '1'
+      P7_SCHEMA_TESTS: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: '8.3.30'
+          extensions: pdo_mysql, mbstring, dom, fileinfo
+          coverage: none
+          tools: composer:v2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: composer install --no-interaction --prefer-dist --no-scripts
+      - name: Prepare disposable MySQL only
+        env:
+          CI_MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          php tests/Support/prepare-ci.php
+          php tests/Support/prepare-p6-sandbox.php --sandbox-only
+      - name: Critical correctness, concurrency, recovery and approved P7 budgets
+        run: php vendor/bin/phpunit
+      - name: P7 formatting
+        run: php tests/Support/p7-lint.php
+      - name: Frontend contracts and build
+        run: |
+          node --test tests/Frontend/p2-security.test.mjs tests/Frontend/p4-checkout.test.mjs
+          npm ci --prefix frontend
+          npm run build --prefix frontend

@@ -1,0 +1,50 @@
+{
+    "phase": "P7",
+    "version": "after",
+    "recorded_at_utc": "2026-10-30T15:29:20+00:00",
+    "php": "8.3.30",
+    "mysql": "8.0.30",
+    "method": "Fresh subprocess per workload; controller boundary, cold array cache per iteration; excludes application boot/seeding, includes SQL and response/CSV consumption. Local diagnostic, not an HTTP/load SLO. CSV uses a bounded output sink, no output accumulation.",
+    "dataset": {
+        "products": 1000,
+        "variants_per_product": 3,
+        "warehouses": 5,
+        "inventory_rows": 15000,
+        "csv_products": 6667,
+        "csv_variants": 20001,
+        "csv_inventory_rows": 100000,
+        "fixture_version": 1
+    },
+    "results": {
+        "detail": {
+            "samples": 30,
+            "query_count_max": 8,
+            "p95_ms": 8.258,
+            "median_ms": 4.996,
+            "sql_time_ms_max": 10.74,
+            "peak_memory_bytes": 25165824,
+            "response_sha256": "785939ee466255e65d0617face803e20b42f440448c62b314476d9dff97af870",
+            "response_bytes": 1584
+        },
+        "home": {
+            "samples": 30,
+            "query_count_max": 5,
+            "p95_ms": 9.703,
+            "median_ms": 5.39,
+            "sql_time_ms_max": 7.48,
+            "peak_memory_bytes": 25165824,
+            "response_sha256": "6dbcee19b85822f2c14f70e8a3fc4dc57acbf85d4a7536a71f17ff181e7ca8d5",
+            "response_bytes": 3913
+        },
+        "csv": {
+            "samples": 3,
+            "query_count_max": 102,
+            "p95_ms": 734.392,
+            "median_ms": 679.888,
+            "sql_time_ms_max": 568.78,
+            "peak_memory_bytes": 27262976,
+            "response_sha256": "7dd9d990a84e8cffc7bbc3685756c657d0e99f041d2ab3920df9798715a29368",
+            "response_bytes": 5683472
+        }
+    }
+}

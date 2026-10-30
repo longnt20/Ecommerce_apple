@@ -14,6 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->scoped(\App\Services\CatalogReadCache::class);
         $this->app->bind(\App\Services\Payments\PaymentGateway::class, \App\Services\Payments\VnPayGateway::class);
         Paginator::useBootstrapFive();
     }
@@ -31,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
         ProductAttribute::observe(ProductAttributeObserver::class);
+        foreach ([\App\Models\Product::class, \App\Models\ProductVariant::class,
+            \App\Models\Category::class, \App\Models\Banner::class, \App\Models\Post::class,
+            \App\Models\Promotion::class, \App\Models\PromotionItem::class, \App\Models\Frame::class] as $model) {
+            $model::observe(\App\Observers\CatalogReadCacheObserver::class);
+        }
     }
 }
