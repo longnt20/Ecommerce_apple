@@ -1,0 +1,106 @@
+{
+    "phase": "P6",
+    "verified_at_utc": "2026-10-30T06:54:22+00:00",
+    "migration_count": 56,
+    "runtime_gates": {
+        "vnpay_enabled": false,
+        "inventory_protocol_enabled": true,
+        "order_transitions_enabled": true
+    },
+    "full_backup_restore_rehearsal_verified": true,
+    "old_column_business_fingerprints": {
+        "users": {
+            "count": 8,
+            "preserved": true
+        },
+        "orders": {
+            "count": 52,
+            "preserved": true
+        },
+        "order_items": {
+            "count": 56,
+            "preserved": true
+        },
+        "inventory": {
+            "count": 184,
+            "preserved": true
+        },
+        "inventory_transactions": {
+            "count": 259,
+            "preserved": true
+        },
+        "carts": {
+            "count": 3,
+            "preserved": true
+        },
+        "cart_items": {
+            "count": 1,
+            "preserved": true
+        },
+        "product_variants": {
+            "count": 194,
+            "preserved": true
+        },
+        "payment_attempts": {
+            "count": 0,
+            "preserved": true
+        },
+        "payment_events": {
+            "count": 0,
+            "preserved": true
+        },
+        "order_transitions": {
+            "count": 0,
+            "preserved": true
+        },
+        "inventory_operations": {
+            "count": 0,
+            "preserved": true
+        },
+        "inventory_reservations": {
+            "count": 45,
+            "preserved": true
+        },
+        "inventory_reservation_items": {
+            "count": 18,
+            "preserved": true
+        },
+        "inventory_discrepancies": {
+            "count": 0,
+            "preserved": true
+        },
+        "inventory_legacy_holds": {
+            "count": 184,
+            "preserved": true
+        },
+        "products": {
+            "count": 28,
+            "preserved": true
+        },
+        "product_specs": {
+            "count": 131,
+            "preserved": true
+        },
+        "coupons": {
+            "count": 2,
+            "preserved": true
+        },
+        "coupon_uses": {
+            "count": 2,
+            "preserved": true
+        }
+    },
+    "new_table_counts": {
+        "payment_adjustments": 0,
+        "payment_adjustment_events": 0,
+        "coupon_redemptions": 0,
+        "coupon_assignment_deliveries": 0,
+        "inventory_return_receipts": 0,
+        "inventory_documents": 0,
+        "inventory_document_lines": 0,
+        "inventory_settings": 0
+    },
+    "legacy_duplicate_assignment_pairs": 0,
+    "legacy_paid_without_verified_collection": 3,
+    "legacy_action": "Preserved; no financial, return or coupon backfill. Ambiguous evidence is refused by new workflows."
+}

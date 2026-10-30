@@ -44,9 +44,9 @@ class ModulePerformanceTest extends MySqlTestCase
         ksort($query);
         $query['vnp_SecureHash'] = hash_hmac('sha512', http_build_query($query, '', '&', PHP_QUERY_RFC1738), 'synthetic-p5-secret');
         $measure('payment_ipn', fn () => app(PaymentService::class)->notify($query));
-        $budgets = ['checkout_cod' => 35, 'checkout_replay' => 5, 'confirm' => 19, 'shipping' => 35, 'import' => 15, 'payment_ipn' => 10];
+        $budgets = ['checkout_cod' => 35, 'checkout_replay' => 5, 'confirm' => 20, 'shipping' => 35, 'import' => 15, 'payment_ipn' => 11];
         foreach ($metrics as $name => $metric) {
-            $this->assertLessThanOrEqual($budgets[$name], $metric['queries'], $name.' query budget (P4 baseline plus at most one legacy adapter read)');
+            $this->assertLessThanOrEqual($budgets[$name], $metric['queries'], $name.' query budget (P5 baseline + one P6 coupon lookup on confirm/IPN)');
         }
         $this->assertSame('paid', Order::findOrFail($online->id)->payment_status);
         if (in_array(getenv('P5_PROFILE'), ['before', 'after'], true)) {

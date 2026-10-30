@@ -26,11 +26,11 @@ class StoreCouponRequest extends FormRequest
             'code' => 'required|string|max:255|unique:coupons,code',
             'description' => 'nullable|string',
             'discount_type' => 'required|in:percentage,fixed',
-            'discount_value' => 'required|numeric',
-            'discount_max_value' => 'nullable|numeric|min:0',
+            'discount_value' => 'required|numeric|min:0.01|max:99999999.99',
+            'discount_max_value' => 'nullable|numeric|min:0|max:99999999.99',
             'start_date' => 'required|date',
             'expire_date' => 'required|date|after:start_date',
-            'max_usage' => 'nullable|integer',
+            'max_usage' => 'nullable|integer|min:0|max:2147483647',
             'status' => 'boolean',
             'system_wide' => 'required|boolean',
             'selected_users' => [
@@ -42,7 +42,7 @@ class StoreCouponRequest extends FormRequest
                     }
                 },
             ],
-            'selected_users.*' => 'exists:users,id',
+            'selected_users.*' => 'integer|distinct|exists:users,id',
         ];
     }
 

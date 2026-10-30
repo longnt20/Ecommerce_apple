@@ -1,5 +1,15 @@
 # Architecture Decision Records
 
+## ADR-018 — Lifecycle P6 và archive an toàn (2026-10-30)
+
+- Chủ dự án duyệt thu đủ COD có mã đối soát; refund request/kết quả thủ công, không gọi provider; hàng trả chỉ bán lại sau kiểm tra đạt. Coupon một mã/đơn, reserve ở checkout, redeem online paid/COD confirmed, release pending cancel/expiry. Cho phép migration additive sau sandbox + backup/restore/rehearsal, giữ legacy mơ hồ.
+- Ordering điều phối AfterSales và CouponRedemptions trong local transaction với order lock; Payments/Inventory/Pricing sở hữu ledger riêng, không thêm dependency ngược về Ordering. Không dùng distributed saga hoặc callback email để quyết định tiền/kho.
+- Refund dùng hạn mức collected có chứng cứ và requested+settled; trạng thái thu tiền trên đơn giữ nguyên, ledger mô tả hoàn. Return có proof committed và cap theo item; receipt damaged nằm ngoài pool sellable. Các action bền vững có operation/payload hash, unique references và events; history không bị sửa khi retry.
+- Coupon khóa row và dùng current locking reads sau khi lock kho để chống snapshot stale của MySQL. Assignment job theo revision, không xóa cấp cũ; delivery pending riêng để phục hồi trước dispatch, không hứa exactly-once SMTP. Quy tắc VND dương P2 giữ nguyên, chưa hỗ trợ free order/promotion stacking.
+- SaveProduct/SaveAccount là adapter persistence admin, giữ UploadedFile/Laravel ở Infrastructure. Atomic aggregate, child scope, file mới cleanup khi thất bại, ảnh cũ sau commit và kiểm references. Archive bảo toàn order relations/snapshots; chặn force-delete cả category vì cascade legacy.
+- Không gỡ compatibility bridges chỉ để chuyển import tests: còn scripts maintenance và provider E2E chưa xác minh. Owner/điều kiện review tiếp được bổ sung trong registry P5. Không bật VNPay, thêm package, triển khai P7/P8 hoặc tự commit/push.
+- Chi tiết matrix/schema/HTTP: [contract P6](p6-lifecycle-contract.md); [runbook](../runbooks/P6_OPERATIONS.md); [trạng thái kiểm chứng](../roadmap/P6_STATUS.md). Các ghi chú P0–P5 bên dưới là lịch sử, không ghi đè bằng quyết định mới lên dữ liệu cũ.
+
 ## ADR-017 — Module boundaries P5, giữ transaction P4 (2026-10-29)
 
 - Chủ dự án yêu cầu triển khai tiếp P5. Phạm vi là các use case P2–P4 đã có tests: checkout/quote, stock protocol, payment, order transition/expiry; không rewrite CRUD, không triển khai P6 hoặc đổi database/API/dependencies.

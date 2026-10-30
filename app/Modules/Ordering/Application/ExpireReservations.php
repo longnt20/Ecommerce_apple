@@ -14,7 +14,7 @@ use App\SharedKernel\Transactions;
 final class ExpireReservations implements ReservationExpiry
 {
     public function __construct(private OrderStore $orders, private InventoryOperations $operations, private InventoryReservations $reservations,
-        private PaymentLedger $payments, private Transactions $transactions, private Clock $clock) {}
+        private PaymentLedger $payments, private Transactions $transactions, private Clock $clock, private \App\Modules\Pricing\Contracts\CouponRedemptions $coupons) {}
 
     public function due(int $limit = 100): array
     {
@@ -40,6 +40,7 @@ final class ExpireReservations implements ReservationExpiry
             $receipt = $this->orders->record($orderId, ActorContext::system(), 'pending', 'cancelled', hash('sha256', 'system-expiry:'.$hold->id),
                 hash('sha256', json_encode([$orderId, $hold->id, 'expired'])), 'Reservation expired', null, $this->clock->now());
             $this->reservations->expire($this->orders->allocation($order), $receipt->id);
+            $this->coupons->finish($orderId, false);
             $this->orders->setStatus($orderId, 'cancelled', $this->clock->now());
 
             return true;

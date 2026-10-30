@@ -120,10 +120,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title mb-0">Danh sách mã giảm giá</h4>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#importModal">Import dữ liệu</button>
-                            <a href="{{ route('admin.coupons.exportCoupon') }}" class="btn btn-sm btn-success h-75">Export dữ
-                                liệu</a>
+                            <a href="{{ route('admin.coupons.deleted') }}" class="btn btn-sm btn-secondary">Đã lưu trữ</a>
                             <button class="btn btn-sm btn-primary" id="toggleAdvancedSearch">
                                 Tìm kiếm nâng cao
                             </button>
@@ -349,36 +346,6 @@
             <!-- end col -->
         </div>
         <!-- end row -->
-        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="importModalLabel">Import Dữ Liệu</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="importForm" action="{{ route('admin.coupons.import') }}" method="POST"
-                              enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="importFile" class="form-label">Chọn file để import:</label>
-                                <input type="file" class="form-control" name="file" id="file"
-                                       accept=".xlsx,.xls,.csv" required>
-                                <div class="form-text">
-                                    Định dạng hỗ trợ: Excel (.xlsx, .xls) hoặc CSV (.csv)
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="ri-upload-2-line me-1"></i> Tiến hành Import
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 @push('scripts')

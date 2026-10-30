@@ -17,7 +17,7 @@ use App\SharedKernel\Transactions;
 final class ChangeOrderStatus implements OrderTransitions
 {
     public function __construct(private OrderStore $orders, private AccountAccess $accounts, private InventoryReservations $reservations,
-        private OrderTransitionPolicy $policy, private Transactions $transactions, private Clock $clock) {}
+        private OrderTransitionPolicy $policy, private Transactions $transactions, private Clock $clock, private \App\Modules\Pricing\Contracts\CouponRedemptions $coupons) {}
 
     private function authorize(ActorContext $actor): void
     {
@@ -58,6 +58,11 @@ final class ChangeOrderStatus implements OrderTransitions
                 $this->reservations->transition($this->orders->allocation($order), $receipt->id, $target, $actor);
             } catch (InventoryConflict $error) {
                 throw new OrderTransitionConflict($error->reasonCode, $error->getMessage());
+            }
+            if ($target === 'cancelled') {
+                $this->coupons->finish($orderId, false);
+            } elseif ($target === 'confirmed' && $order->paymentMethod === 'cod') {
+                $this->coupons->finish($orderId, true);
             }
             $this->orders->setStatus($orderId, $target, $this->clock->now());
 

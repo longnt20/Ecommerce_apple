@@ -15,6 +15,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'idempotency_key' => 'required|uuid',
+            'coupon_code' => 'nullable|string|max:255',
             'payment_method' => 'required|in:cod,vnpay',
             'mode' => 'sometimes|in:cart,buy-now',
             'items' => 'required|array|min:1|max:100',

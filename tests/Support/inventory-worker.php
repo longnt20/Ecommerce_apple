@@ -27,6 +27,12 @@ try {
         if ($action === 'checkout') {
             $order = app(App\Services\Ordering\PlaceOrder::class)->place($input['payload'], $input['actor'] ?? 910001);
             $result = ['order_id' => $order->id];
+        } elseif ($action === 'manual-money') {
+            $result = app(App\Modules\Ordering\Contracts\AfterSales::class)->money($input['order_id'], new App\SharedKernel\ActorContext(910002), $input['key'], $input['payload']);
+        } elseif ($action === 'returned-goods') {
+            $result = app(App\Modules\Ordering\Contracts\AfterSales::class)->receive($input['order_id'], new App\SharedKernel\ActorContext(910002), $input['key'], $input['payload']);
+        } elseif ($action === 'assign-coupon') {
+            $result = ['id' => app(App\Modules\Pricing\Infrastructure\CouponAssignments::class)->assign($input['coupon_id'], 910001, 0)];
         } elseif ($action === 'expiry') {
             $result = ['expired' => app(App\Services\Inventory\ExpireReservations::class)->expire($input['order_id'])];
         } elseif ($action === 'payment') {

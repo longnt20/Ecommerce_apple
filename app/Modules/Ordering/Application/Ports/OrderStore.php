@@ -27,5 +27,7 @@ interface OrderStore
 
     public function setStatus(int $orderId, string $status, \DateTimeImmutable $at): void;
 
+    public function discount(int $orderId, int $amount): void;
+
     public function markPaid(int $orderId, string $transaction, \DateTimeImmutable $at): void;
 }

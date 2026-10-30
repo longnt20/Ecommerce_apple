@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ProductVariant extends Model
 {
     use SoftDeletes;
+
     protected $fillable = ['product_id', 'sku', 'price', 'cost_price', 'thumbnail', 'barcode', 'color', 'storage'];
 
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withTrashed();
     }
+
     public function inventory()
     {
         return $this->hasMany(Inventory::class);
@@ -24,17 +26,20 @@ class ProductVariant extends Model
     {
         return $this->morphMany(PromotionItem::class, 'item');
     }
+
     public function getColorLabelAttribute()
     {
         $attributeService = app(ProductAttributeService::class);
+
         return $attributeService->getColors()[$this->color] ?? null;
     }
-    protected $appends = ['thumbnail_url','color_label'];
+
+    protected $appends = ['thumbnail_url', 'color_label'];
 
     public function getThumbnailUrlAttribute()
     {
         return $this->thumbnail
-            ? asset('storage/' . $this->thumbnail)
+            ? asset('storage/'.$this->thumbnail)
             : null;
     }
 }

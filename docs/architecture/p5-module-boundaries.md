@@ -90,6 +90,12 @@ Reporting read-only: dashboard/reports/getWarehouseInventory trong Admin Invento
 
 ## Guard tự động và giới hạn
 
+### Review cổng P6 (2026-10-30)
+
+Các use case mới dùng Contracts ở ranh giới module: AfterSales (Ordering), ManualPayments (Payments), ReturnedGoods (Inventory), CouponRedemptions (Pricing). Catalog.SaveProduct/Identity.SaveAccount và settings/documents là persistence/admin edge adapters; UploadedFile không qua business contracts. CouponAssignments thuộc Pricing, jobs là transport adapter; không để Ordering truy vấn coupon tables. Category chỉ bổ sung guard force-delete để chặn cascade history.
+
+Giữ compatibility bridges P0–P5 có chủ đích: InventoryService vẫn phục vụ HTTP batch mapping; legacy backfill là maintenance coordinator; các bridges payment/order/stock/quote còn bảo vệ chữ ký tests/scripts. Không tìm thấy runtime caller mới của OrderAllocationGuard; chưa xóa chỉ dựa trên tìm kiếm repository vì provider E2E/scripts ngoài repo chưa xác minh. Owner giữ nguyên trong bảng trên. Review retirement tiếp sau khi audit caller/scripts và provider hoàn tất; không coi việc kết thúc P6 là lý do đổi import hàng loạt hoặc xóa maintenance tools. Không có bridge mới chứa implementation song song.
+
 tests/Architecture/ModuleBoundaryTest kiểm dependency DAG qua PHP tokens, model owner imports (cả group và fully qualified), một số raw table access, readonly DTO/type signatures, framework independence, SharedKernel và balance assignment writer duy nhất. Những guard này không phải full PHP static analyzer: dynamic SQL, reflection, alias/table name động và side effects qua relations vẫn cần review/integration tests.
 
 P0–P4 HTTP/MySQL/concurrency tests giữ vai trò kiểm chứng behavior thực tế. Tests P5 bổ sung adapter/contract replay cùng effect, CLI guest với actor tường minh, Clock injection, chống fabricated payment DTO và query budget. [Performance evidence](p5-performance-baseline.json) chỉ là diagnostic synthetic local, không phải load test/SLO production.

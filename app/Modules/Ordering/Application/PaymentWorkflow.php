@@ -14,7 +14,7 @@ use App\SharedKernel\Transactions;
 final class PaymentWorkflow implements Contract
 {
     public function __construct(private OrderStore $orders, private PaymentLedger $ledger, private InventoryReservations $reservations,
-        private Transactions $transactions, private Clock $clock) {}
+        private Transactions $transactions, private Clock $clock, private \App\Modules\Pricing\Contracts\CouponRedemptions $coupons) {}
 
     public function start(int $orderId): Attempt
     {
@@ -45,6 +45,7 @@ final class PaymentWorkflow implements Contract
                     return $order->payment($hold);
                 });
                 if ($result->outcome === 'paid') {
+                    $this->coupons->finish($order->id, true);
                     $this->orders->markPaid($order->id, $result->providerTransaction, $this->clock->now());
                     if ($hold !== null) {
                         $this->reservations->retainAfterPayment($order->id);

@@ -13,6 +13,10 @@ test('checkout retry preserves one key, ignores client prices and item order, st
   const first = await checkoutOperationKey(payload, storage)
   const retry = { ...payload, items: [...payload.items].reverse().map(item => ({ ...item, price: 999 })) }
   assert.equal(await checkoutOperationKey(retry, storage), first)
+  const discounted = await checkoutOperationKey({ ...payload, coupon_code: 'ASSIGNED10' }, storage)
+  assert.notEqual(discounted, first)
+  assert.equal(await checkoutOperationKey({ ...retry, coupon_code: 'ASSIGNED10' }, storage), discounted)
+  assert.notEqual(await checkoutOperationKey({ ...payload, coupon_code: 'ASSIGNED20' }, storage), discounted)
   for (const value of ['PRIVATE NAME', 'PRIVATE PHONE', 'PRIVATE ADDRESS']) assert.equal([...map.values()][0].includes(value), false)
   assert.notEqual(await checkoutOperationKey({ ...payload, address: 'Different address' }, storage), first)
   const second = await checkoutOperationKey(payload, storage)

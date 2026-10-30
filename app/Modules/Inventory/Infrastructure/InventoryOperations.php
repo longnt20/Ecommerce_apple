@@ -18,7 +18,25 @@ final class InventoryOperations implements Contract
     {
         $this->assertEnabled();
 
-        return $this->operations->run($kind, $actor->id, $key, $payload, $work);
+        return $this->operations->run($kind, $actor->id, $key, $payload, function ($operationId) use ($kind, $actor, $payload, $work) {
+            $result = $work($operationId);
+            if (str_starts_with($kind, 'admin-batch-')) {
+                $lines = $result['lines'];
+                $open = count(array_filter($lines, fn ($line) => ($line['discrepancy_id'] ?? null) !== null)) > 0;
+                $id = \Illuminate\Support\Facades\DB::table('inventory_documents')->insertGetId([
+                    'operation_id' => $operationId, 'kind' => substr($kind, 12), 'actor_id' => $actor->id,
+                    'status' => $open ? 'needs_reconciliation' : 'completed', 'payload' => json_encode($payload, JSON_THROW_ON_ERROR), 'created_at' => now(),
+                ]);
+                foreach (array_values($lines) as $index => $line) {
+                    \Illuminate\Support\Facades\DB::table('inventory_document_lines')->insert([
+                        'document_id' => $id, 'line' => $index + 1, 'result' => json_encode($line, JSON_THROW_ON_ERROR),
+                    ]);
+                }
+                $result['document_id'] = $id;
+            }
+
+            return $result;
+        });
     }
 
     public function admin(string $kind, ActorContext $actor, string $key, array $payload): array
