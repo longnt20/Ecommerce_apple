@@ -1,0 +1,116 @@
+{
+    "phase": "P8",
+    "verified_at_utc": "2026-10-30T16:17:39+00:00",
+    "scope": "Isolated local experiment, no production deployment",
+    "junit": {
+        "tests": 223,
+        "assertions": 2382,
+        "skipped": 1,
+        "failures": 0,
+        "errors": 0
+    },
+    "required_recovery_and_isolation_tests_passed": [
+        "test_real_producer_crash_after_business_commit_before_publish_loses_no_event",
+        "test_business_and_outbox_rollback_together_and_independent_relay_can_deliver",
+        "test_failed_outbox_insert_rolls_back_actual_product_and_variants",
+        "test_relay_crash_after_publish_retries_original_event_and_replay_is_audited",
+        "test_consumer_crash_before_and_after_effect_is_atomic_and_post_commit_retry_deduplicates",
+        "test_reorder_unsupported_schema_identity_conflict_and_offline_replay",
+        "test_schema_is_repeatable_consumer_has_no_source_access_and_disabled_mode_still_writes",
+        "test_concurrent_consumers_apply_one_effect_and_relay_failure_keeps_pending_event",
+        "test_concurrent_product_writers_allocate_distinct_ordered_stream_versions",
+        "test_normal_monolith_needs_no_experimental_schema_and_keeps_stock_unchanged",
+        "test_malformed_transport_is_quarantined_and_does_not_block_valid_events"
+    ],
+    "source_experiment_enabled": false,
+    "source_experimental_tables": 0,
+    "source_migration_count": 56,
+    "source_reference": "Private P6 rollout receipt; original-column projections of 20 business tables only.",
+    "source_business_comparisons": {
+        "users": {
+            "count": 8,
+            "original_columns_preserved": true
+        },
+        "orders": {
+            "count": 52,
+            "original_columns_preserved": true
+        },
+        "order_items": {
+            "count": 56,
+            "original_columns_preserved": true
+        },
+        "inventory": {
+            "count": 184,
+            "original_columns_preserved": true
+        },
+        "inventory_transactions": {
+            "count": 259,
+            "original_columns_preserved": true
+        },
+        "carts": {
+            "count": 3,
+            "original_columns_preserved": true
+        },
+        "cart_items": {
+            "count": 1,
+            "original_columns_preserved": true
+        },
+        "product_variants": {
+            "count": 194,
+            "original_columns_preserved": true
+        },
+        "payment_attempts": {
+            "count": 0,
+            "original_columns_preserved": true
+        },
+        "payment_events": {
+            "count": 0,
+            "original_columns_preserved": true
+        },
+        "order_transitions": {
+            "count": 0,
+            "original_columns_preserved": true
+        },
+        "inventory_operations": {
+            "count": 0,
+            "original_columns_preserved": true
+        },
+        "inventory_reservations": {
+            "count": 45,
+            "original_columns_preserved": true
+        },
+        "inventory_reservation_items": {
+            "count": 18,
+            "original_columns_preserved": true
+        },
+        "inventory_discrepancies": {
+            "count": 0,
+            "original_columns_preserved": true
+        },
+        "inventory_legacy_holds": {
+            "count": 184,
+            "original_columns_preserved": true
+        },
+        "products": {
+            "count": 28,
+            "original_columns_preserved": true
+        },
+        "product_specs": {
+            "count": 131,
+            "original_columns_preserved": true
+        },
+        "coupons": {
+            "count": 2,
+            "original_columns_preserved": true
+        },
+        "coupon_uses": {
+            "count": 2,
+            "original_columns_preserved": true
+        }
+    },
+    "equivalent_projection_and_offline_catchup": true,
+    "transport": "Local private file spool; process crash/replay tested, network broker/physical host failure not tested",
+    "external_email_or_payment_effects": "None in experiment; Reporting DB projection only",
+    "github_actions_run": "Not executed remotely",
+    "decision": "Keep Modular Monolith default; retain experiment, no independent production service yet"
+}

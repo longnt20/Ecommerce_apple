@@ -16,7 +16,7 @@ class OperationsConfigurationTest extends TestCase
         $workflow = Yaml::parseFile(base_path('.github/workflows/quality.yml'));
         $this->assertSame(['contents' => 'read'], $workflow['permissions']);
         $job = $workflow['jobs']['regression'];
-        foreach (['P1', 'P2', 'P3', 'P4', 'P6', 'P7'] as $phase) {
+        foreach (['P1', 'P2', 'P3', 'P4', 'P6', 'P7', 'P8'] as $phase) {
             $this->assertSame('1', $job['env'][$phase.'_SCHEMA_TESTS']);
         }
         foreach ($job['steps'] as $step) {

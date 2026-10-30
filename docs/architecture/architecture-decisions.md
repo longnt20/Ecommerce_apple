@@ -1,5 +1,17 @@
 # Architecture Decision Records
 
+## ADR-020 — Reporting prototype outbox/inbox P8, giữ monolith mặc định (2026-10-30)
+
+- Trạng thái: đã kiểm chứng local/sandbox trên nhánh `experiment/p8-catalog-reporting`; không triển khai service production. Chủ dự án yêu cầu thực hiện P8; không tự suy ra quyền đổi DB/reader production hoặc push.
+- Chọn Reporting catalog cards thay Notifications để kiểm chứng tách process/DB mà không tạo SMTP duplicate window hoặc tác động tiền/tồn. Không tách Ordering–Inventory. Prototype dùng PHP/MySQL/file spool hiện có, không broker/dependency mới.
+- Catalog thêm port/no-op; SaveProduct/save SKU ghi snapshot qua port cuối business transaction. Adapter thử nghiệm opt-in, testing + fresh DB allowlist + producer marker + transaction bắt buộc; default không cần P8 schema. Composition root experiment nằm ngoài Modules; Domain/Application không import transport hoặc framework.
+- Producer outbox + monotonic per-product stream version cùng transaction product/SKUs. Relay publish retained file trước acknowledge DB; retry/replay giữ UUID và có audit. Consumer riêng dùng inbox unique ID + stream version, canonical payload hash và projection/audit cùng DB commit; full snapshot mới thắng, cũ stale, unsupported/identity conflict quarantine.
+- Chọn full snapshot vì Reporting không cần áp tuần tự mọi delta; version gap được phép. Quy tắc này không được tái dùng cho inventory/financial ledger. Guarantee một effect projection theo event identity trong DB không phải exactly-once transport/email.
+- Hai logical schemas và credential riêng trên cùng MySQL local; consumer không boot Laravel/đọc env/quyền nguồn. Shared filesystem/code/vendor còn coupling, chưa chứng minh deploy/network/host failure độc lập. Migrations SQL versioned ngoài default Laravel path; không áp vào nguồn, không tự backfill dữ liệu thật.
+- Số liệu cùng 20 cards/1.000 products × 3 SKU × 5 kho: read 2→1 query, p95 6,497→1,227 ms; write ORM 3→9 query, tổng MySQL statements 5→13, p95 7,338→15,747 ms. 1.030 event bắt kịp/inbox đầy đủ, 1.000 cards; catch-up batch local khoảng 13,716 giây. Không dùng số liệu này làm production SLO hoặc so với API home đầy đủ.
+- Quyết định: giữ Modular Monolith mặc định; giữ prototype cho học tập. Precomputed read model có thể nằm nội bộ monolith; read gain hiện chưa bù đủ complexity để chốt service production riêng. Cần workload đồng thời, ownership/deployment/transport/retention và feed archive/raw updates trước quyết định tiếp.
+- Rollback: production reader chưa chuyển; dừng external consumer, giữ inbox/version watermark/event IDs và pending outbox; in-process fallback dùng cùng consumer DB/inbox. Không chạy consumer side effect không dedup, không purge theo published_at hoặc restore nguồn. [P8_STATUS](../roadmap/P8_STATUS.md), [benchmark](p8-performance.json), [verification](p8-verification.json), [runbook](../runbooks/P8_EXPERIMENT.md).
+
 ## ADR-019 — Hiệu năng có số liệu và recovery sandbox P7 (2026-10-30)
 
 - Trạng thái: áp dụng trong phạm vi P7 local/sandbox được duyệt; chưa kết luận CI remote hoặc production đã vận hành.

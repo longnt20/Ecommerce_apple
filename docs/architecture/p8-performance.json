@@ -1,0 +1,71 @@
+{
+    "phase": "P8",
+    "recorded_at_utc": "2026-10-30T16:09:39+00:00",
+    "php": "8.3.30",
+    "mysql": "8.0.30",
+    "dataset": {
+        "products": 1000,
+        "skus_per_product": 3,
+        "warehouses": 5,
+        "inventory_rows": 15000,
+        "card_page_size": 20
+    },
+    "method": "Sequential local diagnostic, 30 samples each; same catalog card fields and fixture, source eager loading vs independent PDO projection. Includes SQL/mapping, excludes fixture/bootstrap and role verification. Write benchmark excludes media/uploads. Not public home endpoint or production SLO.",
+    "writes": {
+        "monolith": {
+            "samples": 30,
+            "median_ms": 5.719,
+            "p95_ms": 7.338,
+            "orm_query_count_max": 3,
+            "mysql_statement_count_max": 5
+        },
+        "with_outbox": {
+            "samples": 30,
+            "median_ms": 8.939,
+            "p95_ms": 15.747,
+            "orm_query_count_max": 9,
+            "mysql_statement_count_max": 13
+        }
+    },
+    "reads": {
+        "monolith": {
+            "samples": 30,
+            "median_ms": 3.136,
+            "p95_ms": 6.497,
+            "query_count_max": 2,
+            "response_sha256": "e9583014795e9412e9261d4a6065ba5cc69e29f11b149de6a8721330c78f5c28"
+        },
+        "projection": {
+            "samples": 30,
+            "median_ms": 0.709,
+            "p95_ms": 1.227,
+            "query_count_max": 1,
+            "response_sha256": "e9583014795e9412e9261d4a6065ba5cc69e29f11b149de6a8721330c78f5c28"
+        }
+    },
+    "offline_and_catchup": {
+        "committed_events_while_consumer_offline": 30,
+        "total_published": 1030,
+        "outcomes": {
+            "applied": 1002,
+            "stale": 28,
+            "duplicate": 0,
+            "quarantined": 0
+        },
+        "relay_and_consumer_subprocess_wall_ms": 13715.733,
+        "inbox_count": 1030,
+        "projection_rows": 1000,
+        "remaining_unpublished": 0
+    },
+    "replay": {
+        "original_event_republished": 1,
+        "duplicate_page_count": 1000
+    },
+    "retained_transport": {
+        "outbox_messages": 1030,
+        "outbox_envelope_bytes": 376958,
+        "spool_files": 1030,
+        "spool_bytes": 350178
+    },
+    "decision": "Keep Modular Monolith as production default; retain isolated Reporting experiment for learning. A narrow projection query reduction does not justify independent production service without concurrent load, network transport and operational ownership."
+}

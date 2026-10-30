@@ -58,6 +58,7 @@ final class TestApplication
                 'logging.default' => 'null',
                 'telescope.enabled' => false,
                 'inventory.enabled' => true,
+                'p8.enabled' => false,
             ]);
         });
 
