@@ -9,7 +9,7 @@ class ModuleBoundaryTest extends TestCase
     private const DEPENDENCIES = ['Identity' => [], 'Catalog' => [], 'Pricing' => ['Catalog'],
         'Inventory' => ['Identity'], 'Payments' => [], 'Ordering' => ['Identity', 'Pricing', 'Inventory', 'Payments']];
 
-    private const MODELS = ['User' => 'Identity', 'Product' => 'Catalog', 'ProductVariant' => 'Catalog',
+    private const MODELS = ['User' => 'Identity', 'Product' => 'Catalog', 'ProductVariant' => 'Catalog', 'ProductSpec' => 'Catalog',
         'Inventory' => 'Inventory', 'InventoryOperation' => 'Inventory', 'InventoryReservation' => 'Inventory',
         'InventoryReservationItem' => 'Inventory', 'InventoryLegacyHold' => 'Inventory', 'InventoryDiscrepancy' => 'Inventory',
         'InventoryTransaction' => 'Inventory', 'Warehouse' => 'Inventory', 'PaymentAttempt' => 'Payments',
@@ -117,6 +117,7 @@ class ModuleBoundaryTest extends TestCase
             foreach ($tables[1] as $table) {
                 $tableOwner = match (true) {
                     str_starts_with($table, 'inventory') => 'Inventory', str_starts_with($table, 'payment') => 'Payments',
+                    str_starts_with($table, 'coupon') => 'Pricing',
                     str_starts_with($table, 'order'), str_starts_with($table, 'cart') => 'Ordering', default => null,
                 };
                 $this->assertSame($owner, $tableOwner, $path.' cross-module SQL');

@@ -339,7 +339,7 @@ class InventoryController extends Controller
         // Additional metrics
         $totalProducts = ProductVariant::count();
         $totalWarehouses = Warehouse::count();
-        $lowStockCount = Inventory::where('quantity', '<=', 10)->count();
+        $lowStockCount = Inventory::where('quantity', '<=', app(\App\Modules\Inventory\Infrastructure\InventorySettings::class)->read()['low_stock_threshold'])->count();
         $totalStockValue = DB::table('inventory')
             ->join('product_variants', 'inventory.product_variant_id', '=', 'product_variants.id')
             ->sum(DB::raw('inventory.quantity * product_variants.cost_price'));
@@ -408,11 +408,7 @@ class InventoryController extends Controller
      */
     public function settings()
     {
-        $settings = [
-            'low_stock_threshold' => config('inventory.low_stock_threshold', 10),
-            'auto_reserve' => config('inventory.auto_reserve', true),
-            'negative_stock_allowed' => config('inventory.negative_stock_allowed', false),
-        ];
+        $settings = app(\App\Modules\Inventory\Infrastructure\InventorySettings::class)->read();
 
         return view('admin.inventory.settings', compact('settings'));
     }
@@ -423,13 +419,13 @@ class InventoryController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'low_stock_threshold' => 'required|integer|min:0',
-            'auto_reserve' => 'boolean',
-            'negative_stock_allowed' => 'boolean',
+            'low_stock_threshold' => 'required|integer|min:0|max:2147483647',
+            'auto_reserve' => 'sometimes|accepted',
+            'negative_stock_allowed' => 'sometimes|declined',
         ]);
 
-        // Save settings to database or config
-        // You might want to create a settings table for this
+        app(\App\Modules\Inventory\Infrastructure\InventorySettings::class)->save(
+            (int) $request->low_stock_threshold, new \App\SharedKernel\ActorContext($request->user()->id));
 
         return redirect()->route('admin.inventory.settings')
             ->with('success', 'Cài đặt đã được cập nhật');
@@ -459,6 +455,27 @@ class InventoryController extends Controller
             });
 
         return response()->json($inventory);
+    }
+
+    public function transactionDetail(int $id)
+    {
+        return response()->json(['data' => InventoryTransaction::with(['warehouse', 'creator'])->findOrFail($id)]);
+    }
+
+    public function document(int $id)
+    {
+        $document = DB::table('inventory_documents')->where('id', $id)->first();
+        abort_unless($document, 404);
+
+        return response()->json(['document' => $document, 'lines' => DB::table('inventory_document_lines')->where('document_id', $id)->orderBy('line')->get()]);
+    }
+
+    public function resolveDiscrepancy(Request $request, int $id)
+    {
+        $data = $request->validate(['operation_key' => 'required|string|max:128', 'quantity' => 'required|integer|min:0|max:2147483647', 'reason' => 'required|string|max:500']);
+
+        return response()->json(app(\App\Modules\Inventory\Infrastructure\StockWriter::class)->resolve(
+            $id, (int) $data['quantity'], $data['reason'], (int) $request->user()->id, $data['operation_key']));
     }
 
     private function mutate(string $kind, Request $request, array $payload, ?string $route, callable $work)

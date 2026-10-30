@@ -117,6 +117,9 @@
           <strong>{{ format(subtotal) }}đ</strong>
         </div>
 
+        <label for="coupon-code">Mã giảm giá đã được cấp</label>
+        <input id="coupon-code" v-model="couponCode" maxlength="255" class="form-control" :disabled="loading || submitted" placeholder="Nhập mã coupon (nếu có)">
+        <p class="text-muted">Coupon được kiểm tra khi đặt hàng. Số tiền sau giảm hiển thị trên đơn đã tạo.</p>
         <p class="text-muted">Giá giỏ hàng là tạm tính. Đơn hàng áp dụng giá bán hiện tại của cửa hàng khi đặt.</p>
         <button class="btn-checkout" @click="submitCheckout" :disabled="loading || submitted">
           {{ loading ? 'Đang xử lý...' : 'Đặt hàng' }}
@@ -137,6 +140,7 @@ import { locationService } from "@/services/locationService";
 import { checkoutOperationKey } from "@/services/checkoutCommand";
 
 const submitted = ref(false);
+const couponCode = ref('');
 
 
 // Cart
@@ -308,6 +312,7 @@ const submitCheckout = async () => {
     const payload = {
       mode: new URLSearchParams(window.location.search).get('mode') === 'buy-now' ? 'buy-now' : 'cart',
       payment_method: paymentMethod.value,
+      ...(couponCode.value.trim() ? { coupon_code: couponCode.value.trim() } : {}),
       items: cart.value.items.map(item => ({
         product_id: item.product.id,
         variant_id: item.variant.id,

@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\CouponsExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Coupons\ImportCouponRequest;
 use App\Http\Requests\Admin\Coupon\StoreCouponRequest;
 use App\Http\Requests\Admin\Coupon\UpdateCouponRequest;
-use App\Imports\CouponsImport;
 use App\Jobs\AssignCouponJob;
 use App\Models\Coupon;
 use App\Models\CouponUse;
@@ -18,7 +15,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
 
 class CouponController extends Controller
 {
@@ -82,13 +78,13 @@ class CouponController extends Controller
 
             $userIds = $request->system_wide
                 ? User::whereNotIn('role', ['admin', 'employee'])
-                ->where('status', 'active')
-                ->whereNotNull('email_verified_at')
-                ->pluck('id')
-                ->toArray()
+                    ->where('status', 'active')
+                    ->whereNotNull('email_verified_at')
+                    ->pluck('id')
+                    ->toArray()
                 : $request->selected_users;
 
-            AssignCouponJob::dispatch($coupon, $userIds);
+            AssignCouponJob::dispatch($coupon, $userIds ?? [])->afterCommit();
 
             DB::commit();
 
@@ -98,7 +94,11 @@ class CouponController extends Controller
 
             $this->logError($e);
 
-            return redirect()->back()->with('error', $e->getMessage());
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                throw $e;
+            }
+
+            return redirect()->back()->with('error', 'Không thể lưu coupon, vui lòng thử lại sau');
         }
     }
 
@@ -131,41 +131,23 @@ class CouponController extends Controller
             // dd($request->all());
             DB::beginTransaction();
 
-            $coupon = Coupon::findOrFail($id);
+            $coupon = Coupon::whereKey($id)->lockForUpdate()->firstOrFail();
             $data = $request->validated();
 
             $data['discount_max_value'] = (empty($data['discount_max_value']) || $data['discount_type'] == 'fixed') ? 0 : $data['discount_max_value'];
+            $held = DB::table('coupon_redemptions')->where('coupon_id', $coupon->id)->where('status', 'reserved')->count();
+            if (isset($data['max_usage']) && $data['max_usage'] < $coupon->used_count + $held) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['max_usage' => 'Giới hạn không được thấp hơn số lượt đã dùng và đang giữ.']);
+            }
             $coupon->update($data);
 
-            if ($request->has('selected_users')) {
-                $newUserIds = is_array($request->selected_users) ? $request->selected_users : [];
-
-                $existingUserIds = $coupon->couponUses()->pluck('user_id')->toArray();
-
-                $usersToAdd = array_diff($newUserIds, $existingUserIds);
-                $usersToDelete = array_diff($existingUserIds, $newUserIds);
-
-                if (!empty($usersToDelete)) {
-                    $coupon->couponUses()->whereIn('user_id', $usersToDelete)->delete();
-                }
-
-                if (!empty($usersToAdd)) {
-                    $now = now();
-                    $batchData = collect($usersToAdd)->map(function ($userId) use ($coupon, $now) {
-                        return [
-                            'user_id' => $userId,
-                            'coupon_id' => $coupon->id,
-                            'status' => 'unused',
-                            'expired_at' => $now->clone()->addDays(7),
-                            'created_at' => $now,
-                            'updated_at' => $now,
-                        ];
-                    })->toArray();
-
-                    if (!empty($batchData)) {
-                        DB::table('coupon_uses')->insert($batchData);
-                    }
-                }
+            if ($request->has('selected_users') || $request->boolean('system_wide')) {
+                $coupon->increment('assignment_revision');
+                $newUserIds = $request->boolean('system_wide')
+                    ? User::whereNotIn('role', ['admin', 'employee'])->where('status', 'active')->whereNotNull('email_verified_at')->pluck('id')->all()
+                    : array_values(array_unique(array_map('intval', $request->selected_users ?? [])));
+                app(\App\Modules\Pricing\Infrastructure\CouponAssignments::class)->revokeExcept($coupon->id, $newUserIds);
+                AssignCouponJob::dispatch($coupon, $newUserIds)->afterCommit();
             }
 
             DB::commit();
@@ -175,8 +157,36 @@ class CouponController extends Controller
             DB::rollBack();
             $this->logError($e);
 
-            return redirect()->back()->with('error', $e->getMessage());
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                throw $e;
+            }
+
+            return redirect()->back()->with('error', 'Không thể lưu coupon, vui lòng thử lại sau');
         }
+    }
+
+    public function listDeleted()
+    {
+        return view('admin.coupons.trash', ['coupons' => Coupon::onlyTrashed()->latest('id')->paginate(10)]);
+    }
+
+    public function destroy(string $id)
+    {
+        DB::transaction(fn () => Coupon::whereKey($id)->lockForUpdate()->firstOrFail()->delete());
+
+        return redirect()->route('admin.coupons.index')->with('success', 'Đã lưu trữ coupon; lịch sử được giữ nguyên.');
+    }
+
+    public function restoreDelete(string $id)
+    {
+        Coupon::onlyTrashed()->findOrFail($id)->restore();
+
+        return back()->with('success', 'Đã khôi phục coupon.');
+    }
+
+    public function forceDelete(string $id)
+    {
+        return back()->with('warning', 'Coupon chỉ được lưu trữ để bảo toàn lịch sử cấp và sử dụng.');
     }
 
     public function suggestionCounpoun(Request $request)
@@ -190,7 +200,7 @@ class CouponController extends Controller
                 for ($i = 1; $i <= 3; $i++) {
                     do {
                         $counponCode = '';
-                        $counponCode = Str::upper($counpon . substr(str_replace('-', '', Str::uuid()), 0, 6));
+                        $counponCode = Str::upper($counpon.substr(str_replace('-', '', Str::uuid()), 0, 6));
                     } while (Coupon::where('code', $counponCode)->exists());
 
                     $suggestCounpons[] = $counponCode;
@@ -215,7 +225,7 @@ class CouponController extends Controller
                 ->whereNotIn('role', ['admin', 'employee'])
                 ->where('status', 'active')
                 ->whereNotNull('email_verified_at')
-                ->when(!empty($excludeIds), function ($query) use ($excludeIds) {
+                ->when(! empty($excludeIds), function ($query) use ($excludeIds) {
                     $query->whereNotIn('id', $excludeIds);
                 })
                 ->where(function ($query) use ($searchQuery) {
@@ -231,15 +241,15 @@ class CouponController extends Controller
                 'users' => $users,
                 'pagination' => [
                     'more' => false,
-                    'total' => $users->count()
-                ]
+                    'total' => $users->count(),
+                ],
             ]);
         } catch (\Exception $e) {
             $this->logError($e);
 
             return response()->json([
                 'error' => true,
-                'message' => 'Có lỗi xảy ra, vui lòng thử lại'
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

@@ -31,30 +31,32 @@ class UpdateProductVariantRequest extends FormRequest
                 'required',
                 Rule::unique('product_variants', 'sku')->ignore($variantId),
             ],
-            'price' => 'required|numeric|min:0',
-            'cost_price' => 'nullable|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:9999999999999.99',
+            'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cost_price' => 'nullable|numeric|min:0|max:9999999999999.99',
             'barcode' => [
                 'nullable',
                 'string',
                 Rule::unique('product_variants', 'barcode')->ignore($variantId),
             ],
-            'color' => 'nullable|string',
-            'storage' => 'nullable|string',
+            'color' => 'nullable|string|max:255',
+            'storage' => 'nullable|string|max:255',
         ];
     }
+
     public function messages()
     {
         return [
             'product_id.required' => 'Vui lòng chọn sản phẩm',
-            'product_id.exists'   => 'Sản phẩm không tồn tại',
-            'sku.required'        => 'Vui lòng nhập mã sản phẩm',
-            'sku.unique'          => 'Mã sản phẩm đã tồn tại',
-            'price.numeric'       => 'Giá sản phẩm phải là số',
-            'price.min'           => 'Giá sản phẩm phải lớn hơn 0',
-            'cost_price.numeric'       => 'Giá khuyến mãi phải là số',
-            'cost_price.min'           => 'Giá khuyến mãi phải lớn hơn 0',
-            'barcode.string'           => 'Barcode phải là một chuỗi kí tự',
-            'barcode.unique'           => 'Barcode đã tồn tại',
+            'product_id.exists' => 'Sản phẩm không tồn tại',
+            'sku.required' => 'Vui lòng nhập mã sản phẩm',
+            'sku.unique' => 'Mã sản phẩm đã tồn tại',
+            'price.numeric' => 'Giá sản phẩm phải là số',
+            'price.min' => 'Giá sản phẩm phải lớn hơn 0',
+            'cost_price.numeric' => 'Giá khuyến mãi phải là số',
+            'cost_price.min' => 'Giá khuyến mãi phải lớn hơn 0',
+            'barcode.string' => 'Barcode phải là một chuỗi kí tự',
+            'barcode.unique' => 'Barcode đã tồn tại',
         ];
     }
 }

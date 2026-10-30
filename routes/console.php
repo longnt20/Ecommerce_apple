@@ -41,3 +41,14 @@ Artisan::command('inventory:reconcile', function (\App\Modules\Inventory\Contrac
 
     return $result['unexplained'] === [] ? 0 : 1;
 })->purpose('Read-only balance, reservation and protocol movement reconciliation');
+
+Artisan::command('coupons:retry-notifications {--limit=100}', function () {
+    $ids = \Illuminate\Support\Facades\DB::table('coupon_assignment_deliveries')->where('status', 'pending')
+        ->orderBy('id')->limit(max(1, min(1000, (int) $this->option('limit'))))->pluck('assignment_id');
+    foreach ($ids as $id) {
+        \App\Jobs\NotifyCouponAssignment::dispatch((int) $id)->afterCommit();
+    }
+    $this->info('Pending notification jobs submitted: '.$ids->count());
+})->purpose('Recover new coupon notices interrupted before queue dispatch; no legacy assignment replay');
+
+Schedule::command('coupons:retry-notifications')->everyFiveMinutes()->withoutOverlapping();

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
-use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -50,23 +50,26 @@ class UserController extends Controller
          | 3. ƯU ĐÃI / VOUCHER
          ====================== */
         // giả sử có bảng voucher_user
-        $vouchers = Coupon::whereHas('user', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
+        $vouchers = Coupon::whereHas('couponUses', function ($q) use ($user) {
+            $q->where('user_id', $user->id)->where('status', 'unused')->whereNull('revoked_at')
+                ->where(fn ($q) => $q->whereNull('expired_at')->orWhereDate('expired_at', '>=', now()));
         })
-        ->where('expire_date', '>', now())
-        ->get();
+            ->where('status', true)
+            ->where(fn ($q) => $q->whereNull('start_date')->orWhereDate('start_date', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('expire_date')->orWhereDate('expire_date', '>=', now()))
+            ->get();
 
         /* ======================
          | RESPONSE
          ====================== */
         return response()->json([
             'user' => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'avatar'=> $user->avatar ? asset('storage/' . $user->avatar)
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->avatar ? asset('storage/'.$user->avatar)
                             : null,
                 'email' => $user->email,
-                'role'  => $user->role,
+                'role' => $user->role,
             ],
 
             'orders' => $orders,
@@ -84,13 +87,17 @@ class UserController extends Controller
     {
         $order = Order::with([
             'items.product',
-            'items.variant'
+            'items.variant',
         ])
-        ->where('user_id', $request->user()->id)
-        ->findOrFail($id);
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($id);
+
+        foreach ($order->items as $item) {
+            $item->variant?->makeHidden('cost_price');
+        }
 
         return response()->json([
-            'data' => $order
+            'data' => $order,
         ]);
     }
 }

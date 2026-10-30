@@ -9,10 +9,11 @@ require __DIR__.'/../../vendor/autoload.php';
 
 $manifests = [
     'p2-p3' => ['2026_10_29_000001_create_verified_payments.php', '2026_10_29_000002_create_order_transitions.php'],
+    'p6' => ['2026_10_30_000001_create_commerce_lifecycle.php'],
     'p4' => ['2026_10_29_000003_create_inventory_protocol.php', '2026_10_29_000004_create_inventory_legacy_holds.php'],
 ];
 if ($argc !== 3 || ! isset($manifests[$argv[1]]) || ! in_array($argv[2], ['--rehearse', '--apply'], true)) {
-    fwrite(STDERR, "Usage: php tests/Support/rollout-schema.php p2-p3|p4 --rehearse|--apply\n");
+    fwrite(STDERR, "Usage: php tests/Support/rollout-schema.php p2-p3|p4|p6 --rehearse|--apply\n");
     exit(2);
 }
 $sandbox = null;
@@ -32,7 +33,7 @@ try {
     }
     $fingerprint = static function (PDO $connection, array $projection = []): array {
         $result = [];
-        foreach (['users', 'orders', 'order_items', 'inventory', 'inventory_transactions', 'carts', 'cart_items', 'product_variants', 'payment_attempts', 'payment_events', 'order_transitions', 'inventory_operations', 'inventory_reservations', 'inventory_reservation_items', 'inventory_discrepancies', 'inventory_legacy_holds'] as $table) {
+        foreach (['users', 'orders', 'order_items', 'inventory', 'inventory_transactions', 'carts', 'cart_items', 'product_variants', 'payment_attempts', 'payment_events', 'order_transitions', 'inventory_operations', 'inventory_reservations', 'inventory_reservation_items', 'inventory_discrepancies', 'inventory_legacy_holds', 'products', 'product_specs', 'coupons', 'coupon_uses'] as $table) {
             $query = $connection->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?');
             $query->execute([$table]);
             if ((int) $query->fetchColumn() !== 0) {

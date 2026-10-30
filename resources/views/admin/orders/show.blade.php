@@ -54,8 +54,8 @@
                         <div class="d-flex align-items-center">
                             <h5 class="card-title flex-grow-1 mb-0">Đơn hàng: {{ $order->code }}</h5>
                             <div class="flex-shrink-0">
-                                <a href="#" class="btn btn-success btn-sm">
-                                    <i class="ri-download-2-fill align-middle me-1"></i> Invoice
+                                <a href="{{ route('admin.orders.after-sales', $order->id) }}" class="btn btn-success btn-sm">
+                                    Đối soát tiền / hàng trả
                                 </a>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                                                             class="img-fluid d-block">
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <h5 class="fs-15 mb-1">{{ $item->product->name }}</h5>
+                                                        <h5 class="fs-15 mb-1">{{ $item->product_name ?? $item->product?->name ?? 'Sản phẩm đã lưu trữ' }}</h5>
 
                                                         @if ($item->variant)
                                                             <p class="text-muted mb-0">
@@ -119,7 +119,7 @@
                                                     <tr>
                                                         <td>Subtotal:</td>
                                                         <td class="text-end">
-                                                            {{ number_format($order->subtotal, 0, ',', '.') }}đ
+                                                            {{ number_format($order->total_price, 0, ',', '.') }}đ
                                                         </td>
                                                     </tr>
 
@@ -302,15 +302,15 @@
                             <li>
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
-                                        <img src="{{ Storage::url($order->user->avatar) }}" alt=""
+                                        <img src="{{ Storage::url($order->user?->avatar ?? '') }}" alt=""
                                             class="avatar-sm rounded">
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="fs-14 mb-1">{{ $order->user->name }}</h6>
+                                        <h6 class="fs-14 mb-1">{{ $order->user?->name ?? $order->fullname }}</h6>
                                     </div>
                                 </div>
                             </li>
-                            <li><i class="ri-mail-line me-2 align-middle text-muted fs-16"></i>{{ $order->user->email }}
+                            <li><i class="ri-mail-line me-2 align-middle text-muted fs-16"></i>{{ $order->user?->email ?? $order->email }}
                             </li>
                             <li><i
                                     class="ri-phone-line me-2 align-middle text-muted fs-16"></i>{{ $order->user->phone ?? 'không có' }}

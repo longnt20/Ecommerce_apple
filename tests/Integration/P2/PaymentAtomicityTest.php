@@ -34,6 +34,9 @@ class PaymentAtomicityTest extends TestCase
         DB::setDefaultConnection('p2_atomic');
         (require database_path('migrations/2026_10_28_000001_reconcile_application_schema.php'))->up();
         (require database_path('migrations/2026_10_29_000001_create_verified_payments.php'))->up();
+        (require database_path('migrations/2026_10_29_000002_create_order_transitions.php'))->up();
+        (require database_path('migrations/2026_10_29_000003_create_inventory_protocol.php'))->up();
+        (require database_path('migrations/2026_10_30_000001_create_commerce_lifecycle.php'))->up();
         DB::table('users')->insert(['id' => 1, 'name' => 'P2 synthetic', 'email' => 'p2-atomic@example.test', 'password' => 'synthetic-only', 'code' => 'P2-ATOMIC']);
         DB::table('warehouses')->insert(['id' => 1, 'code' => 'P2-WH', 'name' => 'Synthetic', 'address' => 'Synthetic', 'city' => 'Synthetic']);
         $order = Order::create(['user_id' => 1, 'code' => 'P2-ATOMIC-ORDER', 'payment_method' => 'VNPAY', 'total_price' => 10000, 'final_amount' => 10000]);

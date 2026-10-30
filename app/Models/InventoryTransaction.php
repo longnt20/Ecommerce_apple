@@ -62,7 +62,7 @@ class InventoryTransaction extends Model
 
     public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->belongsTo(ProductVariant::class)->withTrashed();
     }
 
     public function fromWarehouse(): BelongsTo
@@ -77,12 +77,12 @@ class InventoryTransaction extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->belongsTo(User::class, 'approved_by')->withTrashed();
     }
 
     // Scopes

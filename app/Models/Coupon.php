@@ -23,9 +23,9 @@ class Coupon extends Model
         'status',
         'max_usage',
         'used_count',
-        'specific_course'
+        'specific_course',
     ];
-    
+
     // protected $casts = [
     //     'expire_date' => 'date',
     // ];
@@ -43,7 +43,6 @@ class Coupon extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
-
 }

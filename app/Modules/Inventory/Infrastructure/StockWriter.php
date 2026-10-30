@@ -88,6 +88,36 @@ class StockWriter
         });
     }
 
+    public function resolve(int $id, int $quantity, string $reason, int $actorId, string $key): array
+    {
+        $this->assertEnabled();
+        if (! $this->accounts->administrator(new ActorContext($actorId)) || trim($reason) === '' || mb_strlen($reason) > 500) {
+            throw new InventoryConflict('forbidden_actor', 'Cần quyền quản trị và lý do đối soát.');
+        }
+        $quantity = $this->store->positive($quantity, true);
+
+        return $this->operations->run('resolve-discrepancy', $actorId, $key, compact('id', 'quantity', 'reason'), function ($operationId) use ($id, $quantity, $reason, $actorId) {
+            $row = InventoryDiscrepancy::findOrFail($id);
+            $inventory = Inventory::findOrFail($row->inventory_id);
+            $this->store->lockWarehouses([(int) $inventory->warehouse_id]);
+            $stock = $this->store->lock((int) $inventory->warehouse_id, (int) $inventory->product_variant_id, false, true);
+            $row = InventoryDiscrepancy::whereKey($id)->lockForUpdate()->firstOrFail();
+            if ($row->status !== 'open' || $quantity < $stock->reserved_quantity) {
+                throw new InventoryConflict('discrepancy_unresolved', 'Chênh lệch đã đóng hoặc số đếm vẫn thấp hơn lượng đang giữ.');
+            }
+            $difference = $quantity - $stock->quantity;
+            $stock->last_counted_at = $this->clock->now();
+            $movement = $this->change($stock, $difference, 0, 'adjust', $difference, $operationId, $actorId,
+                ['reference_type' => 'inventory_discrepancy', 'reference_id' => $id, 'reason' => $reason]);
+            $row->update(['status' => 'resolved', 'details' => array_merge($row->details ?? [], [
+                'resolution_operation_id' => $operationId, 'resolved_by' => $actorId, 'resolved_count' => $quantity,
+                'resolution_reason' => $reason, 'resolved_at' => $this->clock->now()->format(DATE_ATOM),
+            ])]);
+
+            return ['movement_ids' => [$movement->id], 'discrepancy_id' => $id, 'status' => 'resolved'];
+        });
+    }
+
     public function available(Inventory $stock, int $quantity): void
     {
         if ($stock->available_quantity < $quantity) {

@@ -47,7 +47,6 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::get('/{id}', [ProductController::class, 'show'])->name('show');
         Route::post('/store', [ProductController::class, 'store'])->name('store');
-        Route::post('/upload', [ProductController::class, 'uploadTemp'])->name('upload');
         Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('edit');
         Route::put('/{id}', [ProductController::class, 'update'])->name('update');
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
@@ -60,7 +59,6 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('/create', [ProductVariantController::class, 'create'])->name('create');
         Route::get('/{id}', [ProductVariantController::class, 'show'])->name('show');
         Route::post('/store', [ProductVariantController::class, 'store'])->name('store');
-        Route::post('/upload', [ProductVariantController::class, 'uploadTemp'])->name('upload');
         Route::get('/edit/{id}', [ProductVariantController::class, 'edit'])->name('edit');
         Route::put('/{id}', [ProductVariantController::class, 'update'])->name('update');
         Route::delete('/{id}', [ProductVariantController::class, 'destroy'])->name('destroy');
@@ -101,6 +99,8 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('reports/export', [InventoryController::class, 'exportExcel'])->name('reports.export');
 
         // Settings
+        Route::post('discrepancies/{id}/resolve', [InventoryController::class, 'resolveDiscrepancy'])->name('discrepancies.resolve');
+        Route::get('documents/{id}', [InventoryController::class, 'document'])->name('documents.show');
         Route::get('settings', [InventoryController::class, 'settings'])->name('settings');
         Route::post('settings', [InventoryController::class, 'updateSettings'])->name('settings.update');
 
@@ -126,7 +126,6 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
         Route::get('/create', [UserController::class, 'create'])->name('create');
         Route::get('/{user}', [UserController::class, 'show'])->name('show');
         Route::post('/store', [UserController::class, 'store'])->name('store');
-        Route::post('/filter', [UserController::class, 'filter'])->name('filter');
         Route::get('/edit/{user}', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
@@ -191,6 +190,9 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
             ->name('toggleStatus');
     });
     Route::prefix('orders')->as('orders.')->group(function () {
+        Route::get('{order}/after-sales', [\App\Http\Controllers\Admin\AfterSalesController::class, 'show'])->name('after-sales');
+        Route::post('{order}/money', [\App\Http\Controllers\Admin\AfterSalesController::class, 'money'])->name('money');
+        Route::post('{order}/returns', [\App\Http\Controllers\Admin\AfterSalesController::class, 'receive'])->name('returns');
         Route::get('/', [OrderController::class, 'index'])->name('index');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::patch('/{order}', [OrderController::class, 'updateStatus'])->name('update-status');
@@ -198,12 +200,10 @@ Route::prefix('admin')->middleware(['auth', 'is_admin'])->as('admin.')->group(fu
     // ============================== ROUTE COUPON =============================
     Route::prefix('coupons')->as('coupons.')->group(function () {
         Route::get('/', [CouponController::class, 'index'])->name('index');
-        Route::get('/exportCoupon', [CouponController::class, 'exportCoupon'])->name('exportCoupon');
         Route::get('/user-search', [CouponController::class, 'couponUserSearch'])->name('search');
         Route::get('/create', [CouponController::class, 'create'])->name('create');
         Route::get('suggest-coupon-code', [CouponController::class, 'suggestionCounpoun'])->name('suggestCode');
         Route::post('/', [CouponController::class, 'store'])->name('store');
-        Route::post('/import', [CouponController::class, 'importFile'])->name('import');
         Route::get('/deleted', [CouponController::class, 'listDeleted'])->name('deleted');
         Route::get('/{id}', [CouponController::class, 'show'])->name('show');
         Route::get('/edit/{coupon}', [CouponController::class, 'edit'])->name('edit');

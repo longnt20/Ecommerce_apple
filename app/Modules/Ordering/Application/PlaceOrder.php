@@ -17,7 +17,7 @@ use App\SharedKernel\ActorContext;
 final class PlaceOrder implements Checkout
 {
     public function __construct(private InventoryOperations $operations, private InventoryReservations $reservations,
-        private Pricing $pricing, private PaymentLedger $payments, private AccountAccess $accounts, private OrderStore $orders) {}
+        private Pricing $pricing, private PaymentLedger $payments, private AccountAccess $accounts, private OrderStore $orders, private \App\Modules\Pricing\Contracts\CouponRedemptions $coupons) {}
 
     public function place(array $input, ActorContext $actor): OrderSnapshot
     {
@@ -28,7 +28,7 @@ final class PlaceOrder implements Checkout
         $items = array_map(fn ($item) => ['product_id' => (int) $item['product_id'], 'variant_id' => (int) $item['variant_id'], 'quantity' => (int) $item['quantity']], $input['items']);
         usort($items, fn ($a, $b) => $a['variant_id'] <=> $b['variant_id']);
         $payload = array_merge(array_intersect_key($input, array_flip(['fullname', 'phone', 'email', 'address', 'ward', 'district', 'province', 'note', 'payment_method'])),
-            ['mode' => $input['mode'] ?? 'cart', 'items' => $items]);
+            [...(empty($input['coupon_code']) ? [] : ['coupon_code' => trim($input['coupon_code'])]), 'mode' => $input['mode'] ?? 'cart', 'items' => $items]);
         ksort($payload);
         $result = $this->operations->execute('checkout', $actor, $input['idempotency_key'], $payload,
             function ($operationId) use ($payload, $actor) {
@@ -40,6 +40,11 @@ final class PlaceOrder implements Checkout
                 $id = $this->orders->create($payload, $quote, $warehouse, $actor);
                 $order = new OrderSnapshot($id, $actor->id, $warehouse, 'pending', 'unpaid', $payload['payment_method'], (string) $quote->total);
                 $this->reservations->reserve($this->orders->allocation($order), $operationId, $actor);
+                if (! empty($payload['coupon_code'])) {
+                    $discount = $this->coupons->reserve($id, $actor->id, $payload['coupon_code'], $quote->total);
+                    $this->orders->discount($id, $discount);
+                    $order = $this->orders->snapshot($id);
+                }
                 if ($payload['payment_method'] === 'vnpay') {
                     $this->payments->start($order->payment($this->reservations->paymentHold($id)));
                 }

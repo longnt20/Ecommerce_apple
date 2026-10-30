@@ -31,12 +31,12 @@ final class EloquentOrderStore implements LegacyOrders, OrderStore
     {
         $order = Order::whereKey($id)->when($lock, fn ($query) => $query->lockForUpdate())->firstOrFail();
 
-        return new OrderSnapshot($order->id, $order->user_id, $order->warehouse_id, $order->status, $order->payment_status, $order->payment_method, (string) $order->final_amount);
+        return new OrderSnapshot($order->id, $order->user_id, $order->warehouse_id, $order->status, $order->payment_status, strtolower($order->payment_method), (string) $order->final_amount);
     }
 
     public function create(array $payload, Quote $quote, int $warehouseId, ActorContext $actor): int
     {
-        $order = Order::create(array_merge(array_diff_key($payload, array_flip(['mode', 'items'])), [
+        $order = Order::create(array_merge(array_diff_key($payload, array_flip(['mode', 'items', 'coupon_code'])), [
             'code' => 'DH'.$this->clock->now()->format('Ymd').'-'.Str::ulid(), 'user_id' => $actor->id, 'warehouse_id' => $warehouseId,
             'status' => 'pending', 'payment_status' => 'unpaid', 'total_price' => $quote->total, 'final_amount' => $quote->total]));
         foreach ($quote->lines as $line) {
@@ -94,6 +94,12 @@ final class EloquentOrderStore implements LegacyOrders, OrderStore
         Order::whereKey($orderId)->update($changes);
     }
 
+    public function discount(int $orderId, int $amount): void
+    {
+        $order = Order::findOrFail($orderId);
+        $order->update(['discount_amount' => $amount, 'final_amount' => (int) $order->total_price - $amount]);
+    }
+
     public function markPaid(int $orderId, string $transaction, \DateTimeImmutable $at): void
     {
         Order::whereKey($orderId)->update(['payment_status' => 'paid', 'transaction_id' => $transaction, 'paid_at' => $at]);
@@ -102,6 +108,6 @@ final class EloquentOrderStore implements LegacyOrders, OrderStore
     public function allocations(): array
     {
         return Order::orderBy('id')->get()->map(fn ($order) => $this->allocation(new OrderSnapshot($order->id, $order->user_id, $order->warehouse_id,
-            $order->status, $order->payment_status, $order->payment_method, (string) $order->final_amount)))->all();
+            $order->status, $order->payment_status, strtolower($order->payment_method), (string) $order->final_amount)))->all();
     }
 }
