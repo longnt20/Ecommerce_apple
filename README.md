@@ -1,66 +1,51 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Apple Commerce — Backend portfolio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Website bán điện thoại và quản lý đa kho, phát triển từ Laravel truyền thống sang Modular Monolith. Trọng tâm portfolio là bảo toàn tiền/tồn kho, transaction, idempotency, concurrency và khả năng kiểm chứng khi nâng cấp hệ thống có dữ liệu lịch sử.
 
-## About Laravel
+Stack hiện tại: Laravel 11, PHP 8.3, MySQL 8/InnoDB, Sanctum, Blade/session cho admin; Vue 3, Pinia, Axios và Vite cho storefront. Giữ dependencies hiện có trong lockfiles.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Xem nhanh
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Case study kiến trúc và số liệu](docs/portfolio/CASE_STUDY.md).
+- [Kịch bản demo 8–10 phút](docs/portfolio/DEMO.md).
+- [Review P0–P8 và các mục còn mở](docs/review/P0_P8_REVIEW.md).
+- [Kiến trúc hiện tại](docs/architecture/current-architecture.md), [module boundaries](docs/architecture/p5-module-boundaries.md), [ADRs](docs/architecture/architecture-decisions.md).
+- [Roadmap và bằng chứng từng giai đoạn](docs/roadmap/UPGRADE_PLAN.md).
+- [Cách frontend/backend giao tiếp](SEPARATION_GUIDE.md).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Nghiệp vụ đã triển khai
 
-## Learning Laravel
+SKU có giá bán riêng; giá vốn không dùng làm giá giảm. Checkout chốt snapshot giá phía server và giữ tồn tại **một kho active đủ toàn đơn**. Đơn online có reservation 15 phút; COD/confirmed không tự hết hạn. Trừ tồn vật lý khi chuyển sang shipping. Hủy/retry/expiry đi qua transaction và khóa hàng; idempotency key ngăn ghi hiệu ứng hai lần.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Các module Identity, Catalog, Pricing, Inventory, Payments, Ordering giao tiếp qua Contracts. Module tests kiểm tra dependency DAG, ownership và đường ghi tồn. COD thu tiền bằng đối soát thủ công; refund ghi yêu cầu/đối soát, không gọi provider. Hàng trả chỉ thành available khi được phân loại sellable. Coupon có hold/consume/release và snapshot. Chuyển kho, kiểm kê và archive giữ chứng từ/lịch sử.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+P7 bổ sung query budgets, streaming CSV, cache invalidation sau commit và recovery rehearsal. P8 là thử nghiệm Reporting outbox/inbox/projection trên process và logical database riêng; **mặc định tắt**, chưa phải microservice production.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Chạy demo cách ly
 
-## Laravel Sponsors
+Yêu cầu PHP 8.3 với PDO MySQL, MySQL 8.0.30 local, Node/npm; đã có `vendor/` và `frontend/node_modules/`. Trên bản clone mới, cài từ lockfiles bằng `composer install --no-scripts` và `npm ci --prefix frontend`. Tạo `.env` riêng từ `.env.example` nếu chưa tồn tại, cấu hình kết nối MySQL local tới một database rỗng dành riêng cho demo; tài khoản cần quyền tạo/xóa sandbox. Không lấy `.env` hoặc SQL thật đưa vào portfolio.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```powershell
+php scripts/portfolio-demo.php verify --frontend
+php scripts/portfolio-demo.php serve --frontend --seconds=900
+```
 
-### Premium Partners
+Script đọc thông số kết nối local trong `.env`, tạo schema **mới có tên ngẫu nhiên**, seed dữ liệu tổng hợp và mở hai cổng loopback được in ra. Không migrate hoặc seed database nguồn. Mail dùng array; payment/OAuth bị chặn trong router demo. Hết thời gian script dừng process và xóa runtime/schema của nó. Đọc [DEMO.md](docs/portfolio/DEMO.md) trước khi chạy, đặc biệt cách recovery khi terminal bị đóng cưỡng bức.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Kiểm chứng
 
-## Contributing
+```powershell
+$env:P1_SCHEMA_TESTS='1'; $env:P2_SCHEMA_TESTS='1'; $env:P3_SCHEMA_TESTS='1'
+$env:P4_SCHEMA_TESTS='1'; $env:P6_SCHEMA_TESTS='1'; $env:P7_SCHEMA_TESTS='1'; $env:P8_SCHEMA_TESTS='1'
+php vendor/bin/phpunit
+php tests/Support/p7-lint.php
+php tests/Support/p8-lint.php
+node --test tests/Frontend/p2-security.test.mjs tests/Frontend/p4-checkout.test.mjs
+npm run build --prefix frontend
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Full integration suite cần `.env.testing`/user DML cách ly được provision theo [P0](docs/roadmap/P0_STATUS.md), [P6 runbook](docs/runbooks/P6_OPERATIONS.md). Không đổi DB test sang database ứng dụng. CI tự provision dữ liệu tổng hợp; xem [.github/workflows/quality.yml](.github/workflows/quality.yml). Bằng chứng local và CI đã chạy nằm trong [docs/review](docs/review/P0_P8_REVIEW.md); số liệu benchmark không phải SLO production.
 
-## Code of Conduct
+## Giới hạn công khai
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Chưa nghiệm thu VNPay merchant/IPN public, Google OAuth thật, SMTP thật, production scheduler hoặc tải HTTP đồng thời. Scheduler Windows đang Disabled theo quyết định chủ dự án. Một phần dữ liệu legacy vẫn cách ly vì thiếu bằng chứng; không đoán để sửa tiền/tồn. Demo đã kiểm tra HTTP và Vite proxy, chưa xác minh trực quan bằng browser automation. Đây là portfolio có kiểm chứng kỹ thuật, chưa tuyên bố sẵn sàng vận hành production.

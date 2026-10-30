@@ -26,16 +26,19 @@ final class FileSpool
             return;
         }
         $temporary = $file.'.'.bin2hex(random_bytes(6)).'.tmp';
-        $stream = fopen($temporary, 'xb');
         try {
-            $bytes = json_encode($event, JSON_THROW_ON_ERROR);
-            if (strlen($bytes) > 16384 || fwrite($stream, $bytes) !== strlen($bytes) || ! fflush($stream) || ! fsync($stream)) {
+            $stream = fopen($temporary, 'xb');
+            if ($stream === false) {
                 throw new RuntimeException('spool_write_failed');
             }
-        } finally {
-            fclose($stream);
-        }
-        try {
+            try {
+                $bytes = json_encode($event, JSON_THROW_ON_ERROR);
+                if (strlen($bytes) > 16384 || fwrite($stream, $bytes) !== strlen($bytes) || ! fflush($stream) || ! fsync($stream)) {
+                    throw new RuntimeException('spool_write_failed');
+                }
+            } finally {
+                fclose($stream);
+            }
             if (! rename($temporary, $file)) {
                 throw new RuntimeException('spool_publish_failed');
             }

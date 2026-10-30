@@ -1,189 +1,48 @@
-# Frontend Separation Guide
+# Frontend và Backend thực tế
 
-This document explains how to run the Apple E-commerce project after separating the frontend from Laravel.
+Cập nhật review 2026-10-31. Hướng dẫn này thay mô tả cũ có thư mục `backend/` và các endpoint không tồn tại. Laravel nằm ngay root; admin vẫn dùng Blade và session.
 
-## Project Structure
-
-```
-Apple-Project/
-├── backend/                 # Laravel API only
-│   ├── app/
-│   ├── routes/
-│   ├── database/
-│   └── ...
-├── frontend/               # Vue 3 + Vite application
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── vite.config.js
-└── SEPARATION_GUIDE.md     # This file
+```text
+app/Http/Controllers/     HTTP adapters API/admin
+app/Modules/              Identity, Catalog, Pricing, Inventory, Payments, Ordering
+routes/api.php            Storefront API, prefix /api
+routes/web.php            Admin/login Blade, cùng các web callbacks
+resources/views/          Admin UI
+frontend/src/             Vue storefront
+frontend/vite.config.js   Vite và dev proxy
 ```
 
-## Setup Instructions
+## Kết nối local
 
-### 1. Backend Setup (Laravel API)
+Axios tại `frontend/src/services/api.js` dùng base URL `/api`; Bearer token được gắn cho API cần đăng nhập. Admin đăng nhập `/login` dùng session cookie và CSRF. Hai cơ chế không thay thế nhau.
 
-1. Navigate to the project root:
-```bash
-cd f:\laragon\www\Apple-Project
+Trong cấu hình dev thông thường, Laravel phục vụ cổng 8000 và Vite cổng 3000. Vite proxy `/api` tới `http://127.0.0.1:8000`; có thể đặt `VITE_DEV_API_TARGET` cho một backend local khác. Proxy chỉ phục vụ dev, không cấu hình reverse proxy production.
+
+```powershell
+# Demo portfolio: dùng schema/process cách ly, không cần tự mở artisan serve.
+php scripts/portfolio-demo.php serve --frontend --seconds=900
 ```
 
-2. Install Laravel dependencies:
-```bash
-composer install
-```
+Script in cổng admin/storefront thực tế. Không chạy thêm backend mặc định dùng dữ liệu thật cho kịch bản này. Chi tiết tài khoản, fixture địa chỉ và cleanup: [DEMO.md](docs/portfolio/DEMO.md).
 
-3. Copy environment file:
-```bash
-cp .env.example .env
-```
+Nếu chạy ứng dụng bình thường trên một môi trường development đã chuẩn bị, dùng `php artisan serve --host=127.0.0.1 --port=8000` và `npm run dev --prefix frontend`. Hai lệnh này dùng cấu hình development của bạn, **không tự cách ly database** như script demo. Không ghi đè `.env` đã tồn tại.
 
-4. Generate application key:
-```bash
-php artisan key:generate
-```
+## Endpoint có bằng chứng trong routes/api.php
 
-5. Configure your `.env` file for database and other settings
+| Chức năng | HTTP |
+| --- | --- |
+| Đăng ký/đăng nhập | POST `/api/register`, POST `/api/login` |
+| Tài khoản có Bearer + active | GET `/api/user`, POST `/api/logout` |
+| Home/catalog | GET `/api/home`, `/api/home-main`, `/api/products/{slug}`, `/api/products/{product}/variants` |
+| Nội dung | GET `/api/categories`, `/api/promotions`, `/api/promotion-categories`, `/api/banners`, `/api/blog` |
+| Cart có Bearer + active | GET `/api/cart`, POST `/api/cart/add`, PUT/DELETE `/api/cart/item/{item}`, DELETE `/api/cart` |
+| Checkout/order có Bearer + active | POST `/api/checkout`, POST `/api/orders/{order}/payment`, GET `/api/orders`, `/api/orders/{id}` |
+| Wishlist có Bearer + active | GET `/api/wishlist`, POST `/api/wishlist/toggle`, DELETE `/api/wishlist/{id}` |
 
-6. Run migrations:
-```bash
-php artisan migrate
-```
+Checkout yêu cầu `idempotency_key`, server quote giá từ SKU. Retry giữ cùng key và payload; browser return không được quyết định paid. Xem [P4 contract](docs/architecture/p4-inventory-contract.md), [P2 contract](docs/architecture/p2-http-contracts.md).
 
-7. Start Laravel development server:
-```bash
-php artisan serve
-```
+Không có GET `/api/products` listing hoặc POST `/api/orders` checkout. `apiResource` categories/promotions hiện đăng ký dư action không có method; chỉ index và endpoint promotion-categories kể trên được xác minh implementation. Vấn đề này được giữ trong [review](docs/review/P0_P8_REVIEW.md), chưa tự thay API contract.
 
-The API will be available at `http://127.0.0.1:8000`
+## Khi build/deploy
 
-### 2. Frontend Setup (Vue 3 + Vite)
-
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
-
-2. Install Node.js dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-The frontend will be available at `http://localhost:3000`
-
-## API Endpoints
-
-The Laravel backend now serves as an API-only application. Main endpoints:
-
-### Authentication
-- `POST /api/login` - User login
-- `POST /api/register` - User registration
-- `GET /api/user` - Get current user
-- `POST /api/logout` - User logout
-
-### Products
-- `GET /api/products` - List products
-- `GET /api/products/{slug}` - Get product by slug
-- `GET /api/products/featured` - Featured products
-- `GET /api/products/hot-sale` - Hot sale products
-
-### Cart
-- `GET /api/cart` - Get user cart
-- `POST /api/cart/add` - Add item to cart
-- `PUT /api/cart/{id}` - Update cart item
-- `DELETE /api/cart/{id}` - Remove cart item
-
-### Orders
-- `POST /api/orders` - Create order
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/{id}` - Get order details
-
-## Development Workflow
-
-### Running Both Applications
-
-1. Terminal 1 - Start Laravel API:
-```bash
-cd f:\laragon\www\Apple-Project
-php artisan serve
-```
-
-2. Terminal 2 - Start Vue frontend:
-```bash
-cd f:\laragon\www\Apple-Project\frontend
-npm run dev
-```
-
-### API Proxy Configuration
-
-The Vite development server is configured to proxy API requests to the Laravel backend:
-
-```javascript
-// vite.config.js
-server: {
-  proxy: {
-    '/api': {
-      target: 'http://127.0.0.1:8000',
-      changeOrigin: true,
-      secure: false,
-    },
-  },
-}
-```
-
-This means you can make API calls from the frontend using `/api/*` URLs, and they will be automatically forwarded to the Laravel backend.
-
-## Production Deployment
-
-### Backend (Laravel)
-
-1. Configure your production environment variables
-2. Run `php artisan config:cache`
-3. Run `php artisan route:cache`
-4. Set up web server (Apache/Nginx) to point to the `public` directory
-5. Configure SSL certificates
-
-### Frontend (Vue)
-
-1. Build the application:
-```bash
-npm run build
-```
-
-2. Deploy the `dist/` folder to your web server or CDN
-3. Configure the web server to serve the SPA properly
-
-## Benefits of Separation
-
-1. **Independent Development**: Frontend and backend can be developed separately
-2. **Scalability**: Each application can be scaled independently
-3. **Technology Flexibility**: Frontend can use modern Vue.js features without Laravel constraints
-4. **Better Performance**: Optimized build process and asset management
-5. **Team Separation**: Different teams can work on frontend and backend simultaneously
-
-## Troubleshooting
-
-### CORS Issues
-If you encounter CORS errors, ensure your Laravel backend has proper CORS configuration. You may need to add CORS middleware or configure it in your `bootstrap/app.php`.
-
-### API Connection Issues
-- Verify Laravel server is running on port 8000
-- Check the proxy configuration in `vite.config.js`
-- Ensure API endpoints are correctly defined in Laravel routes
-
-### Build Issues
-- Clear Node.js modules and reinstall: `rm -rf node_modules && npm install`
-- Check for any missing dependencies in `package.json`
-
-## Next Steps
-
-1. Test all API endpoints to ensure they work correctly
-2. Verify frontend functionality with the separated backend
-3. Set up proper error handling and loading states
-4. Implement authentication guards in the frontend
-5. Add comprehensive testing for both applications
+`npm run build --prefix frontend` sinh `frontend/dist/`. `vite preview` không thay thế backend và không chứng minh cấu hình deploy `/api`. Cần thiết kế host/reverse proxy, history fallback, cookie/domain/HTTPS và callback URL riêng trước khi publish. Chưa deploy trong đợt review này. Không import `laravel.sql`, copy `.env`, dùng dữ liệu khách hàng hoặc bật P8 để trình diễn.

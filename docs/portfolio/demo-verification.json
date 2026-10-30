@@ -1,0 +1,42 @@
+{
+    "checks": [
+        "home_http",
+        "product_http",
+        "synthetic_addresses",
+        "provider_blocked",
+        "source_uploads_blocked",
+        "bearer_login_buyer",
+        "bearer_login_other",
+        "cart_add",
+        "checkout_http",
+        "server_price_ignores_forgery",
+        "checkout_replay",
+        "order_ownership",
+        "session_csrf_form",
+        "admin_session_login",
+        "admin_csrf_token",
+        "missing_csrf_rejected",
+        "transition_confirmed",
+        "confirmed_reserves_only",
+        "transition_shipping",
+        "shipping_replay_no_double_debit",
+        "transition_completed",
+        "completed_is_not_cod_paid",
+        "cod_reconciliation",
+        "cod_replay_no_double_collection"
+    ],
+    "order": {
+        "status": "completed",
+        "payment_status": "paid",
+        "total_vnd": 25000000
+    },
+    "stock": {
+        "physical": 9,
+        "reserved": 0,
+        "available": 9
+    },
+    "synthetic_only": true,
+    "verified_at_utc": "2026-10-30T17:08:57+00:00",
+    "vite_proxy_verified": true,
+    "runtime_cleaned": true
+}
