@@ -9,6 +9,7 @@ final class ModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $bindings = [
+            Catalog\Contracts\CatalogProjectionEvents::class => Catalog\Infrastructure\NoCatalogProjectionEvents::class,
             \App\SharedKernel\Clock::class => \App\SharedKernel\Infrastructure\LaravelClock::class,
             \App\SharedKernel\Transactions::class => \App\SharedKernel\Infrastructure\LaravelTransactions::class,
             Identity\Contracts\AccountAccess::class => Identity\Infrastructure\EloquentAccountAccess::class,

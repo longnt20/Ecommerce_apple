@@ -16,6 +16,8 @@ final class SaveProduct
 {
     use GeneratesBarcode;
 
+    public function __construct(private \App\Modules\Catalog\Contracts\CatalogProjectionEvents $events) {}
+
     public function save(array $input, ?int $id = null): int
     {
         $media = new CatalogMedia;
@@ -72,6 +74,7 @@ final class SaveProduct
                     }
                     $product->variants()->whereNotIn('id', $variantIds)->delete();
                 }
+                $this->events->record($product->id);
                 $media->afterCommit();
 
                 return $product->id;
@@ -95,6 +98,7 @@ final class SaveProduct
                     throw ValidationException::withMessages(['product_id' => 'Không thể chuyển SKU sang sản phẩm khác.']);
                 }
                 $this->fillVariant($variant, $data, $media);
+                $this->events->record($productId);
                 $media->afterCommit();
 
                 return $variant->id;

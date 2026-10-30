@@ -41,6 +41,7 @@ jobs:
       P4_SCHEMA_TESTS: '1'
       P6_SCHEMA_TESTS: '1'
       P7_SCHEMA_TESTS: '1'
+      P8_SCHEMA_TESTS: '1'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -67,6 +68,10 @@ jobs:
         run: php vendor/bin/phpunit
       - name: P7 formatting
         run: php tests/Support/p7-lint.php
+      - name: P8 experiment formatting
+        run: php tests/Support/p8-lint.php
+      - name: P8 independent projection equivalence and catch-up experiment
+        run: php tests/Support/benchmark-p8.php
       - name: Frontend contracts and build
         run: |
           node --test tests/Frontend/p2-security.test.mjs tests/Frontend/p4-checkout.test.mjs
