@@ -1,0 +1,206 @@
+{
+  "verified_at_utc": "2026-10-30T17:03:40.620703+00:00",
+  "runs": [
+    {
+      "id": 41092107677,
+      "head_sha": "1a3ba5e8378d22e6298debe96ce9ddc445c62510",
+      "head_branch": "experiment/p8-catalog-reporting",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/longnt20/Ecommerce_apple/actions/runs/41092107677",
+      "created_at": "2026-10-30T16:41:03Z",
+      "jobs": [
+        {
+          "name": "regression",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run composer install --no-interaction --prefer-dist --no-scripts",
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare disposable MySQL only",
+              "conclusion": "success"
+            },
+            {
+              "name": "Critical correctness, concurrency, recovery and approved P7 budgets",
+              "conclusion": "success"
+            },
+            {
+              "name": "P7 formatting",
+              "conclusion": "success"
+            },
+            {
+              "name": "P8 experiment formatting",
+              "conclusion": "success"
+            },
+            {
+              "name": "P8 independent projection equivalence and catch-up experiment",
+              "conclusion": "success"
+            },
+            {
+              "name": "Frontend contracts and build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 41092131070,
+      "head_sha": "bd54f9d3040083add9e7608359940253cab43391",
+      "head_branch": "main",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/longnt20/Ecommerce_apple/actions/runs/41092131070",
+      "created_at": "2026-10-30T16:41:12Z",
+      "jobs": [
+        {
+          "name": "regression",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run composer install --no-interaction --prefer-dist --no-scripts",
+              "conclusion": "success"
+            },
+            {
+              "name": "Prepare disposable MySQL only",
+              "conclusion": "success"
+            },
+            {
+              "name": "Critical correctness, concurrency, recovery and approved P7 budgets",
+              "conclusion": "success"
+            },
+            {
+              "name": "P7 formatting",
+              "conclusion": "success"
+            },
+            {
+              "name": "P8 experiment formatting",
+              "conclusion": "success"
+            },
+            {
+              "name": "P8 independent projection equivalence and catch-up experiment",
+              "conclusion": "success"
+            },
+            {
+              "name": "Frontend contracts and build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "main_rules": [
+    {
+      "type": "deletion",
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "longnt20/Ecommerce_apple",
+      "ruleset_id": 7363024
+    },
+    {
+      "type": "non_fast_forward",
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "longnt20/Ecommerce_apple",
+      "ruleset_id": 7363024
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      },
+      "ruleset_source_type": "Repository",
+      "ruleset_source": "longnt20/Ecommerce_apple",
+      "ruleset_id": 7363024
+    }
+  ],
+  "scope": "Read-only GitHub API; no settings or workflow changes; does not verify uncommitted review changes",
+  "classic_branch_protection": {
+    "status": "not_found_or_not_visible",
+    "http_status": 404
+  }
+}
